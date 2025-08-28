@@ -12,6 +12,8 @@ import LoadingScreen from './components/LoadingScreen';
 import MainHeader from './components/MainHeader';
 import NodeEditModal from './components/NodeEditModal';
 import PlanetNode from './components/PlanetNode';
+import EdgeEditModal from './components/EdgeEditModal';
+import AdjacencyMatrixModal from './components/AdjacencyMatrixModal';
 
 import './index.css';
 
@@ -24,6 +26,9 @@ const GraphEditor = () => {
   const [isAddingEdge, setIsAddingEdge] = useState(false);
   const [edgeSourceNode, setEdgeSourceNode] = useState(null);
   const [editingNode, setEditingNode] = useState(null);
+  const [editingEdge, setEditingEdge] = useState(null);
+  const [showMatrix, setShowMatrix] = useState(false);
+  const [adjacencyMatrix, setAdjacencyMatrix] = useState(null);
   
   //funciones necesarias de react flow
   const { getNodes, getEdges, screenToFlowPosition, setViewport, deleteElements } = useReactFlow();
@@ -114,45 +119,24 @@ const GraphEditor = () => {
         alert("No hay planetas en el universo para generar una matriz.");
         return;
     }
-    //mapa para acceder a los índices
     const nodeIndexMap = new Map();
     nodes.forEach((node, index) => {
         nodeIndexMap.set(node.id, index);
     });
-    //iniciar con ceros
     const matrix = Array(nodes.length).fill(0).map(() => Array(nodes.length).fill(0));
-    //llenar con valores 
     edges.forEach(edge => {
         const sourceIndex = nodeIndexMap.get(edge.source);
         const targetIndex = nodeIndexMap.get(edge.target);
-        
         if (sourceIndex !== undefined && targetIndex !== undefined) {
-            // Usa el valor de la arista (label), o 1 si no tiene valor
             const weight = parseInt(edge.label, 10) || 1;
             matrix[sourceIndex][targetIndex] = weight;
-            
-            // Si el grafo no es dirigido, la matriz es simétrica
             if (!isDirected) {
                 matrix[targetIndex][sourceIndex] = weight;
             }
         }
     });
-
-    // Formatear la matriz para mostrarla en un alert
-    let matrixString = "Matriz de Adyacencia:\n\n";
-    
-    // Encabezados de las columnas (nombres de los nodos)
-    const headers = nodes.map(n => n.data.label.substring(0, 5)); // Abreviar nombres largos
-    matrixString += "        " + headers.join("  ") + "\n";
-    matrixString += "      " + "---------".repeat(nodes.length) + "\n";
-
-
-    // Filas de la matriz
-    matrix.forEach((row, rowIndex) => {
-        matrixString += `${nodes[rowIndex].data.label.substring(0, 5).padEnd(5)} |  ` + row.join("    ") + "\n";
-    });
-
-    alert(matrixString);
+    setAdjacencyMatrix(matrix);
+    setShowMatrix(true);
 };
 
   const simulate = () => alert("Funcionalidad 'Simular' próximamente...");
@@ -211,25 +195,37 @@ const GraphEditor = () => {
   };
 
   const onEdgeDoubleClick = useCallback((event, edge) => {
-    const newValue = prompt("Ingresa el nuevo valor para la arista:", edge.label);
-    if (newValue !== null) {
-        setEdges((eds) => 
-            eds.map((e) => {
-                if (e.id === edge.id) {
-                    return {
-                        ...e,
-                        label: newValue
-                    };
-                }
-                return e;
-            })
-        );
-    }
-  }, [setEdges]);
+    setEditingEdge(edge);
+}, []);
+const onSaveEdgeChanges = (edgeId, newLabel) => {
+  setEdges((eds) =>
+      eds.map((e) => {
+          if (e.id === edgeId) {
+              return { ...e, label: newLabel };
+          }
+          return e;
+      })
+  );
+  setEditingEdge(null); 
+};
 
   return (
       <Fragment>
-          {editingNode && <NodeEditModal node={editingNode} onSave={onSaveNodeChanges} onCancel={() => setEditingNode(null)} />}
+          {editingNode && 
+          <NodeEditModal 
+                node={editingNode} 
+                onSave={onSaveNodeChanges} 
+                onCancel={() => setEditingNode(null)} />}
+          <EdgeEditModal 
+                edge={editingEdge}
+                onSave={onSaveEdgeChanges}
+                onCancel={() => setEditingEdge(null)}
+            />
+          {showMatrix&& <AdjacencyMatrixModal 
+                nodes={getNodes()}
+                matrix={adjacencyMatrix}
+                onClose={() => setShowMatrix(false)}
+            />}
           <MainHeader />
           <div className="sidebar-container">
               <button className="sidebar-button" onClick={onAddNode}>🪐 Crear Nodo</button>

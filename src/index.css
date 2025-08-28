@@ -292,3 +292,51 @@ z-index: 0;
   fill: var(--amarillo-estrella);
   font-weight: bold;
 }
+/* Estilos para matriz*/
+.matrix-modal-content {
+  background: var(--negro);
+  padding: 30px;
+  border-radius: 15px;
+  border: 2px solid var(--verde-estelar);
+  box-shadow: 0 0 30px var(--morado);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: auto;
+  max-width: 80vw; 
+  max-height: 80vh; 
+  overflow: hidden; 
+}
+.matrix-modal-content h2 {
+  font-family: var(--font-title);
+  color: var(--verde-estelar);
+  margin: 0;
+  text-align: center;
+}
+.matrix-container {
+  overflow: auto; 
+}
+.matrix-modal-content table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--font-button);
+}
+.matrix-modal-content th, .matrix-modal-content td {
+  border: 1px solid var(--azul-nebuloso);
+  padding: 12px;
+  text-align: center;
+  min-width: 60px;
+}
+.matrix-modal-content th {
+  background-color: var(--azul-nebuloso);
+  color: var(--amarillo-estrella);
+  font-size: 14px;
+}
+.matrix-modal-content td {
+  color: var(--blanco-estelar);
+  font-size: 16px;
+  font-weight: bold;
+}
+.matrix-modal-content .modal-buttons {
+  justify-content: center;
+}
