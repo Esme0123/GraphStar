@@ -1,0 +1,294 @@
+:root {
+  --negro: #1A1A2E;
+  --azul-nebuloso: #2E3B4E;
+  --morado: #6A4C93;
+  --verde-estelar: #00F9A0;
+  --amarillo-estrella: #FFB732;
+  --blanco-estelar: #F1F1F1;
+  --rojo-peligro: #E94560;
+  --azul-cielo-interestelar: #4A90E2;
+
+  --font-title: 'Bungee', cursive;
+  --font-subtitle: 'Audiowide', cursive;
+  --font-button: 'Orbitron', sans-serif;
+  --font-text: 'Zilla Slab', serif;
+}
+
+body {
+  background-color: var(--negro);
+  color: var(--blanco-estelar);
+  font-family: var(--font-text);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* fondo animado*/
+@keyframes move-twink-back {
+  from { background-position: 0 0; }
+  to { background-position: -10000px 5000px; }
+}
+.stars, .stars2, .stars3 {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  display: block;
+  z-index: 0; 
+}
+.stars{
+  background: #000 url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/1231630/stars.png) repeat top center;
+  animation: move-twink-back 200s linear infinite;
+}
+.stars2{
+  background: transparent url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/1231630/twinkling.png) repeat top center;
+  animation: move-twink-back 150s linear infinite;
+}
+.stars3{
+  background: transparent url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/1231630/clouds.png) repeat top center;
+  animation: move-twink-back 100s linear infinite;
+}
+
+/* Loading */
+.loading-screen {
+  width: 100%; height: 100%;
+  display: flex; justify-content: center; align-items: center;
+  position: absolute; z-index: 20;
+  background-image: url(https://images.unsplash.com/photo-1520034475321-cbe63696469a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
+  background-color: var(--negro);
+  transition: opacity 0.5s ease-out;
+}
+.loading-screen::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: rgba(0, 0, 0, 0.3); 
+z-index: 0; 
+}
+.planet-container {
+  width: 650px; height: 650px;
+  background: radial-gradient(circle at 70% 20%, var(--amarillo-estrella), var(--morado) 70%);
+  border-radius: 50%;
+  display: flex; justify-content: center; align-items: center; flex-direction: column;
+  box-shadow: 0 0 60px var(--morado), inset 0 0 80px rgba(0,0,0,0.5);
+  z-index: 1;
+}
+.loading-title {
+  font-family: var(--font-title); font-size: 68px;
+  text-shadow: 0 0 20px var(--verde-estelar); margin-bottom: 25px;
+  letter-spacing: 10px;
+}
+.start-button {
+  font-family: var(--font-button); font-size: 32px;
+  padding: 20px 50px; border-radius: 50px; border: 3px solid var(--verde-estelar);
+  background-color: rgba(46, 59, 78, 0.8); color: var(--blanco-estelar);
+  cursor: pointer; transition: all 0.3s ease;
+}
+.start-button:hover {
+  background-color: var(--verde-estelar); color: var(--negro);
+  box-shadow: 0 0 35px var(--verde-estelar); transform: scale(1.05);
+}
+/*editor de grafo*/
+.graph-editor {
+  width: 100%; height: 100%;
+  position: absolute; opacity: 0;
+  transition: opacity 0.5s ease-in;
+}
+.graph-editor.visible { opacity: 1; }
+
+.main-header {
+  position: absolute; top: 20px; left: 50%;
+  transform: translateX(-50%); text-align: center; z-index: 10;
+  background: rgba(26, 26, 46, 0.65); 
+  padding: 10px 200px; border-radius: 15px;
+  border: 2px solid var(--azul-cielo-interestelar);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 20px var(--morado);
+}
+.main-header .title {
+  font-family: var(--font-title); color: var(--verde-estelar);
+  font-size: 36px;
+  text-shadow: 0 0 12px var(--verde-estelar); margin: 0;
+  letter-spacing: 10px;
+}
+.main-header .subtitle {
+  font-family: var(--font-subtitle); color: var(--blanco-estelar);
+  font-size: 16px; 
+  margin: 5px 0 0 0;
+}
+
+/* Menú */
+.sidebar-container {
+  position: absolute; top: 50%; left: 60px;
+  transform: translateY(-50%);
+  background: rgba(26, 26, 46, 0.65);
+  padding: 20px; border-radius: 15px;
+  border: 2px solid var(--amarillo-estrella);
+  display: flex; flex-direction: column; gap: 12px;
+  backdrop-filter: blur(8px);
+  z-index: 10; box-shadow: 0 0 20px var(--morado);
+  width: 300px;
+}
+.sidebar-button {
+  font-family: var(--font-button); background-color: var(--azul-nebuloso);
+  color: var(--blanco-estelar); border: 2px solid var(--verde-estelar);
+  padding: 12px 15px; border-radius: 8px; cursor: pointer;
+  transition: all 0.3s ease; font-size: 14px; text-align: left;
+  display: flex; align-items: center; gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.sidebar-button:hover:not(:disabled) {
+  transform: translateY(-3px); 
+  box-shadow: 0 0 20px var(--verde-estelar);
+}
+.sidebar-button::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: linear-gradient(
+      -45deg, 
+      rgba(255, 255, 255, 0) 0%, 
+      rgba(255, 255, 255, 0.3) 50%, 
+      rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  transition: all 0.4s ease;
+  opacity: 0;
+}
+.sidebar-button:hover::after {
+  transform: translate(30%, -30%) rotate(45deg);
+  opacity: 1;
+}
+.sidebar-button.active-mode {
+  background-color: var(--verde-estelar);
+  color: var(--negro);
+  box-shadow: 0 0 15px var(--verde-estelar);
+}
+.sidebar-button:disabled { cursor: not-allowed; opacity: 0.5; }
+.sidebar-separator { height: 2px; background-color: var(--azul-nebuloso); margin: 5px 0; border: none; }
+.checkbox-container {
+  font-family: var(--font-button); display: flex; align-items: center;
+  gap: 10px; cursor: pointer; padding: 10px; color: var(--blanco-estelar);
+  border-radius: 8px; transition: background-color 0.2s ease;
+}
+.checkbox-container:hover { background-color: var(--azul-nebuloso); }
+.checkbox-container input { width: 18px; height: 18px; accent-color: var(--verde-estelar); }
+
+/* react flow*/
+/* Pizarra */
+.react-flow__pane {
+  background: transparent;
+}
+.react-flow__pane::before {
+  content: ''; position: absolute; top: 50%; left:75%;
+  width: 1200px; height: 1200px;
+  background-image: url('https://cdn.pixabay.com/photo/2016/11/18/23/41/sun-1837376_1280.png');
+  background-size: contain; background-repeat: no-repeat;
+  background-position: center; transform: translate(-70%, -50%);
+  opacity: 0.4; z-index: -1;
+}
+
+/* nodos como planeta*/
+.planet-node {
+  display: flex; justify-content: center; align-items: center;
+  color: var(--blanco-estelar); font-family: var(--font-text);
+  font-weight: bold;
+  font-size: 25px;
+  text-align: center; padding: 5px; cursor: grab;
+  word-break: break-word; border-radius: 50%;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+  text-shadow: 0 0 5px black; 
+}
+
+/*modal para editar nodo*/
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+.modal-content {
+  background: var(--negro);
+  padding: 30px;
+  border-radius: 15px;
+  border: 2px solid var(--amarillo-estrella);
+  box-shadow: 0 0 30px var(--morado);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 300px;
+}
+.modal-content h2 {
+  font-family: var(--font-title);
+  color: var(--verde-estelar);
+  margin: 0;
+  text-align: center;
+}
+.modal-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.modal-input-group label {
+  font-family: var(--font-button);
+}
+.modal-input-group input {
+  font-family: var(--font-text);
+  padding: 8px;
+  border-radius: 5px;
+  border: 2px solid var(--azul-nebuloso);
+  background: var(--negro);
+  color: var(--blanco-estelar);
+}
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+.modal-button {
+  flex-grow: 1;
+  padding: 10px;
+  font-family: var(--font-button);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.save-button {
+  background-color: var(--verde-estelar);
+  color: var(--negro);
+  border: none;
+}
+.cancel-button {
+  background-color: var(--rojo-peligro);
+  color: var(--blanco-estelar);
+  border: none;
+}
+.adding-edge-mode .react-flow__pane {
+  cursor: crosshair;
+}
+.react-flow__edge-textbg {
+  fill: var(--azul-nebuloso);
+}
+
+.react-flow__edge-text {
+  font-size: 16px;
+  fill: var(--amarillo-estrella);
+  font-weight: bold;
+}
