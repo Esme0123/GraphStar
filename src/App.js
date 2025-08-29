@@ -29,6 +29,7 @@ const GraphEditor = () => {
   const [editingEdge, setEditingEdge] = useState(null);
   const [showMatrix, setShowMatrix] = useState(false);
   const [adjacencyMatrix, setAdjacencyMatrix] = useState(null);
+  const [isSimulating, setIsSimulating] = useState(false);
   
   //funciones necesarias de react flow
   const { getNodes, getEdges, screenToFlowPosition, setViewport, deleteElements } = useReactFlow();
