@@ -14,6 +14,7 @@ import NodeEditModal from './components/NodeEditModal';
 import PlanetNode from './components/PlanetNode';
 import EdgeEditModal from './components/EdgeEditModal';
 import AdjacencyMatrixModal from './components/AdjacencyMatrixModal';
+import SelfConnectingEdge from './components/SelfConnectingEdge';
 
 import './index.css';
 
@@ -29,17 +30,17 @@ const GraphEditor = () => {
   const [editingEdge, setEditingEdge] = useState(null);
   const [showMatrix, setShowMatrix] = useState(false);
   const [adjacencyMatrix, setAdjacencyMatrix] = useState(null);
-  const [isSimulating, setIsSimulating] = useState(false);
+  const [edgeType, setEdgeType] = useState('default');
+  //const [isSimulating, setIsSimulating] = useState(false);
   
   //funciones necesarias de react flow
   const { getNodes, getEdges, screenToFlowPosition, setViewport, deleteElements } = useReactFlow();
   const nodeTypes = useMemo(() => ({ planet: PlanetNode }), []);
+  const edgeTypes = useMemo(() => ({
+      selfconnecting: SelfConnectingEdge,
+  }), []);
   //lógica de aristas
-  const startAddEdgeMode = () => {
-      setIsAddingEdge(true);
-      setEdgeSourceNode(null);
-      alert("Modo 'Agregar Arista' activado. Haz clic en un nodo de origen.");
-  };
+  
   const onConnect = useCallback((params) => {
       const value = prompt("Ingresa el valor de la arista (opcional):");
       const newEdge = {
@@ -52,11 +53,17 @@ const GraphEditor = () => {
           labelBgStyle: { fill: 'var(--azul-nebuloso)', fillOpacity: 0.8 },
           style: { stroke: 'var(--verde-estelar)', strokeWidth: 3 }, 
           markerEnd: isDirected 
-            ? { type: 'arrowclosed', color: 'var(--verde-estelar)', width: 25, height: 25 } 
+            ? { type: 'arrowclosed', color: 'var(--verde-estelar)', width: 20, height: 20 } 
             : undefined,
       };
-      setEdges((eds) => addEdge(newEdge, eds));
-  }, [setEdges, isDirected]);
+      if (params.source === params.target) {
+        newEdge.type = 'selfconnecting';
+      }else{
+        newEdge.type=edgeType;
+      }
+      setIsAddingEdge(false);
+      setEdges((eds) => eds.concat(newEdge));
+  }, [setEdges, isDirected,edgeType]);
   //si cambia a dirigido
   useEffect(() => {
       setEdges((eds) =>
@@ -229,8 +236,26 @@ const onSaveEdgeChanges = (edgeId, newLabel) => {
             />}
           <MainHeader />
           <div className="sidebar-container">
-              <button className="sidebar-button" onClick={onAddNode}>🪐 Crear Nodo</button>
-              <button className={`sidebar-button ${isAddingEdge ? 'active-mode' : ''}`} onClick={startAddEdgeMode}>⛓️‍💥 Agregar Arista</button>
+              <button id="tour-step-1" className="sidebar-button" onClick={onAddNode}>🪐 Crear Nodo</button>
+              <button id="tour-step-2"
+                className={`sidebar-button ${isAddingEdge ? 'active-mode' : ''}`}
+                onClick={()=>setIsAddingEdge(prev=>!prev)}>⛓️‍💥 Agregar Arista</button>
+              {isAddingEdge && (
+                <div className="sidebar-submenu">
+                    <p className="sidebar-label">Elige un estilo:</p>
+                    <div className="sidebar-button-group">
+                        <button 
+                            className={`sidebar-button-small ${edgeType === 'default' ? 'active' : ''}`}
+                            onClick={() => setEdgeType('default')}>↩️ Curva</button>
+                        <button 
+                            className={`sidebar-button-small ${edgeType === 'straight' ? 'active' : ''}`}
+                            onClick={() => setEdgeType('straight')}>⬆️ Recta</button>
+                        <button 
+                            className={`sidebar-button-small ${edgeType === 'smoothstep' ? 'active' : ''}`}
+                            onClick={() => setEdgeType('smoothstep')}>⤵️ Suave</button>
+                    </div>
+                </div>
+            )}
               <button className="sidebar-button" onClick={onDeleteElements}>🗑️ Eliminar Seleccionado</button>
               <hr className="sidebar-separator" />
               <label className="checkbox-container">
@@ -257,6 +282,7 @@ const onSaveEdgeChanges = (edgeId, newLabel) => {
               connectionMode="loose"
               className={isAddingEdge ? 'adding-edge-mode' : ''}
               onEdgeDoubleClick={onEdgeDoubleClick}
+              edgeTypes={edgeTypes}
           >
               <Controls showInteractive={false} />
           </ReactFlow>
