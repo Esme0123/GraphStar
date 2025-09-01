@@ -15,11 +15,12 @@ import PlanetNode from './components/PlanetNode';
 import EdgeEditModal from './components/EdgeEditModal';
 import AdjacencyMatrixModal from './components/AdjacencyMatrixModal';
 import SelfConnectingEdge from './components/SelfConnectingEdge';
+import WelcomePage from './components/WelcomePage';
 
 import './index.css';
 
 let nodeIdCounter = 0;
-const GraphEditor = () => {
+const GraphEditor = ({onGoBack}) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isDirected, setIsDirected] = useState(false);
@@ -321,28 +322,43 @@ const processedEdges = useMemo(() => {
           >
               <Controls showInteractive={false} />
           </ReactFlow>
+          <button className="back-button-editor" onClick={onGoBack} title="Volver a la Bienvenida">
+              ↩️
+          </button>
       </Fragment>
   );
 };
 
 function App() {
-  const [isStarted, setIsStarted] = useState(false);
+  const [currentView, setCurrentView] = useState('loading');
+  const renderView = () => {
+    switch (currentView) {
+      case 'welcome':
+        return <WelcomePage 
+                  onGoToEditor={() => setCurrentView('editor')} 
+                  onGoBack={() => setCurrentView('loading')} 
+                />;
+      case 'editor':
+        return (
+          <div className="graph-editor visible">
+            <ReactFlowProvider>
+              {}
+              <GraphEditor onGoBack={() => setCurrentView('welcome')} />
+            </ReactFlowProvider>
+          </div>
+        );
+      case 'loading':
+      default:
+        return <LoadingScreen onStart={() => setCurrentView('welcome')} />;
+    }
+  };
   return (
-      <>
-          <div className="stars"></div>
-          <div className="stars2"></div>
-          <div className="stars3"></div>
-          {!isStarted ? 
-              <LoadingScreen onStart={() => setIsStarted(true)} /> : 
-              (
-                  <div className="graph-editor visible">
-                      <ReactFlowProvider>
-                          <GraphEditor />
-                      </ReactFlowProvider>
-                  </div>
-              )
-          }
-      </>
+    <>
+      <div className="stars"></div>
+      <div className="stars2"></div>
+      <div className="stars3"></div>
+      {renderView()}
+    </>
   );
 }
 
