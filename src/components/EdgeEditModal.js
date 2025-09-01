@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 
 const EdgeEditModal = ({ edge, onSave, onCancel }) => {
     const [label, setLabel] = useState(edge?.label || '');
+    const [color, setColor]= useState(edge?.style?.stroke || 'var(--verde-estelar)');
     useEffect(() => {
         setLabel(edge?.label || '');
+        setColor(edge?.style?.stroke || 'var(--verde-estelar)');
     }, [edge]);
     const handleSave = () => {
-        onSave(edge.id, label);
+        onSave(edge.id, { label, color });
     };
     if (!edge) {
         return null;
@@ -22,6 +24,14 @@ const EdgeEditModal = ({ edge, onSave, onCancel }) => {
                         value={label} 
                         onChange={(e) => setLabel(e.target.value)} 
                         placeholder="Ingresa un valor..."
+                    />
+                </div>
+                <div className="modal-input-group">
+                    <label>Color:</label>
+                    <input 
+                        type="color" 
+                        value={color} 
+                        onChange={(e) => setColor(e.target.value)} 
                     />
                 </div>
                 <div className="modal-buttons">

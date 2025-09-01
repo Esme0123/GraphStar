@@ -51,9 +51,9 @@ const GraphEditor = () => {
           labelBgPadding: [8, 4],
           labelBgBorderRadius: 4,
           labelBgStyle: { fill: 'var(--azul-nebuloso)', fillOpacity: 0.8 },
-          style: { stroke: 'var(--verde-estelar)', strokeWidth: 3 }, 
+          style: { stroke: 'var(--verde-estelar)', strokeWidth: 2 }, 
           markerEnd: isDirected 
-            ? { type: 'arrowclosed', color: 'var(--verde-estelar)', width: 20, height: 20 } 
+            ? { type: 'arrowclosed', color: 'var(--verde-estelar)', width: 15, height: 15 } 
             : undefined,
       };
       if (params.source === params.target) {
@@ -69,7 +69,7 @@ const GraphEditor = () => {
       setEdges((eds) =>
           eds.map((e) => ({
               ...e,
-              markerEnd: isDirected ? { type: 'arrowclosed', color: 'var(--verde-estelar)',width: 25, height: 25} : undefined,
+              markerEnd: isDirected ? { type: 'arrowclosed', color: e.style?.stroke ||'var(--verde-estelar)',width: 15, height: 15} : undefined,
           }))
       );
   }, [isDirected, setEdges]);
@@ -205,17 +205,52 @@ const GraphEditor = () => {
   const onEdgeDoubleClick = useCallback((event, edge) => {
     setEditingEdge(edge);
 }, []);
-const onSaveEdgeChanges = (edgeId, newLabel) => {
+const onSaveEdgeChanges = (edgeId, data) => {
   setEdges((eds) =>
       eds.map((e) => {
           if (e.id === edgeId) {
-              return { ...e, label: newLabel };
+              return { ...e, label: data.label,style:{...e.style, stroke: data.color} };
           }
           return e;
       })
   );
   setEditingEdge(null); 
 };
+const processedEdges = useMemo(() => {
+    const edgesWithCurvature = new Map();
+    edges.forEach(edge => {
+        const sourceTargetId = isDirected ? `${edge.source}-${edge.target}` : [edge.source, edge.target].sort().join('-');
+        if (edgesWithCurvature.has(sourceTargetId)) {
+            edgesWithCurvature.get(sourceTargetId).push(edge);
+        } else {
+            edgesWithCurvature.set(sourceTargetId, [edge]);
+        }
+    });
+    return edges.map(edge => {
+      const sourceTargetId = isDirected ? `${edge.source}-${edge.target}` : [edge.source, edge.target].sort().join('-');
+      const group = edgesWithCurvature.get(sourceTargetId);
+      if (group.length > 1) {
+        const edgeIndex = group.findIndex(e => e.id === edge.id);
+        if (edge.source === edge.target) {
+                return {
+                    ...edge,
+                    data: { ...edge.data, loopIndex: edgeIndex }, // Pasamos un índice al componente
+                };
+            }
+        const totalEdges = group.length;
+        const curvature = (edgeIndex - (totalEdges - 1) / 2) * 0.4;
+        if (edge.type === 'default' || !edge.type) {
+            return {
+                ...edge,
+                pathOptions: {
+                    curvature: curvature,
+                },
+            };
+        }
+      }
+      return edge;
+    });
+  }, [edges, isDirected]);
 
   return (
       <Fragment>
@@ -272,7 +307,7 @@ const onSaveEdgeChanges = (edgeId, newLabel) => {
           </div>
           <ReactFlow
               nodes={nodes}
-              edges={edges}
+              edges={processedEdges}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
