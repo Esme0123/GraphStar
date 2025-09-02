@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import InfoModal from './InfoModal';
 const planetImages = {
-    mercurio: 'https://science.nasa.gov/image-detail/amf-pia11406/Copy%20URL%20to%20clipboard', // Ejemplo de URL
-    venus: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Venus-real.jpg/250px-Venus-real.jpg', // Ejemplo
-    tierra: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/250px-The_Earth_seen_from_Apollo_17.jpg', // Ejemplo
-    marte: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/250px-OSIRIS_Mars_true_color.jpg', // Ejemplo
-    jupiter: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg/250px-Jupiter_and_its_shrunken_Great_Red_Spot.jpg', // Ejemplo
-    saturno: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Saturn_during_Equinox.jpg/250px-Saturn_during_Equinox.jpg', // Ejemplo
-    urano: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Uranus2.jpg/250px-Uranus2.jpg', // Ejemplo
-    neptuno: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_high_res.jpg/250px-Neptune_-_Voyager_2_%2829347980845%29_flatten_high_res.jpg', // Ejemplo
+    mercurio: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_true_color.jpg', 
+    venus: 'https://upload.wikimedia.org/wikipedia/commons/8/85/Venus_globe.jpg', 
+    tierra: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/250px-The_Earth_seen_from_Apollo_17.jpg', 
+    marte: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/250px-OSIRIS_Mars_true_color.jpg', 
+    jupiter: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg/250px-Jupiter_and_its_shrunken_Great_Red_Spot.jpg', 
+    saturno: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Saturn_during_Equinox.jpg/250px-Saturn_during_Equinox.jpg', 
+    urano: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Uranus2.jpg/250px-Uranus2.jpg',
+    neptuno: 'https://upload.wikimedia.org/wikipedia/commons/5/56/Neptune_Full.jpg', 
 };
 const planetsData = [
     { id: 'neptuno', name: 'Neptuno', info: 'Información sobre Neptuno próximamente...',size:110 },

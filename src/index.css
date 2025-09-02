@@ -443,22 +443,22 @@ z-index: 0;
 
 .welcome-prompt {
   background: rgba(26, 26, 46, 0.9);
-  padding: 40px;
+  padding: 60px;
   border-radius: 20px;
-  border: 2px solid var(--amarillo-estrella);
-  box-shadow: 0 0 30px var(--morado);
+  border: 5px solid var(--amarillo-estrella);
+  box-shadow: 0 0 50px var(--morado);
   max-width: 500px;
 }
 .welcome-prompt h2 {
   font-family: var(--font-title);
   color: var(--amarillo-estrella);
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 .welcome-prompt.thanks h2 {
     color: var(--verde-estelar);
 }
 .prompt-buttons {
-  margin-top: 30px;
+  margin-top: 35px;
   display: flex;
   justify-content: space-around;
 }
@@ -518,15 +518,21 @@ z-index: 0;
     transform: translateX(-50%);
     white-space: nowrap; 
     margin-bottom: 50px;
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #3ef7c8,
+     0 0 40px #007bff;
+    animation: pulsate 1.5s infinite alternate;
 }
-
+@keyframes pulsate {
+  100%{
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #3ef7c8, 0 0 40px #007bff;
+  }
+}
 .planets-container { 
     display: flex;
     justify-content: space-around; 
     align-items: center;
     overflow-x: auto;
-    width: 95%; /* Ajusta el ancho para que entren los 8 */
-    /*margin-top: 100px; */
+    width: 95%; 
     padding: 20px 0;
     scrollbar-color: var(--amarillo-estrella) var(--azul-nebuloso);
     scrollbar-width: thin;
@@ -595,17 +601,6 @@ z-index: 0;
 .planet-item:hover .planet-concept { 
     opacity: 1;
 }
-
-/* Colores de ejemplo para los planetas */
-.planet.mercurio { background-color: #E5E5E5; color: #333;}
-.planet.venus { background-color: #F8C37C; color: #333;}
-.planet.tierra { background-color: #6A96D4; color: #FFF;}
-.planet.marte { background-color: #C1440E; color: #FFF;}
-.planet.jupiter { background-color: #D8CA9D; color: #333;}
-.planet.saturno { background-color: #E3D9B1; color: #333;}
-.planet.urano { background-color: #A4D8E7; color: #333;}
-.planet.neptuno { background-color: #3F54BA; color: #FFF;}
-
 .welcome-nav { 
   position: absolute;
   z-index: 10;
@@ -691,4 +686,28 @@ z-index: 0;
   color: var(--negro);
   border-color: var(--negro);
   box-shadow: 0 0 15px var(--amarillo-estrella);
+}
+.help-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--amarillo-estrella);
+  color: var(--negro);
+  border: 2px solid var(--blanco-estelar);
+  font-family: var(--font-title);
+  font-size: 28px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 101; 
+  transition: all 0.3s ease;
+}
+
+.help-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px var(--amarillo-estrella);
 }

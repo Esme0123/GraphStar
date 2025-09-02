@@ -16,6 +16,7 @@ import EdgeEditModal from './components/EdgeEditModal';
 import AdjacencyMatrixModal from './components/AdjacencyMatrixModal';
 import SelfConnectingEdge from './components/SelfConnectingEdge';
 import WelcomePage from './components/WelcomePage';
+import TourGuide from './components/TourGuide';
 
 import './index.css';
 
@@ -32,6 +33,8 @@ const GraphEditor = ({onGoBack}) => {
   const [showMatrix, setShowMatrix] = useState(false);
   const [adjacencyMatrix, setAdjacencyMatrix] = useState(null);
   const [edgeType, setEdgeType] = useState('default');
+  //tour
+  const[runTour, setRunTour] =useState(false);
   //const [isSimulating, setIsSimulating] = useState(false);
   
   //funciones necesarias de react flow
@@ -40,8 +43,19 @@ const GraphEditor = ({onGoBack}) => {
   const edgeTypes = useMemo(() => ({
       selfconnecting: SelfConnectingEdge,
   }), []);
+  //tour
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem('graphStarTourSeen');
+    if (!hasSeenTour) {
+      setRunTour(true);
+      localStorage.setItem('graphStarTourSeen', 'true');
+    }
+  }, []);
+
+  const startTour = () => {
+    setRunTour(true);
+  };
   //lógica de aristas
-  
   const onConnect = useCallback((params) => {
       const value = prompt("Ingresa el valor de la arista (opcional):");
       const newEdge = {
@@ -270,10 +284,14 @@ const processedEdges = useMemo(() => {
                 matrix={adjacencyMatrix}
                 onClose={() => setShowMatrix(false)}
             />}
+            <TourGuide run={runTour} onTourEnd={()=>setRunTour(false)}/>
+            <button onClick={startTour} className="help-button" title="Mostrar tutorial">
+            ?
+            </button>
           <MainHeader />
           <div className="sidebar-container">
-              <button id="tour-step-1" className="sidebar-button" onClick={onAddNode}>🪐 Crear Nodo</button>
-              <button id="tour-step-2"
+              <button id="btn-add-node" className="sidebar-button" onClick={onAddNode}>🪐 Crear Nodo</button>
+              <button id="btn-add-edge"
                 className={`sidebar-button ${isAddingEdge ? 'active-mode' : ''}`}
                 onClick={()=>setIsAddingEdge(prev=>!prev)}>⛓️‍💥 Agregar Arista</button>
               {isAddingEdge && (
@@ -292,19 +310,19 @@ const processedEdges = useMemo(() => {
                     </div>
                 </div>
             )}
-              <button className="sidebar-button" onClick={onDeleteElements}>🗑️ Eliminar Seleccionado</button>
+              <button id="btn-delete" className="sidebar-button" onClick={onDeleteElements}>🗑️ Eliminar Seleccionado</button>
               <hr className="sidebar-separator" />
-              <label className="checkbox-container">
-                  <input type="checkbox" checked={isDirected} onChange={(e) => setIsDirected(e.target.checked)} />
+              <label className="checkbox-container" id="cb-directed">
+                  <input id="directed-checkbox" type="checkbox" checked={isDirected} onChange={(e) => setIsDirected(e.target.checked)} />
                   Grafo Dirigido
               </label>
               <hr className="sidebar-separator" />
-              <button className="sidebar-button" onClick={showAdjacencyMatrix}>📊 Matriz de Adyacencia</button>
+              <button id="btn-show-matrix" className="sidebar-button" onClick={showAdjacencyMatrix}>📊 Matriz de Adyacencia</button>
               <button className="sidebar-button" onClick={simulate}>🚀 Simular</button>
               <hr className="sidebar-separator" />
-              <button className="sidebar-button" onClick={onSave}>💾 Guardar Grafo</button>
-              <button className="sidebar-button" onClick={onLoad}>📂 Cargar Grafo</button>
-              <button className="sidebar-button" onClick={onReset}>🔄 Limpiar Pizarra</button>
+              <button id="btn-save" className="sidebar-button" onClick={onSave}>💾 Guardar Grafo</button>
+              <button id="btn-load" className="sidebar-button" onClick={onLoad}>📂 Cargar Grafo</button>
+              <button id="btn-reset" className="sidebar-button" onClick={onReset}>🔄 Limpiar Pizarra</button>
           </div>
           <ReactFlow
               nodes={nodes}
