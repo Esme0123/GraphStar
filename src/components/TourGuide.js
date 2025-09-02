@@ -1,8 +1,6 @@
-// src/components/TourGuide.js
 import React from 'react';
 import Joyride, { STATUS } from 'react-joyride';
 
-// Pasos del tutorial
 const TOUR_STEPS = [
     {
         target: '.sidebar-container',
@@ -21,8 +19,13 @@ const TOUR_STEPS = [
     },
     {
         target: '#btn-add-edge',
-        content: 'Usa este botón para activar el modo "crear conexión". Luego, haz clic en un planeta de origen y otro de destino para unirlos.',
+        content: 'Usa este botón para activar el modo "Crear arista" y puedes escoger entre tres tipos: curva, recta y suave. Luego, haz clic en un planeta de origen y otro de destino para unirlos, también puedes dibujar una arista manualmente.',
         placement: 'right'
+    },
+    {
+        target: '.react-flow__pane',
+        content: 'Puedes hacer doble clic sobre cualquier arista para editar su peso y color.',
+        placement: 'center'
     },
     {
         target: '#cb-directed',
@@ -36,7 +39,12 @@ const TOUR_STEPS = [
     },
     {
         target: '#btn-delete',
-        content: 'Selecciona uno o varios planetas/conexiones y haz clic aquí para eliminarlos.',
+        content: 'Selecciona un planeta (nodo) y haz clic aquí para eliminarlo, se eliminará el nodo junto con las conexiones que tiene.',
+        placement: 'right'
+    },
+    {
+        target: '#btn-reset',
+        content: 'Puedes limpiar tu pizarra solar de una sola vez si así lo requieres, haciendo click en este botón.',
         placement: 'right'
     },
     {

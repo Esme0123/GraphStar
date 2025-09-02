@@ -9,8 +9,7 @@ const InfoModal = ({ planet, onClose }) => {
                 <button className="info-modal-close" onClick={onClose}>X</button>
                 <h2>{planet.name}</h2>
                 <p>{planet.info}</p>
-                {/* Si tienes una imagen para el planeta, puedes mostrarla aquí */}
-                {/* <img src={planet.imageUrl} alt={planet.name} /> */}
+                
             </div>
         </div>
     );
