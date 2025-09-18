@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect, Fragment } from 'react';
 import ReactFlow, {
-    addEdge,
     Controls,
     useNodesState,
     useEdgesState,
@@ -17,6 +16,9 @@ import AdjacencyMatrixModal from './components/AdjacencyMatrixModal';
 import SelfConnectingEdge from './components/SelfConnectingEdge';
 import WelcomePage from './components/WelcomePage';
 import TourGuide from './components/TourGuide';
+import { runJohnsonAlgorithm } from './algorithms/johnson';
+import SimulationControls from './components/SimulationControls';
+import PathWithSlackEdge from './components/PathWithSlackEdge';
 
 import './index.css';
 
@@ -36,12 +38,13 @@ const GraphEditor = ({onGoBack}) => {
   //tour
   const[runTour, setRunTour] =useState(false);
   //const [isSimulating, setIsSimulating] = useState(false);
-  
+  const [simulationResult, setSimulationResult] = useState(null);
   //funciones necesarias de react flow
   const { getNodes, getEdges, screenToFlowPosition, setViewport, deleteElements } = useReactFlow();
   const nodeTypes = useMemo(() => ({ planet: PlanetNode }), []);
   const edgeTypes = useMemo(() => ({
       selfconnecting: SelfConnectingEdge,
+      pathWithSlack: PathWithSlackEdge, 
   }), []);
   //tour
   useEffect(() => {
@@ -161,9 +164,114 @@ const GraphEditor = ({onGoBack}) => {
     setAdjacencyMatrix(matrix);
     setShowMatrix(true);
 };
-
-  const simulate = () => alert("Funcionalidad 'Simular' próximamente...");
-  
+  const handleSimulate = ({ mode, source, target }) => {
+    // aristas con el peso correcto
+    const preparedEdges = edges.map(edge => ({
+      source: edge.source,
+      target: edge.target,
+      label: edge.label,
+      weight: (parseFloat(edge.label) || 0) * (mode === 'maximize' ? -1 : 1)
+    }));
+    // llamar algoritmo
+    const { distances, predecessors, error } = runJohnsonAlgorithm(nodes, preparedEdges);
+    // limpiar
+    clearHighlight();
+    if (error) {
+      setSimulationResult({ text: `Error: ${error}` });
+      return;
+    }
+    // procesar resultado
+    const sourceIndex = nodes.findIndex(n => n.id === source);
+    const targetIndex = nodes.findIndex(n => n.id === target);
+    let finalDistance = distances[sourceIndex][targetIndex];
+    if (finalDistance === Infinity) {
+      setSimulationResult({ text: `No existe ruta desde ${nodes[sourceIndex].data.label} hasta ${nodes[targetIndex].data.label}.` });
+      return;
+    }
+    
+    const nodeMap = new Map(nodes.map((n, i) => [n.id, i]));
+    const costsFromSource = distances[sourceIndex];
+    const cumulativeCostMap = new Map();
+    const slackMap = new Map();
+    edges.forEach(edge => {
+      const u_idx = nodeMap.get(edge.source);
+      const v_idx = nodeMap.get(edge.target);
+      const weight = (parseFloat(edge.label) || 0) * (mode === 'maximize' ? -1 : 1);
+      // Fórmula de la holgura: d(s,v) - (d(s,u) + w(u,v))
+      const slack = costsFromSource[v_idx] - (costsFromSource[u_idx] + weight);
+      slackMap.set(edge.id, slack);
+    });
+    if (mode === 'maximize') {
+      finalDistance *= -1;
+    }
+    //reconstruir
+    const path = [];
+    let currentNodeIndex = targetIndex;
+    // bucle se detiene si anterior es -1
+    while (currentNodeIndex !== -1) {
+      const nodeId = nodes[currentNodeIndex].id;
+      const nodeLabel = nodes[currentNodeIndex].data.label;
+      path.unshift(nodeLabel);
+      currentNodeIndex = predecessors[sourceIndex][currentNodeIndex];
+      cumulativeCostMap.set(nodeId, costsFromSource[currentNodeIndex]);
+      currentNodeIndex = predecessors[sourceIndex][currentNodeIndex];
+    }
+    const pathNodeIds = path.map(label => nodes.find(n => n.data.label === label).id);
+    const pathEdgeIds = new Set();
+    for (let i = 0; i < pathNodeIds.length - 1; i++) {
+      const edge = edges.find(e => e.source === pathNodeIds[i] && e.target === pathNodeIds[i + 1]);
+      if (edge) pathEdgeIds.add(edge.id);
+    }
+    setNodes(nds => 
+      nds.map(node => ({
+        ...node,
+        data: {
+          ...node.data,
+          cumulativeCost: cumulativeCostMap.get(node.id)
+        }
+      }))
+    );
+    // resaltar aristas en grafo
+    setEdges(eds => 
+      eds.map(e => ({
+        ...e,
+        type: 'pathWithSlack', 
+        animated: pathEdgeIds.has(e.id),
+        data: { ...e.data, slack: slackMap.get(e.id) },
+        style: { 
+          stroke: pathEdgeIds.has(e.id) ? 'var(--amarillo-estrella)' : 'var(--verde-estelar)',
+          strokeWidth: pathEdgeIds.has(e.id) ? 4 : 2,
+        }
+      }))
+    );
+    const resultText = `Costo del camino más ${mode === 'minimize' ? 'corto' : 'largo'}: ${finalDistance.toFixed(2)}`;
+    setSimulationResult({ text: resultText, path: path });
+  };
+  const clearHighlight = () => {
+    setSimulationResult(null);
+    setNodes(nds => 
+      nds.map(node => {
+        const { cumulativeCost, ...restData } = node.data;
+        return { ...node, data: restData };
+      })
+    );
+    setEdges(eds => 
+      eds.map(e => {
+        const { slack, ...restData } = e.data || {};
+        return {
+          ...e,
+          type: 'default', 
+          animated: false,
+          data: restData,
+          style: {
+            ...e.style,
+            stroke: 'var(--verde-estelar)',
+            strokeWidth: 2
+          }
+        };
+      })
+    );
+  };
   const onDeleteElements = () => {
       const selectedNodes = getNodes().filter(n => n.selected);
       const selectedEdges = getEdges().filter(e => e.selected);
@@ -318,7 +426,12 @@ const processedEdges = useMemo(() => {
               </label>
               <hr className="sidebar-separator" />
               <button id="btn-show-matrix" className="sidebar-button" onClick={showAdjacencyMatrix}>📊 Matriz de Adyacencia</button>
-              <button className="sidebar-button" onClick={simulate}>🚀 Simular</button>
+              <SimulationControls 
+                nodes={nodes} 
+                onSimulate={handleSimulate}
+                simulationResult={simulationResult}
+                onClear={clearHighlight}
+                />
               <hr className="sidebar-separator" />
               <button id="btn-save" className="sidebar-button" onClick={onSave}>💾 Guardar Grafo</button>
               <button id="btn-load" className="sidebar-button" onClick={onLoad}>📂 Cargar Grafo</button>
