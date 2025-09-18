@@ -172,6 +172,24 @@ z-index: 0;
   backdrop-filter: blur(8px);
   z-index: 10; box-shadow: 0 0 20px var(--morado);
   width: 300px;
+  max-height: calc(100vh - 40px); 
+  overflow-y: auto; 
+  overflow-x: hidden; 
+}
+.sidebar-container::-webkit-scrollbar {
+  width: 8px;
+}
+.sidebar-container::-webkit-scrollbar-track {
+  background: var(--azul-nebuloso);
+  border-radius: 10px;
+}
+.sidebar-container::-webkit-scrollbar-thumb {
+  background-color: var(--morado);
+  border-radius: 10px;
+  border: 2px solid var(--azul-nebuloso);
+}
+.sidebar-container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--amarillo-estrella);
 }
 .sidebar-button {
   font-family: var(--font-button); background-color: var(--azul-nebuloso);
@@ -710,46 +728,11 @@ z-index: 0;
   transform: scale(1.1);
   box-shadow: 0 0 20px var(--amarillo-estrella);
 }
-.simulation-controls {
-    padding: 15px;
-    background-color: rgba(26, 26, 46, 0.8);
-    border-top: 1px solid var(--amarillo-estrella);
-    border-bottom: 1px solid var(--amarillo-estrella);
-    margin-top: 10px;
-}
-.simulation-controls h3 {
-    margin: 0 0 10px 0;
-    color: var(--amarillo-estrella);
-    font-family: var(--font-subtitle);
-    text-align: center;
-}
-.simulation-controls select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    background-color: var(--azul-nebuloso);
-    color: var(--blanco-estelar);
-    border: 1px solid var(--morado);
-    border-radius: 4px;
-}
-.simulate-button {
-    width: 100%;
-}
-.simulation-result {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: var(--negro);
-    border: 1px solid var(--verde-estelar);
-    border-radius: 5px;
-    color: var(--verde-estelar);
-}
-.simulation-result p {
-    margin: 5px 0;
-}
 .cumulative-cost-label {
   position: absolute;
-  bottom: 0;
-  transform: translateY(100%);
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: var(--negro);
   color: var(--verde-estelar);
   padding: 3px 10px;
@@ -758,4 +741,9 @@ z-index: 0;
   font-size: 14px;
   font-weight: bold;
   white-space: nowrap;
+  z-index: 5;
+}
+.react-flow__edge-path {
+  stroke: var(--verde-estelar);
+  stroke-width: 2px;
 }

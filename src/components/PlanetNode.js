@@ -1,22 +1,23 @@
 import React from 'react';
 import { Handle, Position } from 'reactflow';
-const nodeWrapperStyle = {
-  position: 'relative',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-};
+
 const PlanetNode = ({ data }) => {
     const nodeStyle = {
         width: `${data.size || 80}px`,
         height: `${data.size || 80}px`,
         background: `radial-gradient(circle at 20% 20%, ${data.color || '#6A4C93'}, var(--azul-nebuloso))`,
         border: `3px solid ${data.borderColor || 'var(--amarillo-estrella)'}`,
-        marginBottom: '25px', 
+        borderRadius: '50%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: '16px',
     };
 
     return (
-        <div style={nodeWrapperStyle}>
+        <div style={{ position: 'relative' }}>
             <div className="planet-node" style={nodeStyle}>
                 <Handle type="source" position={Position.Top} id="a" />
                 <Handle type="source" position={Position.Right} id="b" />
@@ -25,10 +26,11 @@ const PlanetNode = ({ data }) => {
                 {data.label}
             </div>
             {data.cumulativeCost !== undefined && (
-                    <div className="cumulative-cost-label">
-                        {data.cumulativeCost.toFixed(2)}
-                    </div>
-                )}
+                <div className="cumulative-cost-label">
+                    {/* Si estamos maximizando, revertimos el signo para mostrarlo bien */}
+                    {(data.isMaximize ? -1 * data.cumulativeCost : data.cumulativeCost).toFixed(2)}
+                </div>
+            )}
         </div>
     );
 };

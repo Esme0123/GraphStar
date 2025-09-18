@@ -189,45 +189,50 @@ const GraphEditor = ({onGoBack}) => {
       return;
     }
     
-    const nodeMap = new Map(nodes.map((n, i) => [n.id, i]));
     const costsFromSource = distances[sourceIndex];
     const cumulativeCostMap = new Map();
-    const slackMap = new Map();
-    edges.forEach(edge => {
-      const u_idx = nodeMap.get(edge.source);
-      const v_idx = nodeMap.get(edge.target);
-      const weight = (parseFloat(edge.label) || 0) * (mode === 'maximize' ? -1 : 1);
-      // Fórmula de la holgura: d(s,v) - (d(s,u) + w(u,v))
-      const slack = costsFromSource[v_idx] - (costsFromSource[u_idx] + weight);
-      slackMap.set(edge.id, slack);
-    });
+    
     if (mode === 'maximize') {
       finalDistance *= -1;
     }
     //reconstruir
-    const path = [];
+    const pathNodeIndices = [];
     let currentNodeIndex = targetIndex;
-    // bucle se detiene si anterior es -1
-    while (currentNodeIndex !== -1) {
-      const nodeId = nodes[currentNodeIndex].id;
-      const nodeLabel = nodes[currentNodeIndex].data.label;
-      path.unshift(nodeLabel);
-      currentNodeIndex = predecessors[sourceIndex][currentNodeIndex];
-      cumulativeCostMap.set(nodeId, costsFromSource[currentNodeIndex]);
-      currentNodeIndex = predecessors[sourceIndex][currentNodeIndex];
+    while (currentNodeIndex !== -1 && currentNodeIndex !== undefined) {
+        pathNodeIndices.unshift(currentNodeIndex);
+        if (pathNodeIndices.length > nodes.length) {
+            console.error("Error en la reconstrucción de la ruta, posible ciclo.");
+            return;
+        }
+        currentNodeIndex = predecessors[sourceIndex][currentNodeIndex];
     }
-    const pathNodeIds = path.map(label => nodes.find(n => n.data.label === label).id);
+    const pathNodeIds = pathNodeIndices.map(index => nodes[index].id);
+    const pathLabels = pathNodeIndices.map(index => nodes[index].data.label);
+    pathNodeIds.forEach((nodeId, i) => {
+        const nodeIdx = nodes.findIndex(n => n.id === nodeId);
+        cumulativeCostMap.set(nodeId, costsFromSource[nodeIdx]);
+    });
     const pathEdgeIds = new Set();
     for (let i = 0; i < pathNodeIds.length - 1; i++) {
-      const edge = edges.find(e => e.source === pathNodeIds[i] && e.target === pathNodeIds[i + 1]);
-      if (edge) pathEdgeIds.add(edge.id);
+        const edge = edges.find(e => e.source === pathNodeIds[i] && e.target === pathNodeIds[i + 1]);
+        if (edge) pathEdgeIds.add(edge.id);
     }
+    const slackMap = new Map();
+    const nodeMap = new Map(nodes.map((n, i) => [n.id, i]));
+    edges.forEach(edge => {
+      const u_idx = nodeMap.get(edge.source);
+      const v_idx = nodeMap.get(edge.target);
+      const weight = (parseFloat(edge.label) || 0) * (mode === 'maximize' ? -1 : 1);
+      const slack = costsFromSource[v_idx] - (costsFromSource[u_idx] + weight);
+      slackMap.set(edge.id, slack);
+    });
     setNodes(nds => 
       nds.map(node => ({
         ...node,
         data: {
           ...node.data,
-          cumulativeCost: cumulativeCostMap.get(node.id)
+          cumulativeCost: cumulativeCostMap.get(node.id),
+          isMaximize: mode === 'maximize' 
         }
       }))
     );
@@ -245,13 +250,13 @@ const GraphEditor = ({onGoBack}) => {
       }))
     );
     const resultText = `Costo del camino más ${mode === 'minimize' ? 'corto' : 'largo'}: ${finalDistance.toFixed(2)}`;
-    setSimulationResult({ text: resultText, path: path });
+    setSimulationResult({ text: resultText, path: pathLabels });
   };
   const clearHighlight = () => {
     setSimulationResult(null);
     setNodes(nds => 
       nds.map(node => {
-        const { cumulativeCost, ...restData } = node.data;
+        const { cumulativeCost,isMaximize, ...restData } = node.data;
         return { ...node, data: restData };
       })
     );
