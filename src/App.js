@@ -166,19 +166,33 @@ const GraphEditor = ({onGoBack}) => {
 };
   const handleSimulate = ({ mode, source, target }) => {
     // aristas con el peso correcto
+    if (mode === 'minimize' && edges.some(edge => parseFloat(edge.label) < 0)) {
+        alert("Error: No se puede ejecutar la minimización si el grafo contiene pesos negativos.");
+        return;
+    }
+    const edgePairs = new Set();
+    for (const edge of edges) {
+        const forwardPair = `${edge.source}-${edge.target}`;
+        const reversePair = `${edge.target}-${edge.source}`;
+        if (edgePairs.has(reversePair)) {
+            alert("Error: No se puede ejecutar el algoritmo si existen conexiones bidireccionales (ej: A->B y B->A).");
+            return; 
+        }
+        edgePairs.add(forwardPair);
+    }
+    clearHighlight();
     const preparedEdges = edges.map(edge => ({
-      source: edge.source,
-      target: edge.target,
-      label: edge.label,
-      weight: (parseFloat(edge.label) || 0) * (mode === 'maximize' ? -1 : 1)
+        source: edge.source,
+        target: edge.target,
+        label: edge.label,
+        weight: (parseFloat(edge.label) || 0) * (mode === 'maximize' ? -1 : 1)
     }));
     // llamar algoritmo
     const { distances, predecessors, error } = runJohnsonAlgorithm(nodes, preparedEdges);
-    // limpiar
-    clearHighlight();
+
     if (error) {
-      setSimulationResult({ text: `Error: ${error}` });
-      return;
+        setSimulationResult({ text: `Error: ${error}` });
+        return;
     }
     // procesar resultado
     const sourceIndex = nodes.findIndex(n => n.id === source);

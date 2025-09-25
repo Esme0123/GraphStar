@@ -8,6 +8,7 @@ const EdgeEditModal = ({ edge, onSave, onCancel }) => {
         setColor(edge?.style?.stroke || 'var(--verde-estelar)');
     }, [edge]);
     const handleSave = () => {
+        
         onSave(edge.id, { label, color });
     };
     if (!edge) {
