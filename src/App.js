@@ -15,6 +15,7 @@ import EdgeEditModal from './components/EdgeEditModal';
 import AdjacencyMatrixModal from './components/AdjacencyMatrixModal';
 import SelfConnectingEdge from './components/SelfConnectingEdge';
 import WelcomePage from './components/WelcomePage';
+import HomePage from './components/HomePage';
 import TourGuide from './components/TourGuide';
 import { runJohnsonAlgorithm } from './algorithms/johnson';
 import SimulationControls from './components/SimulationControls';
@@ -484,8 +485,13 @@ const processedEdges = useMemo(() => {
 
 function App() {
   const [currentView, setCurrentView] = useState('loading');
+  const navigateTo = (view) => {
+    setCurrentView(view);
+  };
   const renderView = () => {
     switch (currentView) {
+      case 'home':
+        return <HomePage onNavigate={navigateTo} />;
       case 'welcome':
         return <WelcomePage 
                   onGoToEditor={() => setCurrentView('editor')} 
