@@ -15,7 +15,9 @@
 }
 
 body {
+  background-image: url(https://images.unsplash.com/photo-1520034475321-cbe63696469a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
   background-color: var(--negro);
+  transition: opacity 0.5s ease-out;
   color: var(--blanco-estelar);
   font-family: var(--font-text);
   margin: 0;
@@ -43,7 +45,7 @@ body {
   z-index: 0; 
 }
 .stars{
-  background: #000 url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/1231630/stars.png) repeat top center;
+  background: #090f27 url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/1231630/stars.png) repeat top center;
   animation: move-twink-back 200s linear infinite;
 }
 .stars2{
@@ -457,6 +459,8 @@ z-index: 0;
   backdrop-filter: blur(5px);
   position: relative;
   overflow: hidden;
+  /*background-image: url(https://images.unsplash.com/photo-1520034475321-cbe63696469a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
+  transition: opacity 0.5s ease-out;*/
 }
 
 .welcome-prompt {
@@ -531,7 +535,7 @@ z-index: 0;
     font-size: 3rem;
     color: var(--amarillo-estrella);
     position: absolute; 
-    top: -180px; 
+    top: -210px; 
     left: 50%;
     transform: translateX(-50%);
     white-space: nowrap; 
@@ -550,8 +554,8 @@ z-index: 0;
     justify-content: space-around; 
     align-items: center;
     overflow-x: auto;
-    width: 95%; 
-    padding: 20px 0;
+    width: 85%; 
+    padding: 50px 0;
     scrollbar-color: var(--amarillo-estrella) var(--azul-nebuloso);
     scrollbar-width: thin;
 }
@@ -585,7 +589,7 @@ z-index: 0;
 .planet-image { 
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid transparent; 
+    border: 5px solid transparent; 
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .planet-image:hover {

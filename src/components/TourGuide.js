@@ -58,6 +58,11 @@ const TOUR_STEPS = [
         placement: 'right'
     },
     {
+        target: '#btn-simulation-bar',
+        content:'En está sección puedes encontrar botones para simular tu grafo con Johnson o asignación.',
+        placement: 'right'
+    },
+    {
         target: '.help-button',
         content: 'Si olvidas cómo funciona algo, siempre puedes volver a ver este tutorial haciendo clic en este botón. ¡Disfruta creando!',
         placement: 'bottom'

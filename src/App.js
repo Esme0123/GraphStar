@@ -438,19 +438,22 @@ const processedEdges = useMemo(() => {
                 </div>
             )}
               <button id="btn-delete" className="sidebar-button" onClick={onDeleteElements}>🗑️ Eliminar Seleccionado</button>
+              <button id="btn-show-matrix" className="sidebar-button" onClick={showAdjacencyMatrix}>📊 Matriz de Adyacencia</button>
               <hr className="sidebar-separator" />
               <label className="checkbox-container" id="cb-directed">
                   <input id="directed-checkbox" type="checkbox" checked={isDirected} onChange={(e) => setIsDirected(e.target.checked)} />
                   Grafo Dirigido
               </label>
+              
               <hr className="sidebar-separator" />
-              <button id="btn-show-matrix" className="sidebar-button" onClick={showAdjacencyMatrix}>📊 Matriz de Adyacencia</button>
-              <SimulationControls 
+              <div className="simulation" id="btn-simulation-bar">
+                <SimulationControls 
                 nodes={nodes} 
                 onSimulate={handleSimulate}
                 simulationResult={simulationResult}
                 onClear={clearHighlight}
                 />
+              </div>
               <hr className="sidebar-separator" />
               <button id="btn-save" className="sidebar-button" onClick={onSave}>💾 Guardar Grafo</button>
               <button id="btn-load" className="sidebar-button" onClick={onLoad}>📂 Cargar Grafo</button>
