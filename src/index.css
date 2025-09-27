@@ -854,7 +854,7 @@ z-index: 0;
 
 .card-content button:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 249, 160, 0.4);
+  box-shadow: 0 5px 15px rgba(161, 63, 253, 0.4);
 }
 
 .electric-border-card.disabled {
