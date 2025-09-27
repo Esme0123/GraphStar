@@ -494,21 +494,20 @@ function App() {
         return <HomePage onNavigate={navigateTo} />;
       case 'welcome':
         return <WelcomePage 
-                  onGoToEditor={() => setCurrentView('editor')} 
-                  onGoBack={() => setCurrentView('loading')} 
+                  onGoToEditor={() => navigateTo('editor')} 
+                  onGoBack={() => navigateTo('home')} 
                 />;
       case 'editor':
         return (
           <div className="graph-editor visible">
             <ReactFlowProvider>
-              {}
-              <GraphEditor onGoBack={() => setCurrentView('welcome')} />
+              <GraphEditor onGoBack={() => navigateTo('welcome')} />
             </ReactFlowProvider>
           </div>
         );
       case 'loading':
       default:
-        return <LoadingScreen onStart={() => setCurrentView('welcome')} />;
+        return <LoadingScreen onStart={() => navigateTo('home')} />;
     }
   };
   return (

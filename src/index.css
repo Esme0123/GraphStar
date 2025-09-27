@@ -751,3 +751,127 @@ z-index: 0;
   stroke: var(--verde-estelar);
   stroke-width: 2px;
 }
+/*home page*/
+.home-page-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.home-content {
+  z-index: 2; 
+  background: rgba(0,0,0,0.3);
+  padding: 40px;
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+}
+.home-title {
+  font-family: var(--font-title);
+  font-size: 4rem;
+  color: var(--amarillo-estrella);
+  text-shadow: 0 0 15px var(--amarillo-estrella);
+}
+.home-subtitle {
+  font-family: var(--font-subtitle);
+  font-size: 1.5rem;
+  color: var(--blanco-estelar);
+  margin-bottom: 50px;
+}
+.modules-grid {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+}
+
+/* electric border */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes rotate-border {
+  to { --angle: 360deg; }
+}
+
+.electric-border-card {
+  --border-size: 4px;
+  --border-radius: 15px;
+  --angle: 0deg;
+  
+  width: 280px;
+  min-height: 250px;
+  background-color: var(--negro);
+  border-radius: var(--border-radius);
+  position: relative;
+  
+  border: var(--border-size) solid transparent;
+  background-image:
+      linear-gradient(to top, var(--negro), var(--negro)),
+      conic-gradient(from var(--angle), transparent 0%, var(--verde-estelar), var(--morado), var(--verde-estelar), transparent 40%);
+  background-size: 100% 100%, 200% 200%;
+  background-position: center center;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+
+  animation: rotate-border 5s linear infinite;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 20px;
+}
+
+.card-content h3 {
+  font-family: var(--font-subtitle);
+  font-size: 1.8rem;
+  color: var(--verde-estelar);
+}
+
+.card-content p {
+  font-size: 1rem;
+  flex-grow: 1;
+  margin: 20px 0;
+}
+
+.card-content button {
+  padding: 10px 30px;
+  font-family: var(--font-button);
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: var(--verde-estelar);
+  color: var(--negro);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.card-content button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 249, 160, 0.4);
+}
+
+.electric-border-card.disabled {
+  filter: grayscale(80%);
+  animation: none;
+  background-image:
+      linear-gradient(to top, var(--negro), var(--negro)),
+      conic-gradient(from 0deg, var(--azul-nebuloso), var(--azul-nebuloso));
+}
+
+.electric-border-card.disabled .card-content h3 {
+  color: var(--azul-nebuloso);
+}
+
+.electric-border-card.disabled .card-content button {
+  background-color: var(--azul-nebuloso);
+  cursor: not-allowed;
+}
