@@ -15,9 +15,7 @@
 }
 
 body {
-  background-image: url(https://images.unsplash.com/photo-1520034475321-cbe63696469a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
   background-color: var(--negro);
-  transition: opacity 0.5s ease-out;
   color: var(--blanco-estelar);
   font-family: var(--font-text);
   margin: 0;
@@ -766,9 +764,9 @@ z-index: 0;
 .home-content {
   z-index: 2; 
   background: rgba(0,0,0,0.3);
-  padding: 40px;
-  border-radius: 20px;
-  backdrop-filter: blur(5px);
+  padding: 60px;
+  border-radius: 40px;
+  backdrop-filter: blur(2px);
 }
 .home-title {
   font-family: var(--font-title);
@@ -804,8 +802,8 @@ z-index: 0;
   --border-radius: 15px;
   --angle: 0deg;
   
-  width: 280px;
-  min-height: 250px;
+  width: 350px;
+  min-height: 400px;
   background-color: var(--negro);
   border-radius: var(--border-radius);
   position: relative;
@@ -832,14 +830,14 @@ z-index: 0;
 
 .card-content h3 {
   font-family: var(--font-subtitle);
-  font-size: 1.8rem;
+  font-size: 2rem;
   color: var(--verde-estelar);
 }
 
 .card-content p {
-  font-size: 1rem;
+  font-size: 1.2rem;
   flex-grow: 1;
-  margin: 20px 0;
+  margin: 5px 0;
 }
 
 .card-content button {

@@ -46,7 +46,7 @@ const WelcomePage = ({ onGoToEditor, onGoBack }) => {
         <div className="welcome-page">
             {step === 'prompt' && (
                 <div className="welcome-prompt">
-                    <h2>¡Bienvenido a GraphStar! ✨</h2>
+                    <h2>¡Bienvenido a la sección de Grafos! ✨</h2>
                     <p>Este es un tour rápido por las funciones principales. ¿Deseas continuar?</p>
                     <div className="prompt-buttons">
                         

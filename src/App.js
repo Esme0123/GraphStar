@@ -512,9 +512,13 @@ function App() {
   };
   return (
     <>
-      <div className="stars"></div>
-      <div className="stars2"></div>
-      <div className="stars3"></div>
+      {currentView !== 'home' && (
+        <>
+          <div className="stars"></div>
+          <div className="stars2"></div>
+          <div className="stars3"></div>
+        </>
+      )}
       {renderView()}
     </>
   );

@@ -7,17 +7,20 @@ import ElectricBorderCard from './ElectricBorderCard';
 const modules = [
   {
     title: 'Grafos',
+    img: process.env.PUBLIC_URL + 'IMG/img_grafo.png',
     description: 'Crea y analiza universos de nodos y conexiones. Encuentra los caminos más cortos y largos entre planetas.',
     enabled: true,
     targetView: 'welcome',
   },
   {
     title: 'NorthWest',
+    img: process.env.PUBLIC_URL + 'IMG/img_northwest.png',
     description: '(Próximamente)',
     enabled: false,
   },
   {
     title: 'Sort',
+    img: process.env.PUBLIC_URL + 'IMG/img_sort.png',
     description: '(Próximamente)',
     enabled: false,
   },
@@ -43,14 +46,19 @@ const HomePage = ({ onNavigate }) => {
         <div className="modules-grid">
           {modules.map((mod) => (
             <ElectricBorderCard key={mod.title} enabled={mod.enabled}>
-              <h3>{mod.title}</h3>
-              <p>{mod.description}</p>
-              <button
-                onClick={() => mod.enabled && onNavigate(mod.targetView)}
-                disabled={!mod.enabled}
-              >
-                START
-              </button>
+              <h3 style={{ textAlign: 'center' }}>{mod.title}</h3>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0px 0' }}>
+                <img src={mod.img} alt={mod.title + ' icon'} style={{ width: '250px', height: '250px', objectFit: 'contain' }} />
+              </div>
+              <p style={{ textAlign: 'center' }}>{mod.description}</p>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <button
+                  onClick={() => mod.enabled && onNavigate(mod.targetView)}
+                  disabled={!mod.enabled}
+                >
+                  START
+                </button>
+              </div>
             </ElectricBorderCard>
           ))}
         </div>
