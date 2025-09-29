@@ -16,6 +16,7 @@ import AdjacencyMatrixModal from './components/AdjacencyMatrixModal';
 import SelfConnectingEdge from './components/SelfConnectingEdge';
 import WelcomePage from './components/WelcomePage';
 import HomePage from './components/HomePage';
+import ModeSelectionModal from './components/ModeSelectionModal';
 import TourGuide from './components/TourGuide';
 import { runJohnsonAlgorithm } from './algorithms/johnson';
 import SimulationControls from './components/SimulationControls';
@@ -24,7 +25,7 @@ import PathWithSlackEdge from './components/PathWithSlackEdge';
 import './index.css';
 
 let nodeIdCounter = 0;
-const GraphEditor = ({onGoBack}) => {
+const GraphEditor = ({mode,onGoBack}) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isDirected, setIsDirected] = useState(false);
@@ -61,7 +62,29 @@ const GraphEditor = ({onGoBack}) => {
   };
   //lógica de aristas
   const onConnect = useCallback((params) => {
+      if (mode === 'johnson') {
+        //sin loops
+        if (params.source === params.target) {
+          alert("Modo Johnson: No se permiten los bucles (auto-conexiones).");
+          return;
+        }
+        //sin conexiones inversas
+        const reverseEdgeExists = edges.some(
+          (edge) => edge.source === params.target && edge.target === params.source
+        );
+        if (reverseEdgeExists) {
+          alert("Modo Johnson: No se permiten conexiones bidireccionales.");
+          return;
+        }
+      }
       const value = prompt("Ingresa el valor de la arista (opcional):");
+      if (mode === 'johnson' && value) {
+        const numericValue = parseFloat(value);
+        if (!isNaN(numericValue) && numericValue < 0) {
+            alert("Modo Johnson: No se permiten pesos negativos.");
+            return;
+        }
+      }
       const newEdge = {
           ...params,
           id: `edge_${params.source}_${params.target}_${new Date().getTime()}`,
@@ -82,7 +105,7 @@ const GraphEditor = ({onGoBack}) => {
       }
       setIsAddingEdge(false);
       setEdges((eds) => eds.concat(newEdge));
-  }, [setEdges, isDirected,edgeType]);
+  }, [edges,setEdges, isDirected,edgeType,mode]);
   //si cambia a dirigido
   useEffect(() => {
       setEdges((eds) =>
@@ -397,18 +420,21 @@ const processedEdges = useMemo(() => {
 
   return (
       <Fragment>
+          {editingEdge && 
+            <EdgeEditModal 
+                edge={editingEdge} 
+                onSave={onSaveEdgeChanges} 
+                onCancel={() => setEditingEdge(null)} 
+                mode={mode} 
+            />
+          }
           {editingNode && 
           <NodeEditModal 
                 node={editingNode} 
                 onSave={onSaveNodeChanges} 
                 onCancel={() => setEditingNode(null)} />}
-          <EdgeEditModal 
-                edge={editingEdge}
-                onSave={onSaveEdgeChanges}
-                onCancel={() => setEditingEdge(null)}
-            />
           {showMatrix&& <AdjacencyMatrixModal 
-                nodes={getNodes()}
+                nodes={nodes}
                 matrix={adjacencyMatrix}
                 onClose={() => setShowMatrix(false)}
             />}
@@ -445,16 +471,19 @@ const processedEdges = useMemo(() => {
                   <input id="directed-checkbox" type="checkbox" checked={isDirected} onChange={(e) => setIsDirected(e.target.checked)} />
                   Grafo Dirigido
               </label>
-              
-              <hr className="sidebar-separator" />
-              <div className="simulation" id="btn-simulation-bar">
-                <SimulationControls 
-                nodes={nodes} 
-                onSimulate={handleSimulate}
-                simulationResult={simulationResult}
-                onClear={clearHighlight}
-                />
-              </div>
+              {mode === 'johnson' && (
+              <>
+                <hr className="sidebar-separator" />
+                <div className="simulation" id="btn-simulation-bar">
+                  <SimulationControls 
+                  nodes={nodes} 
+                  onSimulate={handleSimulate}
+                  simulationResult={simulationResult}
+                  onClear={clearHighlight}
+                  />
+                </div>
+              </>
+              )}
               <hr className="sidebar-separator" />
               <button id="btn-save" className="sidebar-button" onClick={onSave}>💾 Guardar Grafo</button>
               <button id="btn-load" className="sidebar-button" onClick={onLoad}>📂 Cargar Grafo</button>
@@ -485,8 +514,15 @@ const processedEdges = useMemo(() => {
 
 function App() {
   const [currentView, setCurrentView] = useState('loading');
+  const [editorMode, setEditorMode] = useState('pizarra');
+  const [isModeModalOpen, setIsModeModalOpen] = useState(false);
   const navigateTo = (view) => {
     setCurrentView(view);
+  };
+  const handleSelectMode = (mode) => {
+    setEditorMode(mode);
+    setIsModeModalOpen(false);
+    navigateTo('editor'); 
   };
   const renderView = () => {
     switch (currentView) {
@@ -494,14 +530,14 @@ function App() {
         return <HomePage onNavigate={navigateTo} />;
       case 'welcome':
         return <WelcomePage 
-                  onGoToEditor={() => navigateTo('editor')} 
+                  onGoToEditor={() => setIsModeModalOpen(true)} 
                   onGoBack={() => navigateTo('home')} 
                 />;
       case 'editor':
         return (
           <div className="graph-editor visible">
             <ReactFlowProvider>
-              <GraphEditor onGoBack={() => navigateTo('welcome')} />
+              <GraphEditor mode={editorMode} onGoBack={() => navigateTo('welcome')} />
             </ReactFlowProvider>
           </div>
         );
@@ -519,6 +555,12 @@ function App() {
           <div className="stars3"></div>
         </>
       )}
+      {isModeModalOpen && 
+        <ModeSelectionModal 
+          onSelectMode={handleSelectMode} 
+          onClose={() => setIsModeModalOpen(false)} 
+        />
+      }
       {renderView()}
     </>
   );

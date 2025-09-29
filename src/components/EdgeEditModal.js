@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const EdgeEditModal = ({ edge, onSave, onCancel }) => {
+const EdgeEditModal = ({ edge, onSave, onCancel,mode }) => {
     const [label, setLabel] = useState(edge?.label || '');
     const [color, setColor]= useState(edge?.style?.stroke || 'var(--verde-estelar)');
     useEffect(() => {
@@ -8,7 +8,15 @@ const EdgeEditModal = ({ edge, onSave, onCancel }) => {
         setColor(edge?.style?.stroke || 'var(--verde-estelar)');
     }, [edge]);
     const handleSave = () => {
-        
+        const numericLabel = parseFloat(label);
+        if (isNaN(numericLabel)) {
+            alert("El valor de la arista debe ser un número.");
+            return;
+        }
+        if (mode === 'johnson' && numericLabel < 0) {
+            alert("Modo Johnson: No se permiten pesos negativos.");
+            return;
+        }
         onSave(edge.id, { label, color });
     };
     if (!edge) {

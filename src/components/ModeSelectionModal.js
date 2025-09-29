@@ -1,0 +1,37 @@
+import React from 'react';
+
+const ModeSelectionModal = ({ onSelectMode, onClose }) => {
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content" style={{ maxWidth: '600px' }}>
+                <button className="modal-close-button" onClick={onClose}>X</button>
+                <h2>Selecciona un Modo de Trabajo</h2>
+                <p>Elige cómo quieres usar el editor de grafos.</p>
+                <div className="mode-selection-container">
+                    <div className="mode-card" onClick={() => onSelectMode('pizarra')}>
+                        <h3>✍️ Pizarra de Grafos</h3>
+                        <p>Dibuja cualquier tipo de grafo sin restricciones. Ideal para experimentar y diseñar libremente.</p>
+                    </div>
+                    <div className="mode-card" onClick={() => onSelectMode('johnson')}>
+                        <h3>🚀 Algoritmo de Johnson</h3>
+                        <p>Un entorno preparado para el algoritmo de Johnson, con las reglas necesarias activadas (sin bucles, sin pesos negativos, etc.).</p>
+                    </div>
+                    <div className="mode-card ">
+                        <h3>Algoritmo de Asignación</h3>
+                        <p>Próximamente</p>
+                    </div>
+                    <div className="mode-card ">
+                        <h3>Algoritmo de Dijkstra</h3>
+                        <p>Próximamente</p>
+                    </div>
+                    <div className="mode-card ">
+                        <h3>Algoritmo de Kruskal</h3>
+                        <p>Próximamente</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default ModeSelectionModal;
