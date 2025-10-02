@@ -17,16 +17,21 @@ import SelfConnectingEdge from './components/SelfConnectingEdge';
 import WelcomePage from './components/WelcomePage';
 import HomePage from './components/HomePage';
 import ModeSelectionModal from './components/ModeSelectionModal';
-//import TutorialModal from './components/TutorialModal';
+import TutorialModal from './components/TutorialModal';
 import TourGuide from './components/TourGuide';
 import { runJohnsonAlgorithm } from './algorithms/johnson';
 import SimulationControls from './components/SimulationControls';
 import PathWithSlackEdge from './components/PathWithSlackEdge';
 
 import './index.css';
-
+const tutorials = {
+  //home: 'ID_DEL_VIDEO_HOMEPAGE',       
+  welcome: 'AsJia0nKSRg',    
+  //editorPizarra: 'ID_DEL_VIDEO_PIZARRA', 
+  editorJohnson: 'bhdYIWRa6ug', 
+};
 let nodeIdCounter = 0;
-const GraphEditor = ({mode,onGoBack}) => {
+const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isDirected, setIsDirected] = useState(false);
@@ -56,7 +61,13 @@ const GraphEditor = ({mode,onGoBack}) => {
       localStorage.setItem('graphStarTourSeen', 'true');
     }
   }, []);
-
+  useEffect(() => {
+    if (mode === 'johnson') {
+      showTutorial('editorJohnson');
+    } /*else {
+      showTutorial('editorPizarra');
+    }*/
+  }, [mode]);
   const startTour = () => {
     setRunTour(true);
   };
@@ -516,6 +527,15 @@ function App() {
   const [currentView, setCurrentView] = useState('loading');
   const [editorMode, setEditorMode] = useState('pizarra');
   const [isModeModalOpen, setIsModeModalOpen] = useState(false);
+  const [activeTutorial, setActiveTutorial] = useState(null);
+  const showTutorial = (section) => {
+    const videoId = tutorials[section];
+    if (videoId && videoId.startsWith('ID_')) {
+      console.warn(`Video de tutorial para '${section}' no configurado.`);
+      return;
+    }
+    setActiveTutorial(videoId);
+  };
   const navigateTo = (view) => {
     setCurrentView(view);
   };
@@ -527,17 +547,19 @@ function App() {
   const renderView = () => {
     switch (currentView) {
       case 'home':
-        return <HomePage onNavigate={navigateTo} />;
+        return <HomePage onNavigate={navigateTo} /*showTutorial={showTutorial}*/ />;
       case 'welcome':
         return <WelcomePage 
                   onGoToEditor={() => setIsModeModalOpen(true)} 
                   onGoBack={() => navigateTo('home')} 
+                  showTutorial={showTutorial}
                 />;
       case 'editor':
         return (
           <div className="graph-editor visible">
             <ReactFlowProvider>
-              <GraphEditor mode={editorMode} onGoBack={() => navigateTo('welcome')} />
+              <GraphEditor mode={editorMode} onGoBack={() => navigateTo('welcome')} 
+                showTutorial={showTutorial} />
             </ReactFlowProvider>
           </div>
         );
@@ -561,6 +583,10 @@ function App() {
           onClose={() => setIsModeModalOpen(false)} 
         />
       }
+      <TutorialModal 
+        videoId={activeTutorial} 
+        onClose={() => setActiveTutorial(null)} 
+      />
       {renderView()}
     </>
   );

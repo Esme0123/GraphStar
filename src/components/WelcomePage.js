@@ -21,10 +21,12 @@ const planetsData = [
     { id: 'mercurio', name: 'Mercurio',concept:'🌍 Nodo', info: '🌍 Un nodo representa un planeta dentro del universo del grafo. Cada planeta es una entidad única que puede conectarse con otros mediante rutas espaciales (aristas 🚀). Pueden tener nombres como Marte, Júpiter o Vega-7 y mostrar datos como recursos 🪨 o características. Visualmente, cada nodo es un cuerpo celeste en la red galáctica ✨.',size:70 },
 ];
 
-const WelcomePage = ({ onGoToEditor, onGoBack }) => {
+const WelcomePage = ({ onGoToEditor, onGoBack,showTutorial}) => {
     const [step, setStep] = useState('prompt'); 
     const [activePlanet, setActivePlanet] = useState(null);
-
+    useEffect(() => {
+        showTutorial('welcome'); 
+    }, []);
     useEffect(() => {
         if (step === 'thanks') {
             const timer = setTimeout(() => {
