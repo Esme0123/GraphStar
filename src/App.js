@@ -17,6 +17,7 @@ import SelfConnectingEdge from './components/SelfConnectingEdge';
 import WelcomePage from './components/WelcomePage';
 import HomePage from './components/HomePage';
 import ModeSelectionModal from './components/ModeSelectionModal';
+//import TutorialModal from './components/TutorialModal';
 import TourGuide from './components/TourGuide';
 import { runJohnsonAlgorithm } from './algorithms/johnson';
 import SimulationControls from './components/SimulationControls';
@@ -39,7 +40,6 @@ const GraphEditor = ({mode,onGoBack}) => {
   const [edgeType, setEdgeType] = useState('default');
   //tour
   const[runTour, setRunTour] =useState(false);
-  //const [isSimulating, setIsSimulating] = useState(false);
   const [simulationResult, setSimulationResult] = useState(null);
   //funciones necesarias de react flow
   const { getNodes, getEdges, screenToFlowPosition, setViewport, deleteElements } = useReactFlow();
