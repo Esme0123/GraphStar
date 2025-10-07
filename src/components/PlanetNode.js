@@ -25,6 +25,18 @@ const PlanetNode = ({ data }) => {
                 <Handle type="source" position={Position.Left} id="d" />
                 {data.label}
             </div>
+            <div className="node-costs-container">
+                {data.forwardCost !== undefined && (
+                    <div className="node-cost forward-cost">
+                        {data.forwardCost.toFixed(2)}
+                    </div>
+                )}
+                {data.backwardCost !== undefined && (
+                    <div className="node-cost backward-cost">
+                        {data.backwardCost.toFixed(2)}
+                    </div>
+                )}
+            </div>
             {data.cumulativeCost !== undefined && (
                 <div className="cumulative-cost-label">
                     {/* Si estamos maximizando, revertimos el signo para mostrarlo bien */}

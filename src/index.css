@@ -961,3 +961,30 @@ z-index: 0;
   stroke-dasharray: 10, 5; 
   animation: dash-animation 50s linear infinite;
 }
+.node-costs-container {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  width: 120px; 
+  justify-content: space-between;
+  pointer-events: none; 
+}
+.node-cost {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.forward-cost {
+  background-color: var(--negro);
+  color: var(--verde-estelar);
+  border: 1px solid var(--verde-estelar);
+}
+.backward-cost {
+  background-color: var(--negro);
+  color: var(--rojo-peligro);
+  border: 1px solid var(--rojo-peligro);
+}

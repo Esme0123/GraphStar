@@ -223,8 +223,7 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
         weight: (parseFloat(edge.label) || 0) * (mode === 'maximize' ? -1 : 1)
     }));
     // llamar algoritmo
-    const { distances, predecessors, error } = runJohnsonAlgorithm(nodes, preparedEdges);
-
+    const { distances: forwardDistances, predecessors, error } = runJohnsonAlgorithm(nodes, preparedEdges);
     if (error) {
         setSimulationResult({ text: `Error: ${error}` });
         return;
@@ -232,14 +231,15 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
     // procesar resultado
     const sourceIndex = nodes.findIndex(n => n.id === source);
     const targetIndex = nodes.findIndex(n => n.id === target);
-    let finalDistance = distances[sourceIndex][targetIndex];
+    let finalDistance = forwardDistances[sourceIndex][targetIndex];
     if (finalDistance === Infinity) {
-      setSimulationResult({ text: `No existe ruta desde ${nodes[sourceIndex].data.label} hasta ${nodes[targetIndex].data.label}.` });
-      return;
+        setSimulationResult({ text: `No existe ruta desde ${nodes[sourceIndex].data.label} hasta ${nodes[targetIndex].data.label}.` });
+        return;
     }
-    
-    const costsFromSource = distances[sourceIndex];
-    const cumulativeCostMap = new Map();
+    const reversedEdges = preparedEdges.map(e => ({ ...e, source: e.target, target: e.source }));
+    const { distances: backwardDistances } = runJohnsonAlgorithm(nodes, reversedEdges);
+    const costsToTarget = backwardDistances[targetIndex];
+    const costsFromSource = forwardDistances[sourceIndex];
     
     if (mode === 'maximize') {
       finalDistance *= -1;
@@ -257,10 +257,6 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
     }
     const pathNodeIds = pathNodeIndices.map(index => nodes[index].id);
     const pathLabels = pathNodeIndices.map(index => nodes[index].data.label);
-    pathNodeIds.forEach((nodeId, i) => {
-        const nodeIdx = nodes.findIndex(n => n.id === nodeId);
-        cumulativeCostMap.set(nodeId, costsFromSource[nodeIdx]);
-    });
     const pathEdgeIds = new Set();
     for (let i = 0; i < pathNodeIds.length - 1; i++) {
         const edge = edges.find(e => e.source === pathNodeIds[i] && e.target === pathNodeIds[i + 1]);
@@ -275,26 +271,33 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
       const slack = costsFromSource[v_idx] - (costsFromSource[u_idx] + weight);
       slackMap.set(edge.id, slack);
     });
-    setNodes(nds => 
-      nds.map(node => ({
-        ...node,
-        data: {
-          ...node.data,
-          cumulativeCost: cumulativeCostMap.get(node.id),
-          isMaximize: mode === 'maximize' 
-        }
-      }))
+    setNodes(nds =>
+        nds.map((node, index) => {
+            const forwardCost = costsFromSource[index];
+            const backwardCost = finalDistance - costsToTarget[index];
+
+            const displayForward = mode === 'maximize' && forwardCost !== Infinity ? -forwardCost : forwardCost;
+            const displayBackward = mode === 'maximize' && backwardCost !== Infinity ? -backwardCost : backwardCost;
+
+            return {
+                ...node,
+                data: {
+                    ...node.data,
+                    forwardCost: displayForward,
+                    backwardCost: displayBackward
+                }
+            };
+        })
     );
     // resaltar aristas en grafo
-    setEdges(eds => 
-      eds.map(e => ({
-        ...e,
-        className: pathEdgeIds.has(e.id) ? 'highlighted-edge' : '',
-        type: 'pathWithSlack', 
-        animated: pathEdgeIds.has(e.id),
-        data: { ...e.data, slack: slackMap.get(e.id) },
-        style: { stroke: 'var(--verde-estelar)', strokeWidth: 2 }
-      }))
+    setEdges(eds =>
+        eds.map(e => ({
+            ...e,
+            className: pathEdgeIds.has(e.id) ? 'highlighted-edge' : '',
+            type: 'pathWithSlack',
+            data: { ...e.data, slack: slackMap.get(e.id) },
+            style: { stroke: 'var(--verde-estelar)', strokeWidth: 2 }
+        }))
     );
     const resultText = `Costo del camino más ${mode === 'minimize' ? 'corto' : 'largo'}: ${finalDistance.toFixed(2)}`;
     setSimulationResult({ text: resultText, path: pathLabels });
@@ -303,8 +306,8 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
     setSimulationResult(null);
     setNodes(nds => 
       nds.map(node => {
-        const { cumulativeCost,isMaximize, ...restData } = node.data;
-        return { ...node, data: restData };
+        const { forwardCost, backwardCost, ...restData } = node.data;
+        return { ...node, data: restData };;
       })
     );
     setEdges(eds => 
