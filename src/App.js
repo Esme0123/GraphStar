@@ -289,13 +289,11 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
     setEdges(eds => 
       eds.map(e => ({
         ...e,
+        className: pathEdgeIds.has(e.id) ? 'highlighted-edge' : '',
         type: 'pathWithSlack', 
         animated: pathEdgeIds.has(e.id),
         data: { ...e.data, slack: slackMap.get(e.id) },
-        style: { 
-          stroke: pathEdgeIds.has(e.id) ? 'var(--amarillo-estrella)' : 'var(--verde-estelar)',
-          strokeWidth: pathEdgeIds.has(e.id) ? 4 : 2,
-        }
+        style: { stroke: 'var(--verde-estelar)', strokeWidth: 2 }
       }))
     );
     const resultText = `Costo del camino más ${mode === 'minimize' ? 'corto' : 'largo'}: ${finalDistance.toFixed(2)}`;
@@ -314,6 +312,7 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
         const { slack, ...restData } = e.data || {};
         return {
           ...e,
+          className: '',
           type: 'default', 
           animated: false,
           data: restData,

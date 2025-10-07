@@ -949,3 +949,15 @@ z-index: 0;
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--amarillo-estrella);
 }
+/*ruta*/
+@keyframes dash-animation {
+  to {
+    stroke-dashoffset: 1000;
+  }
+}
+.highlighted-edge .react-flow__edge-path {
+  stroke: var(--amarillo-estrella) !important;
+  stroke-width: 4px !important;
+  stroke-dasharray: 10, 5; 
+  animation: dash-animation 50s linear infinite;
+}
