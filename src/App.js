@@ -20,6 +20,7 @@ import ModeSelectionModal from './components/ModeSelectionModal';
 import TutorialModal from './components/TutorialModal';
 import TourGuide from './components/TourGuide';
 import { runJohnsonAlgorithm } from './algorithms/johnson';
+import { runAssignmentAlgorithm } from './algorithms/assignment';
 import SimulationControls from './components/SimulationControls';
 import PathWithSlackEdge from './components/PathWithSlackEdge';
 
@@ -199,7 +200,80 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
     setAdjacencyMatrix(matrix);
     setShowMatrix(true);
 };
-  const handleSimulate = ({ mode, source, target }) => {
+      const handleSimulate = (params) => {
+    clearHighlight();
+    // --- MODO ASIGNACIÓN ---
+    if (params.type === 'assignment') {
+        const { objective } = params;
+        const result = runAssignmentAlgorithm(nodes, edges, { mode: objective, padWithZero: true });
+
+        if (result.error) {
+            setSimulationResult({ text: `Error: ${result.error}` });
+            return;
+        }
+
+        const matchedEdgeIds = new Set();
+        result.matches.forEach(m => {
+            if (m.taskId) {
+                const edge = edges.find(e => (e.source === m.agentId && e.target === m.taskId) || (e.source === m.taskId && e.target === m.agentId));
+                if (edge) matchedEdgeIds.add(edge.id);
+            }
+        });
+
+        setNodes(nds => nds.map(n => {
+            const match = result.matches.find(m => m.agentId === n.id);
+            if (match) {
+                return { ...n, data: { ...n.data, assignedTo: match.taskId ? nodes.find(x => x.id === match.taskId)?.data?.label : null, assignmentCost: match.cost } };
+            }
+            const assignedFrom = result.matches.find(m => m.taskId === n.id);
+            if (assignedFrom) {
+                return { ...n, data: { ...n.data, assignedFrom: nodes.find(x => x.id === assignedFrom.agentId)?.data?.label, assignmentCost: assignedFrom.cost } };
+            }
+            return n;
+        }));
+
+        setEdges(eds => eds.map(e => ({
+            ...e,
+            className: matchedEdgeIds.has(e.id) ? 'highlighted-edge' : '',
+            style: { ...e.style, strokeWidth: matchedEdgeIds.has(e.id) ? 4 : 2 }
+        })));
+        // 2. Preparar los datos para la tabla de resultados (con etiquetas, no solo IDs)
+        const nodeMap = new Map(nodes.map(n => [n.id, n]));
+        const assignmentsForUI = result.matches.map(match => ({
+            agent: nodeMap.get(match.agentId),
+            task: match.taskId ? nodeMap.get(match.taskId) : null,
+            cost: match.cost,
+            note: match.taskId ? null : 'No asignado'
+        }));
+        // 3. Preparar la matriz de costos para la UI
+        const agentLabels = result.agentIds.map(id => nodeMap.get(id)?.data?.label || id);
+        const taskLabels = result.taskIds.map(id => nodeMap.get(id)?.data?.label || id);
+        const matrixValues = result.costMatrix
+          .slice(0, result.agentIds.length)
+          .map(row => 
+            row.slice(0, result.taskIds.length).map(val => isFinite(val) ? val : '∞')
+          );
+          
+        const matrixForUI = {
+            agents: agentLabels,
+            tasks: taskLabels,
+            values: matrixValues,
+        };
+
+        // 4. Preparar el texto final y actualizar el estado
+        const totalCost = result.cost;
+        const resultText = `Resultado de Asignación (${objective === 'minimize' ? 'Minimizar' : 'Maximizar'}). Costo total: ${isFinite(totalCost) ? totalCost.toFixed(2) : '∞'}.`;
+        
+        setSimulationResult({ 
+            text: resultText, 
+            assignment: assignmentsForUI, 
+            matrix: matrixForUI 
+        });
+        return;
+    }
+
+    // --- MODO JOHNSON ---
+    const { mode, source, target } = params;
     // aristas con el peso correcto
     if (mode === 'minimize' && edges.some(edge => parseFloat(edge.label) < 0)) {
         alert("Error: No se puede ejecutar la minimización si el grafo contiene pesos negativos.");
@@ -215,7 +289,7 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
         }
         edgePairs.add(forwardPair);
     }
-    clearHighlight();
+    
     const preparedEdges = edges.map(edge => ({
         source: edge.source,
         target: edge.target,
@@ -484,12 +558,14 @@ const processedEdges = useMemo(() => {
                   <input id="directed-checkbox" type="checkbox" checked={isDirected} onChange={(e) => setIsDirected(e.target.checked)} />
                   Grafo Dirigido
               </label>
-              {mode === 'johnson' && (
+              {(mode === 'johnson' || mode === 'assignment')&&(
               <>
                 <hr className="sidebar-separator" />
                 <div className="simulation" id="btn-simulation-bar">
                   <SimulationControls 
+                  editorMode={mode}
                   nodes={nodes} 
+                  edges={edges}
                   onSimulate={handleSimulate}
                   simulationResult={simulationResult}
                   onClear={clearHighlight}
