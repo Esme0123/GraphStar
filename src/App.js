@@ -30,6 +30,7 @@ const tutorials = {
   welcome: 'AsJia0nKSRg',    
   //editorPizarra: 'ID_DEL_VIDEO_PIZARRA', 
   editorJohnson: 'bhdYIWRa6ug', 
+  editorAssignment: '_Qne5iJwA38',
 };
 let nodeIdCounter = 0;
 const GraphEditor = ({mode,onGoBack,showTutorial}) => {
@@ -65,7 +66,11 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   useEffect(() => {
     if (mode === 'johnson') {
       showTutorial('editorJohnson');
-    } /*else {
+    }
+    else if (mode === 'assignment') {
+      showTutorial('editorAssignment');
+    } 
+    /*else {
       showTutorial('editorPizarra');
     }*/
   }, [mode]);
@@ -625,7 +630,11 @@ function App() {
   const renderView = () => {
     switch (currentView) {
       case 'home':
-        return <HomePage onNavigate={navigateTo} /*showTutorial={showTutorial}*/ />;
+        return <HomePage 
+                  onNavigate={navigateTo}
+                  onGoBack={() => navigateTo('loading')}
+                   /*showTutorial={showTutorial}*/ 
+                   />;
       case 'welcome':
         return <WelcomePage 
                   onGoToEditor={() => setIsModeModalOpen(true)} 

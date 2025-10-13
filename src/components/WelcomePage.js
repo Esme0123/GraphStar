@@ -47,6 +47,7 @@ const WelcomePage = ({ onGoToEditor, onGoBack,showTutorial}) => {
     return (
         <div className="welcome-page">
             {step === 'prompt' && (
+                <>
                 <div className="welcome-prompt">
                     <h2>¡Bienvenido a la sección de Grafos! ✨</h2>
                     <p>Este es un tour rápido por las funciones principales. ¿Deseas continuar?</p>
@@ -56,6 +57,10 @@ const WelcomePage = ({ onGoToEditor, onGoBack,showTutorial}) => {
                         <button onClick={onGoToEditor}>Cancelar</button>
                     </div>
                 </div>
+                <div className="welcome-nav bottom-right"> 
+                        <button onClick={onGoBack}>Retroceder</button>
+                </div>
+                </>
             )}
 
             {step === 'thanks' && (
@@ -84,7 +89,7 @@ const WelcomePage = ({ onGoToEditor, onGoBack,showTutorial}) => {
                         </div>
                     </div>
                     
-                    <div className="welcome-nav bottom-right"> {/* Clase para posicionar */}
+                    <div className="welcome-nav bottom-right"> 
                         <button onClick={onGoBack}>Retroceder</button>
                     </div>
                 </>

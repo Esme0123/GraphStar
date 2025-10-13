@@ -26,7 +26,7 @@ const modules = [
   },
 ];
 
-const HomePage = ({ onNavigate}) => {
+const HomePage = ({ onNavigate,onGoBack}) => {
   const particlesInit = useCallback(async (engine) => {
     await loadSlim(engine);
   }, []);
@@ -62,6 +62,9 @@ const HomePage = ({ onNavigate}) => {
             </ElectricBorderCard>
           ))}
         </div>
+      </div>
+      <div className="welcome-nav bottom-right"> 
+        <button onClick={onGoBack}>Retroceder</button>
       </div>
     </div>
   );

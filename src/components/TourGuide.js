@@ -59,7 +59,7 @@ const TOUR_STEPS = [
     },
     {
         target: '#btn-simulation-bar',
-        content:'En está sección puedes encontrar botones para simular tu grafo con Johnson o asignación.',
+        content:'En está sección puedes simular con el algoritmo. Primero selecciona el algoritmo, luego selecciona si minimizar o maximizar, después realiza lo indicado según el algoritmo y por último presiona Calcular',
         placement: 'right'
     },
     {
