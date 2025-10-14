@@ -7,28 +7,28 @@ const constellationsData = [
       id: 'andromeda', 
       name: 'Andrómeda', 
       concept: 'Insertion Sort', 
-      info: 'Funciona construyendo una secuencia ordenada un elemento a la vez. Es como ordenar una mano de cartas: tomas una carta y la insertas en su posición correcta entre las que ya tienes ordenadas.',
+      info: '✨ Ordena un universo de estrellas una por una. Cada nueva estrella viaja a través de las ya ordenadas hasta encontrar su órbita correcta.',
       img: process.env.PUBLIC_URL + 'IMG/constelations/andromeda.jpg',
     },
     { 
       id: 'orion', 
       name: 'Orión', 
       concept: 'Selection Sort', 
-      info: 'Busca repetidamente el elemento más pequeño de la parte no ordenada de la lista y lo mueve al principio. Es como si buscaras al estudiante más bajo de una fila y lo pusieras al frente, una y otra vez.',
+      info: '🔭 Escanea todo el cosmos buscando la estrella más pequeña y la coloca al principio de la galaxia. Repite el proceso hasta que todas las estrellas están en su lugar.',
       img: process.env.PUBLIC_URL + 'IMG/constelations/orion.jpg',
     },
     { 
       id: 'gemini', 
       name: 'Géminis', 
       concept: 'Merge Sort', 
-      info: 'Es un algoritmo de "divide y vencerás". Divide la lista a la mitad repetidamente hasta tener listas de un solo elemento. Luego, las combina (merge) de forma ordenada hasta tener una sola lista final.',
+      info: '🌌 Divide la galaxia en dos mitades, y luego cada mitad en otras dos, hasta tener estrellas individuales. Después, fusiona estos pequeños sistemas estelares de forma ordenada, creando una única galaxia perfectamente alineada.',
       img: process.env.PUBLIC_URL + 'IMG/constelations/geminis.jpg',
     },
     { 
       id: 'pegasus', 
       name: 'Pegaso', 
       concept: 'Shell Sort', 
-      info: 'Es una versión mejorada del Insertion Sort. Permite el intercambio de elementos que están lejos uno del otro. Ordena sub-listas de elementos a intervalos decrecientes, haciéndolo más rápido en muchos casos.',
+      info: '🚀 Una versión supercargada de Insertion Sort que usa "saltos hiperespaciales". Compara y ordena estrellas que están muy lejos entre sí, reduciendo la distancia de los saltos en cada pasada hasta que el orden es perfecto.',
       img: process.env.PUBLIC_URL + 'IMG/constelations/pegaso.jpg',
     }
 ];
