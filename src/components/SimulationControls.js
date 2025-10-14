@@ -79,12 +79,6 @@ const SimulationControls = ({
     }
 
     for (const e of edges) {
-      if (e.source === e.target) {
-        const node = nodes.find(n => n.id === e.source);
-        const label = node?.data?.label || e.source; // usa label si existe, si no, muestra el ID
-        alert(`Arista inválida: El modo de asignación no permite bucles (auto-conexiones). El nodo "${label}" está conectado a sí mismo.`);
-        return false;
-      }
       const a = nodeGroupMap[e.source];
       const b = nodeGroupMap[e.target];
       if (a === b) {

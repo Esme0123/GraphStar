@@ -79,6 +79,13 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   };
   //lógica de aristas
   const onConnect = useCallback((params) => {
+       //-----------------modo de asignación:aplicamos sus restricciones.
+      if (mode === 'assignment') {
+        if (params.source === params.target) {
+          alert("Modo Asignación: No se permiten los bucles (auto-conexiones).");
+          return; 
+        }
+      }
       if (mode === 'johnson') {
         //sin loops
         if (params.source === params.target) {
