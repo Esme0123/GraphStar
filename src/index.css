@@ -988,3 +988,97 @@ z-index: 0;
   color: var(--rojo-peligro);
   border: 1px solid var(--rojo-peligro);
 }
+/* --- Estilos WelcomeSortPage --- */
+.constellation-system {
+  width: 100%;
+  text-align: center;
+}
+
+.constellations-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 60px;
+    padding: 20px;
+    max-width: 1000px;
+    margin: 40px auto;
+}
+
+.constellation-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.constellation-item:hover {
+    transform: scale(1.1);
+}
+
+.constellation-image {
+    width: 180px;
+    height: 180px;
+    filter: invert(1) brightness(1.5); /* Hace la imagen blanca y brillante */
+    transition: filter 0.3s ease;
+}
+
+.constellation-item:hover .constellation-image {
+    filter: invert(1) drop-shadow(0 0 15px var(--amarillo-estrella));
+}
+
+.constellation-name {
+    color: var(--blanco-estelar);
+    font-family: var(--font-text);
+    margin-top: 10px;
+}
+
+.constellation-concept {
+    color: var(--amarillo-estrella);
+    font-family: var(--font-subtitle);
+    font-size: 1.1rem;
+}
+
+/* --- Estilos SortSimulatorPage --- */
+.simulator-page-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    box-sizing: border-box;
+}
+.simulator-title {
+    font-family: var(--font-title);
+    font-size: 3rem;
+    color: var(--amarillo-estrella);
+}
+.simulator-content-placeholder {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+}
+.back-button-simulator {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: var(--azul-nebuloso);
+  color: var(--amarillo-estrella);
+  border: 2px solid var(--amarillo-estrella);
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s;
+}
+.back-button-simulator:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--amarillo-estrella);
+}

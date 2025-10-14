@@ -23,6 +23,8 @@ import { runJohnsonAlgorithm } from './algorithms/johnson';
 import { runAssignmentAlgorithm } from './algorithms/assignment';
 import SimulationControls from './components/SimulationControls';
 import PathWithSlackEdge from './components/PathWithSlackEdge';
+import WelcomeSortPage from './components/WelcomeSortPage';
+import SortSimulatorPage from './components/SortSimulatorPage';
 
 import './index.css';
 const tutorials = {
@@ -660,6 +662,15 @@ function App() {
       case 'loading':
       default:
         return <LoadingScreen onStart={() => navigateTo('home')} />;
+      case 'welcomeSort':
+        return <WelcomeSortPage 
+                  onGoToSimulator={() => navigateTo('sortSimulator')}
+                  onGoBack={() => navigateTo('home')}
+                />;
+      case 'sortSimulator':
+        return <SortSimulatorPage 
+                  onGoBack={() => navigateTo('welcomeSort')} 
+                />;
     }
   };
   return (

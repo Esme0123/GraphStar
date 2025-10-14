@@ -21,8 +21,9 @@ const modules = [
   {
     title: 'Sort',
     img: process.env.PUBLIC_URL + 'IMG/img_sort.png',
-    description: '(Próximamente)',
-    enabled: false,
+    description: 'Los algoritmos de ordenamiento dan forma al caos de los datos. Cada uno sigue su propio patrón para organizar el universo numérico, como constelaciones que revelan armonía en el cielo de GraphStar.',
+    enabled: true,
+    targetView: 'welcomeSort',
   },
 ];
 
