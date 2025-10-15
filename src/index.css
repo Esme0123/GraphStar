@@ -59,14 +59,14 @@ body {
 .loading-screen {
   width: 100%; height: 100%;
   display: flex; justify-content: center; align-items: center;
-  position: absolute; z-index: 20;
+  position: relative; z-index: 20;
   background-image: url(https://images.unsplash.com/photo-1520034475321-cbe63696469a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
   background-color: var(--negro);
   transition: opacity 0.5s ease-out;
 }
 .loading-screen::before {
 content: '';
-position: absolute;
+position: relative;
 top: 0;
 left: 0;
 right: 0;
@@ -100,7 +100,7 @@ z-index: 0;
 /*editor de grafo*/
 .graph-editor {
   width: 100%; height: 100%;
-  position: absolute; opacity: 0;
+  position: relative; opacity: 0;
   transition: opacity 0.5s ease-in;
 }
 .graph-editor.visible { opacity: 1; }
@@ -1183,7 +1183,7 @@ z-index: 0;
     gap: 8px;
     width: 100%;
 }
-/* ... (El resto de los estilos para labels, inputs, selects se mantienen igual) ... */
+
 .slider {
     width: 100%;
     cursor: pointer;
@@ -1237,4 +1237,112 @@ z-index: 0;
     border-color: var(--verde-estelar);
     background: linear-gradient(145deg, #00d88a, var(--verde-estelar));
     box-shadow: 0 0 20px var(--verde-estelar);
+}
+.main-content {
+  position: relative; 
+  z-index: 3;       
+}
+.main-actions-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.main-actions-group button {
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: var(--azul-nebuloso);
+    color: var(--amarillo-estrella);
+    border: 1px solid var(--amarillo-estrella);
+    font-family: var(--font-button);
+}
+
+.main-actions-group .start-sort-button {
+    background-color: var(--verde-estelar);
+    color: var(--negro);
+    border: none;
+    font-weight: bold;
+}
+.sort-controls-bar.advanced {
+    width: 90%;
+    max-width: 1200px;
+    padding: 20px;
+    margin-bottom: 40px;
+    background-color: rgba(26, 26, 46, 0.85);
+    border: 2px solid var(--morado);
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.control-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Estilo para los radio buttons */
+.radio-group {
+    display: flex;
+    gap: 15px;
+    color: var(--blanco-estelar);
+}
+
+/* Estilo para los botones apilados */
+.button-group-stacked {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.control-group input[type="number"], .control-group input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: var(--azul-nebuloso);
+  outline: none;
+  border-radius: 4px;
+  border: 1px solid var(--morado);
+}
+
+/* Estilo del control deslizante (thumb) para Chrome/Safari/Edge */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--verde-estelar);
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--verde-estelar);
+}
+
+/* Estilo del control deslizante (thumb) para Firefox */
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--verde-estelar);
+  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+  box-shadow: 0 0 10px var(--verde-estelar);
+}
+.control-group label {
+  font-family: var(--font-subtitle);
+  color: var(--blanco-estelar);
+  font-size: 14px;
+}
+.loading-screen, .graph-editor, .simulator-page-container, .welcome-page {
+  position: relative;
+  width: 100%;
+  height: 100vh;
 }

@@ -620,14 +620,14 @@ function App() {
   const [editorMode, setEditorMode] = useState('pizarra');
   const [isModeModalOpen, setIsModeModalOpen] = useState(false);
   const [activeTutorial, setActiveTutorial] = useState(null);
-  const showTutorial = (section) => {
-    const videoId = tutorials[section];
-    if (videoId && videoId.startsWith('ID_')) {
-      console.warn(`Video de tutorial para '${section}' no configurado.`);
-      return;
-    }
-    setActiveTutorial(videoId);
-  };
+  const showTutorial = useCallback((section) => {
+        const videoId = tutorials[section];
+        if (videoId && videoId.startsWith('ID_')) {
+            console.warn(`Video de tutorial para '${section}' no configurado.`);
+            return;
+        }
+        setActiveTutorial(videoId);
+    }, []);
   const navigateTo = (view) => {
     setCurrentView(view);
   };
@@ -692,7 +692,9 @@ function App() {
         videoId={activeTutorial} 
         onClose={() => setActiveTutorial(null)} 
       />
-      {renderView()}
+      <main className="main-content">
+        {renderView()}
+      </main>
     </>
   );
 }
