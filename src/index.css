@@ -1346,3 +1346,33 @@ z-index: 0;
   width: 100%;
   height: 100vh;
 }
+/* Estilo base para el botón de ordenar/pausar */
+.start-sort-button {
+  padding: 12px 24px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #1A1A2E; 
+  background-color: var(--verde-estelar);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  margin-top: 10px;
+}
+
+/* Efecto hover cuando el botón NO está deshabilitado */
+.start-sort-button:hover:not(:disabled) {
+  background-color: var(--amarillo-estrella);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); 
+}
+
+/* Estilo para cuando el botón está deshabilitado */
+.start-sort-button:disabled {
+  background-color: #B0B0B0; 
+  color: #6e6e6e;
+  cursor: not-allowed;
+  transform: none; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+}

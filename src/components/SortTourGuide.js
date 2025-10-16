@@ -10,7 +10,7 @@ const SortTourGuide = ({ run, onTourEnd }) => {
         },
         {
             target: '#tour-step-2',
-            content: 'En esta sección, selecciona el algoritmo y las acciones principales como "Generar" o "Reset".',
+            content: 'En esta sección, selecciona el algoritmo y las acciones principales como "Generar", "Reset", "Repetir".',
             placement: 'right',
         },
         {
@@ -25,7 +25,12 @@ const SortTourGuide = ({ run, onTourEnd }) => {
         },
         {
             target: '#tour-step-5',
-            content: 'Una vez que todo esté listo, haz clic aquí para iniciar la simulación visual.',
+            content: 'Una vez que todo esté listo, haz clic aquí para iniciar la simulación visual. Durante la simulación, puedes pausar o reanudar la animación en cualquier momento.',
+            placement: 'left',
+        },
+        {
+            target: '#tour-step-6',
+            content: 'Puedes volver a ver este tour en cualquier momento haciendo clic en este botón.',
             placement: 'left',
         }
     ];

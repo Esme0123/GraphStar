@@ -22,6 +22,7 @@ const SortSimulatorPage = ({ onGoBack }) => {
     const [timeElapsed, setTimeElapsed] = useState('0.00s');
     const [animationState, setAnimationState] = useState({});
     const [runTour, setRunTour] = useState(false); // Estado para el tour
+    const isPausedRef = useRef(isPaused);
     const animationTimeouts = useRef([]);
     const animationStep = useRef(0);
     const lastGeneratedArray = useRef([]);
@@ -73,7 +74,13 @@ const SortSimulatorPage = ({ onGoBack }) => {
         setAnimationState({});
         setTimeElapsed('0.00s');
     };
-
+    useEffect(() => {
+        isPausedRef.current = isPaused;
+    }, [isPaused]);
+    const handlePauseResume = () => {
+        if (!isSorting) return; 
+        setIsPaused(prevIsPaused => !prevIsPaused);
+    };
     const handleStart = () => {
         if (isSorting) return;
         
@@ -95,7 +102,7 @@ const SortSimulatorPage = ({ onGoBack }) => {
         }
         
         const runAnimationLoop = () => {
-            if (isPaused) {
+            if (isPausedRef.current) {
                 const timeoutId = setTimeout(runAnimationLoop, 100);
                 animationTimeouts.current.push(timeoutId);
                 return;
@@ -172,7 +179,7 @@ const SortSimulatorPage = ({ onGoBack }) => {
     return (
         <div className="simulator-page-container">
             <SortTourGuide run={runTour} onTourEnd={() => setRunTour(false)} />
-            <button onClick={() => setRunTour(true)} className="help-button" title="Mostrar tutorial">?</button>
+            <button id='tour-step-6' onClick={() => setRunTour(true)} className="help-button" title="Mostrar tutorial">?</button>
 
             <h1 className="simulator-title">Simulador de Ordenamiento</h1>
             <SortControls
@@ -183,6 +190,7 @@ const SortSimulatorPage = ({ onGoBack }) => {
                 onExport={handleExport}
                 isSorting={isSorting} isPaused={isPaused} timeElapsed={timeElapsed}
                 array={array}
+                onPauseResume={handlePauseResume}
             />
             <SortVisualizer array={array} animationState={animationState} />
             <button className="back-button-simulator" onClick={onGoBack}>↩️ Volver a Conceptos</button>

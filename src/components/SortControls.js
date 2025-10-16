@@ -2,7 +2,7 @@ import React from 'react';
 
 const SortControls = ({
     config, onConfigChange, onGenerate, onStart, onReset, onRepeat, onImport, onExport,
-    isSorting, timeElapsed, array
+    isSorting, timeElapsed, array,isPaused, onPauseResume
 }) => {
     const { mode, quantity, min, max, manualInput, direction, algorithm } = config;
 
@@ -56,7 +56,22 @@ const SortControls = ({
                     <button className="sidebar-button" onClick={onImport}>Importar</button>
                     <button className="sidebar-button" onClick={onExport}>Exportar</button>
                 </div>
-                <button id='tour-step-5' className="start-sort-button" onClick={onStart} disabled={isSorting || !array || array.length === 0}>ORDENAR</button>
+                {!isSorting ? (
+                    <button 
+                        id="tour-step-5"
+                        className="start-sort-button" 
+                        onClick={onStart} 
+                        disabled={!array || array.length === 0}>
+                        ORDENAR
+                    </button>
+                ) : (
+                    <button 
+                        id="tour-step-6"
+                        className="start-sort-button" 
+                        onClick={onPauseResume}>
+                        {isPaused ? 'CONTINUAR' : 'PAUSAR'}
+                    </button>
+                )}
                 <div className="timer">Tiempo: <span>{timeElapsed}</span></div>
             </div>
         </div>
