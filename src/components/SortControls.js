@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 const SortControls = ({
     config, onConfigChange, onGenerate, onStart, onReset, onRepeat, onImport, onExport,
@@ -56,7 +56,7 @@ const SortControls = ({
                     <button className="sidebar-button" onClick={onImport}>Importar</button>
                     <button className="sidebar-button" onClick={onExport}>Exportar</button>
                 </div>
-                <button className="start-sort-button" onClick={onStart} disabled={isSorting || !array || array.length === 0}>ORDENAR</button>
+                <button id='tour-step-5' className="start-sort-button" onClick={onStart} disabled={isSorting || !array || array.length === 0}>ORDENAR</button>
                 <div className="timer">Tiempo: <span>{timeElapsed}</span></div>
             </div>
         </div>

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import SortControls from './SortControls';
 import SortVisualizer from './SortVisualizer';
-import SortTourGuide from './SortTourGuide'; // Importamos el componente del tour
+import SortTourGuide from './SortTourGuide'; 
 import { getInsertionSortAnimations } from '../algorithms/insertionSort';
 import { getSelectionSortAnimations } from '../algorithms/selectionSort'; 
 import { getMergeSortAnimations } from '../algorithms/mergeSort';
@@ -18,11 +18,14 @@ const SortSimulatorPage = ({ onGoBack }) => {
     
     const [array, setArray] = useState([]);
     const [isSorting, setIsSorting] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
     const [timeElapsed, setTimeElapsed] = useState('0.00s');
     const [animationState, setAnimationState] = useState({});
     const [runTour, setRunTour] = useState(false); // Estado para el tour
-    const lastGeneratedArray = useRef([]);
     const animationTimeouts = useRef([]);
+    const animationStep = useRef(0);
+    const lastGeneratedArray = useRef([]);
+    const startTimeRef = useRef(0);
 
     const handleConfigChange = (key, value) => {
         setConfig(prev => ({ ...prev, [key]: value }));
@@ -38,21 +41,22 @@ const SortSimulatorPage = ({ onGoBack }) => {
             }
         } else {
             newArray = config.manualInput.split(',').map(n => parseInt(n.trim(), 10)).filter(num => !isNaN(num));
-            handleConfigChange('quantity', newArray.length);
+            setConfig(prev => ({ ...prev, quantity: newArray.length }));
         }
         setArray(newArray);
         lastGeneratedArray.current = [...newArray];
-    }, [config]);
+    }, [config.mode, config.quantity, config.min, config.max, config.manualInput]);
 
     // Genera el array solo la primera vez que la página carga
     useEffect(() => {
         handleGenerate();
-    }, []);
+    }, [handleGenerate]);
 
     const stopAnimation = () => {
         animationTimeouts.current.forEach(clearTimeout);
         animationTimeouts.current = [];
         setIsSorting(false);
+        setIsPaused(false);
     };
 
     const handleReset = () => {
@@ -71,57 +75,65 @@ const SortSimulatorPage = ({ onGoBack }) => {
     };
 
     const handleStart = () => {
-        if (isSorting || array.length === 0) return;
+        if (isSorting) return;
         
+        handleRepeat(); // Reinicia al estado original
         setIsSorting(true);
-        setAnimationState({});
-        const startTime = performance.now();
-        const tempArray = [...array];
+        setIsPaused(false);
+        animationStep.current = 0;
+        startTimeRef.current = performance.now();
+        
+        const tempArray = [...lastGeneratedArray.current];
         let animations = [];
 
-        // Aquí se decide qué algoritmo usar
         switch (config.algorithm) {
             case 'insertion': animations = getInsertionSortAnimations(tempArray, config.direction); break;
             case 'selection': animations = getSelectionSortAnimations(tempArray, config.direction); break;
             case 'merge': animations = getMergeSortAnimations(tempArray, config.direction); break;
             case 'shell': animations = getShellSortAnimations(tempArray, config.direction); break;
-            default:
-                alert(`El algoritmo ${config.algorithm} aún no está implementado.`);
-                setIsSorting(false);
-                return;
+            default: setIsSorting(false); return;
         }
+        
+        const runAnimationLoop = () => {
+            if (isPaused) {
+                const timeoutId = setTimeout(runAnimationLoop, 100);
+                animationTimeouts.current.push(timeoutId);
+                return;
+            }
+            if (animationStep.current >= animations.length) {
+                const endTime = performance.now();
+                setTimeElapsed(((endTime - startTimeRef.current) / 1000).toFixed(2) + 's');
+                setArray(tempArray);
+                setAnimationState({ sorted: tempArray.map((_, idx) => idx) });
+                stopAnimation();
+                return;
+            }
 
-        animations.forEach((step, i) => {
-            const timeoutId = setTimeout(() => {
-                const [type, ...indices] = step;
-                if (type === 'comparison') setAnimationState({ comparing: indices });
-                else if (type === 'swap') {
-                    setAnimationState({ swapping: indices });
-                    setArray(prev => {
-                        const newArr = [...prev];
-                        [newArr[indices[0]], newArr[indices[1]]] = [newArr[indices[1]], newArr[indices[0]]];
-                        return newArr;
-                    });
-                } else if (type === 'overwrite') {
-                    setAnimationState({ swapping: [indices[0]] });
-                    setArray(prev => {
-                        const newArr = [...prev];
-                        newArr[indices[0]] = indices[1];
-                        return newArr;
-                    });
-                }
-                if (i === animations.length - 1) {
-                    setTimeout(() => {
-                        const endTime = performance.now();
-                        setTimeElapsed(((endTime - startTime) / 1000).toFixed(2) + 's');
-                        setArray(tempArray);
-                        setAnimationState({ sorted: tempArray.map((_, idx) => idx) });
-                        setIsSorting(false);
-                    }, config.speed);
-                }
-            }, i * config.speed);
+            const [type, ...indices] = animations[animationStep.current];
+            
+            if (type === 'comparison') setAnimationState({ comparing: indices });
+            else if (type === 'swap') {
+                setAnimationState({ swapping: indices });
+                setArray(prev => {
+                    const newArr = [...prev];
+                    [newArr[indices[0]], newArr[indices[1]]] = [newArr[indices[1]], newArr[indices[0]]];
+                    return newArr;
+                });
+            } else if (type === 'overwrite') {
+                setAnimationState({ swapping: [indices[0]] });
+                setArray(prev => {
+                    const newArr = [...prev];
+                    newArr[indices[0]] = indices[1];
+                    return newArr;
+                });
+            }
+
+            animationStep.current++;
+            const timeoutId = setTimeout(runAnimationLoop, config.speed);
             animationTimeouts.current.push(timeoutId);
-        });
+        };
+        
+        runAnimationLoop();
     };
     
     const handleExport = () => {
@@ -138,7 +150,25 @@ const SortSimulatorPage = ({ onGoBack }) => {
         a.click();
         URL.revokeObjectURL(url);
     };
-
+    const handleImport = () => {
+        const input = document.createElement('input');
+        input.type = 'file'; input.accept = '.txt';
+        input.onchange = e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = readEvent => {
+                const content = readEvent.target.result;
+                handleConfigChange('manualInput', content);
+                handleConfigChange('mode', 'manual');
+                const newArray = content.split(',').map(n => parseInt(n.trim(), 10)).filter(num => !isNaN(num));
+                setArray(newArray);
+                lastGeneratedArray.current = [...newArray];
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    };
     return (
         <div className="simulator-page-container">
             <SortTourGuide run={runTour} onTourEnd={() => setRunTour(false)} />
@@ -148,10 +178,11 @@ const SortSimulatorPage = ({ onGoBack }) => {
             <SortControls
                 config={config} onConfigChange={handleConfigChange}
                 onGenerate={handleGenerate} onStart={handleStart}
-                onReset={handleReset} onRepeat={handleRepeat}
-                onImport={() => alert("Función de importar no implementada aún.")} // Placeholder
+                onReset={handleReset} onRepeat={handleRepeat} onStop={handleReset}
+                onImport={handleImport}
                 onExport={handleExport}
-                isSorting={isSorting} timeElapsed={timeElapsed}
+                isSorting={isSorting} isPaused={isPaused} timeElapsed={timeElapsed}
+                array={array}
             />
             <SortVisualizer array={array} animationState={animationState} />
             <button className="back-button-simulator" onClick={onGoBack}>↩️ Volver a Conceptos</button>
