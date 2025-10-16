@@ -9,7 +9,10 @@ import { getShellSortAnimations } from '../algorithms/shellSort';
 
 const generateRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
-const SortSimulatorPage = ({ onGoBack }) => {
+const SortSimulatorPage = ({ onGoBack,showTutorial }) => {
+    useEffect(() => {
+            showTutorial('sort'); 
+    }, []);
     const [config, setConfig] = useState({
         mode: 'random', quantity: 15, min: 5, max: 50,
         manualInput: '5,20,12,30,8', direction: 'asc', speed: 100,

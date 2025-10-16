@@ -30,9 +30,10 @@ import './index.css';
 const tutorials = {
   //home: 'ID_DEL_VIDEO_HOMEPAGE',       
   welcome: 'AsJia0nKSRg',    
-  //editorPizarra: 'ID_DEL_VIDEO_PIZARRA', 
+  editorPizarra: 'Mr4ufsuzZiA', 
   editorJohnson: 'bhdYIWRa6ug', 
   editorAssignment: '_Qne5iJwA38',
+  sort:'jfr0BJXvZh4',
 };
 let nodeIdCounter = 0;
 const GraphEditor = ({mode,onGoBack,showTutorial}) => {
@@ -72,9 +73,9 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
     else if (mode === 'assignment') {
       showTutorial('editorAssignment');
     } 
-    /*else {
+    else {
       showTutorial('editorPizarra');
-    }*/
+    }
   }, [mode]);
   const startTour = () => {
     setRunTour(true);
@@ -670,6 +671,7 @@ function App() {
       case 'sortSimulator':
         return <SortSimulatorPage 
                   onGoBack={() => navigateTo('welcomeSort')} 
+                  showTutorial={showTutorial}
                 />;
     }
   };
