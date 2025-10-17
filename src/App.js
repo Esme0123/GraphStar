@@ -33,7 +33,7 @@ const tutorials = {
   editorPizarra: 'Mr4ufsuzZiA', 
   editorJohnson: 'bhdYIWRa6ug', 
   editorAssignment: '_Qne5iJwA38',
-  sort:'jfr0BJXvZh4',
+  sort:'CX0Qfue-iWo',
 };
 let nodeIdCounter = 0;
 const GraphEditor = ({mode,onGoBack,showTutorial}) => {

@@ -15,7 +15,7 @@ const modules = [
   {
     title: 'NorthWest',
     img: process.env.PUBLIC_URL + 'IMG/img_northwest.png',
-    description: '(Próximamente)',
+    description: 'Ches',
     enabled: false,
   },
   {
@@ -24,6 +24,18 @@ const modules = [
     description: 'Los algoritmos de ordenamiento dan forma al caos de los datos. Cada uno sigue su propio patrón para organizar el universo numérico, como constelaciones que revelan armonía en el cielo de GraphStar.',
     enabled: true,
     targetView: 'welcomeSort',
+  },
+  {
+    title: 'Tree',
+    img: process.env.PUBLIC_URL + 'IMG/img_tree.png',
+    description: 'Ani',
+    enabled: false,
+  },
+  {
+    title: 'MathLab',
+    img: process.env.PUBLIC_URL + 'IMG/img_mathlab.png',
+    description: 'Cami y Franco',
+    enabled: false,
   },
 ];
 
@@ -44,24 +56,47 @@ const HomePage = ({ onNavigate,onGoBack}) => {
       <div className="home-content">
         <h1 className="home-title">Escoge tu destino</h1>
         <h2 className="home-subtitle">Selecciona un módulo para comenzar tu viaje</h2>
-        <div className="modules-grid">
-          {modules.map((mod) => (
-            <ElectricBorderCard key={mod.title} enabled={mod.enabled}>
-              <h3 style={{ textAlign: 'center' }}>{mod.title}</h3>
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0px 0' }}>
-                <img src={mod.img} alt={mod.title + ' icon'} style={{ width: '250px', height: '250px', objectFit: 'contain' }} />
-              </div>
-              <p style={{ textAlign: 'center' }}>{mod.description}</p>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <button
-                  onClick={() => mod.enabled && onNavigate(mod.targetView)}
-                  disabled={!mod.enabled}
-                >
-                  START
-                </button>
-              </div>
-            </ElectricBorderCard>
-          ))}
+        <div className="modules-viewport">
+          
+          <div className="modules-grid modules-track">
+            {modules.map((mod) => (
+              <ElectricBorderCard key={mod.title} enabled={mod.enabled}>
+                <h3 style={{ textAlign: 'center' }}>{mod.title}</h3>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0px 0' }}>
+                  <img src={mod.img} alt={mod.title + ' icon'} style={{ width: '250px', height: '250px', objectFit: 'contain' }} />
+                </div>
+                <p style={{ textAlign: 'center' }}>{mod.description}</p>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <button
+                    onClick={() => mod.enabled && onNavigate(mod.targetView)}
+                    disabled={!mod.enabled}
+                  >
+                    START
+                  </button>
+                </div>
+              </ElectricBorderCard>
+            ))}
+            {/* Usamos 'aria-hidden' para que los lectores de pantalla no los lean dos veces */}
+            {modules.map((mod) => (
+              <ElectricBorderCard key={`${mod.title}-clone`} enabled={mod.enabled} aria-hidden="true">
+                <h3 style={{ textAlign: 'center' }}>{mod.title}</h3>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0px 0' }}>
+                  <img src={mod.img} alt={mod.title + ' icon'} style={{ width: '250px', height: '250px', objectFit: 'contain' }} />
+                </div>
+                <p style={{ textAlign: 'center' }}>{mod.description}</p>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <button
+                    onClick={() => mod.enabled && onNavigate(mod.targetView)}
+                    disabled={!mod.enabled}
+                    tabIndex={-1} 
+                  >
+                    START
+                  </button>
+                </div>
+              </ElectricBorderCard>
+            ))}
+
+          </div>
         </div>
       </div>
       <div className="welcome-nav bottom-right"> 
