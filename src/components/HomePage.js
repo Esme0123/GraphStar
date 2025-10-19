@@ -28,8 +28,9 @@ const modules = [
   {
     title: 'Tree',
     img: process.env.PUBLIC_URL + 'IMG/img_tree.png',
-    description: 'Ani',
-    enabled: false,
+    description: 'Explora estructuras jerárquicas donde cada decisión abre nuevos caminos. Los árboles revelan la lógica oculta detrás de elecciones eficientes, búsquedas rápidas y estructuras que se ramifican como raíces cósmicas en GraphStar',
+    enabled: true,
+    targetView: 'welcomeTrees',
   },
   {
     title: 'MathLab',

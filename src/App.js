@@ -24,7 +24,9 @@ import { runAssignmentAlgorithm } from './algorithms/assignment';
 import SimulationControls from './components/SimulationControls';
 import PathWithSlackEdge from './components/PathWithSlackEdge';
 import WelcomeSortPage from './components/WelcomeSortPage';
+import WelcomeTreesPage from './components/WelcomeTreesPage';
 import SortSimulatorPage from './components/SortSimulatorPage';
+import TreeSimulator from './components/TreeSimulator';
 
 import './index.css';
 const tutorials = {
@@ -673,6 +675,17 @@ function App() {
                   onGoBack={() => navigateTo('welcomeSort')} 
                   showTutorial={showTutorial}
                 />;
+      //--------------------------------------------------------TREES
+      case 'welcomeTrees':
+        return <WelcomeTreesPage 
+                  onGoToSimulator={() => navigateTo('treeSimulator')}
+                  onGoBack={() => navigateTo('home')}
+                />;
+      case 'treeSimulator':
+        return <TreeSimulator
+                  onGoBack={() => navigateTo('welcomeTrees')}
+                  showTutorial={showTutorial}
+        />;
     }
   };
   return (
