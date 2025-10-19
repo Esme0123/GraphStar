@@ -15,8 +15,9 @@ const modules = [
   {
     title: 'NorthWest',
     img: process.env.PUBLIC_URL + 'IMG/img_northwest.png',
-    description: 'Ches',
-    enabled: false,
+    description: 'Construye la matriz del problema, aplica la regla Norwest y optimiza con MODI paso a paso.',
+    enabled: true,
+    targetView: 'norwest',
   },
   {
     title: 'Sort',

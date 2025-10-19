@@ -27,6 +27,7 @@ import WelcomeSortPage from './components/WelcomeSortPage';
 import WelcomeTreesPage from './components/WelcomeTreesPage';
 import SortSimulatorPage from './components/SortSimulatorPage';
 import TreeSimulator from './components/TreeSimulator';
+import TransportePage from './components/TransportePage';
 
 import './index.css';
 const tutorials = {
@@ -36,6 +37,7 @@ const tutorials = {
   editorJohnson: 'bhdYIWRa6ug', 
   editorAssignment: '_Qne5iJwA38',
   sort:'CX0Qfue-iWo',
+  norwest: 'ID_TUTORIAL_NORWEST',
 };
 let nodeIdCounter = 0;
 const GraphEditor = ({mode,onGoBack,showTutorial}) => {
@@ -675,6 +677,15 @@ function App() {
                   onGoBack={() => navigateTo('welcomeSort')} 
                   showTutorial={showTutorial}
                 />;
+      //northwest
+      case 'norwest':
+        return (
+          <TransportePage
+            onGoBack={() => navigateTo('home')}
+            showTutorial={showTutorial}
+          />
+        );
+
       //--------------------------------------------------------TREES
       case 'welcomeTrees':
         return <WelcomeTreesPage 
