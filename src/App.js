@@ -37,7 +37,8 @@ const tutorials = {
   editorJohnson: 'bhdYIWRa6ug', 
   editorAssignment: '_Qne5iJwA38',
   sort:'CX0Qfue-iWo',
-  norwest: 'ID_TUTORIAL_NORWEST',
+  northwest: 'ID_TUTORIAL_NORWEST',
+  tree: 'CQjMOiFaxSw',
 };
 let nodeIdCounter = 0;
 const GraphEditor = ({mode,onGoBack,showTutorial}) => {
