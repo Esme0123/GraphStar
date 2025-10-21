@@ -105,10 +105,109 @@ class BinarySearchTree {
         node.right = this._deserializeNode(nodeData.right);
         return node;
     }
+
+    // --- MÉTODOS DE RECONSTRUCCIÓN ---
+
+    /**
+     * Reconstruye un árbol binario a partir de los recorridos In-Order y Post-Order.
+     * @param {Array<number>} inOrder - Arreglo del recorrido In-Order.
+     * @param {Array<number>} postOrder - Arreglo del recorrido Post-Order.
+     * @returns {BinarySearchTree} - Una nueva instancia del árbol reconstruido.
+     */
+    static fromInPost(inOrder, postOrder) {
+        if (!inOrder || !postOrder || inOrder.length === 0 || inOrder.length !== postOrder.length) {
+            throw new Error("Los arreglos In-Order y Post-Order deben existir y tener la misma longitud.");
+        }
+        
+        const inOrderMap = new Map();
+        inOrder.forEach((val, index) => inOrderMap.set(val, index));
+        
+        // El último elemento de Post-Order es la raíz
+        let postIndex = postOrder.length - 1;
+
+        function buildTree(inStart, inEnd) {
+            // Caso base
+            if (inStart > inEnd) return null;
+
+            // Obtener la raíz actual del final del arreglo Post-Order
+            const rootVal = postOrder[postIndex];
+            postIndex--; // Mover el índice al siguiente "padre"
+            const rootNode = new TreeNode(rootVal);
+            
+            // Encontrar la raíz en In-Order para saber qué es izquierda y qué es derecha
+            const inIndex = inOrderMap.get(rootVal);
+            if (inIndex === undefined) {
+                throw new Error(`El valor ${rootVal} de Post-Order no se encontró en In-Order. ¿Hay duplicados?`);
+            }
+
+            // IMPORTANTE: Construir el subárbol DERECHO primero,
+            // porque estamos consumiendo el arreglo Post-Order desde el final.
+            rootNode.right = buildTree(inIndex + 1, inEnd);
+            // Construir el subárbol izquierdo
+            rootNode.left = buildTree(inStart, inIndex - 1);
+
+            return rootNode;
+        }
+
+        const tree = new BinarySearchTree();
+        tree.root = buildTree(0, inOrder.length - 1);
+        
+        if (postIndex !== -1) {
+             throw new Error("El arreglo Post-Order no se consumió completamente. Verifique si hay duplicados o valores inválidos.");
+        }
+        return tree;
+    }
+
+    /**
+     * Reconstruye un árbol binario a partir de los recorridos In-Order y Pre-Order.
+     * @param {Array<number>} inOrder - Arreglo del recorrido In-Order.
+     * @param {Array<number>} preOrder - Arreglo del recorrido Pre-Order.
+     * @returns {BinarySearchTree} - Una nueva instancia del árbol reconstruido.
+     */
+    static fromInPre(inOrder, preOrder) {
+        if (!inOrder || !preOrder || inOrder.length === 0 || inOrder.length !== preOrder.length) {
+            throw new Error("Los arreglos In-Order y Pre-Order deben existir y tener la misma longitud.");
+        }
+        
+        const inOrderMap = new Map();
+        inOrder.forEach((val, index) => inOrderMap.set(val, index));
+        
+        // El primer elemento de Pre-Order es la raíz
+        let preIndex = 0;
+
+        function buildTree(inStart, inEnd) {
+            // Caso base
+            if (inStart > inEnd) return null;
+
+            // Obtener la raíz actual del inicio del arreglo Pre-Order
+            const rootVal = preOrder[preIndex];
+            preIndex++; // Mover el índice a la siguiente raíz (del subárbol izquierdo)
+            const rootNode = new TreeNode(rootVal);
+
+            // Encontrar la raíz en In-Order
+            const inIndex = inOrderMap.get(rootVal);
+            if (inIndex === undefined) {
+                throw new Error(`El valor ${rootVal} de Pre-Order no se encontró en In-Order. ¿Hay duplicados?`);
+            }
+
+            // Construir el subárbol izquierdo
+            rootNode.left = buildTree(inStart, inIndex - 1);
+            // Construir el subárbol derecho
+            rootNode.right = buildTree(inIndex + 1, inEnd);
+
+            return rootNode;
+        }
+
+        const tree = new BinarySearchTree();
+        tree.root = buildTree(0, inOrder.length - 1);
+        
+        if (preIndex !== preOrder.length) {
+             throw new Error("El arreglo Pre-Order no se consumió completamente. Verifique si hay duplicados o valores inválidos.");
+        }
+        return tree;
+    }
 }
 // // --- Componentes de React ---
-
-// // Estilos CSS embebidos para mantener todo en un archivo
 const Styles = () => (
     <style>{`
         :root {
@@ -186,7 +285,12 @@ const Styles = () => (
             transition: all 0.3s ease;
         }
         
-        .traversal-btn.active, .traversal-btn:hover {
+        .traversal-btn.active {
+            background-color: var(--verde-galactico);
+            color: var(--negro-cosmico);
+            box-shadow: 0 0 15px var(--verde-galactico);
+        }
+        .traversal-btn:hover:not(.active) {
             background-color: var(--verde-galactico);
             color: var(--negro-cosmico);
             box-shadow: 0 0 15px var(--verde-galactico);
@@ -384,6 +488,88 @@ const Styles = () => (
             100% { opacity: 0; top: 0px; }
         }
 
+        /* --- NUEVOS ESTILOS PARA RECONSTRUCCIÓN --- */
+        .reconstruction-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background-color: rgba(44, 62, 80, 0.5);
+            border-radius: 15px;
+            border: 1px solid var(--verde-galactico);
+            width: 100%;
+            max-width: 800px;
+            color: var(--blanco-estelar);
+        }
+
+        .reconstruct-method-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch; /* Estirar items para que tengan el mismo ancho */
+        }
+        .reconstruct-method-group h3 {
+            font-family: var(--font-title);
+            margin: 0;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        .reconstruct-method-group label {
+            background-color: rgba(0,0,0,0.3);
+            border: 1px solid var(--verde-galactico);
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: var(--font-text);
+        }
+        .reconstruct-method-group input[type="radio"] {
+             margin-right: 10px;
+             /* Estilo para el botón de radio */
+             accent-color: var(--verde-galactico);
+        }
+         .reconstruct-method-group label:has(input:checked) {
+            background-color: var(--verde-galactico);
+            color: var(--negro-cosmico);
+            font-weight: bold;
+            box-shadow: 0 0 10px var(--verde-galactico);
+        }
+
+        .reconstruct-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+        }
+        .reconstruct-input-group .input-pair {
+            align-items: flex-start; /* Alinear labels a la izquierda */
+            width: 100%;
+        }
+        .reconstruct-input-group label {
+             margin-bottom: 5px;
+             font-family: var(--font-title);
+             font-size: 1.1rem;
+             color: var(--verde-galactico);
+        }
+
+        .traversal-input {
+            background-color: var(--negro-cosmico);
+            color: var(--blanco-estelar);
+            border: 1px solid var(--verde-galactico);
+            border-radius: 5px;
+            padding: 10px;
+            width: 100%;
+            font-family: var(--font-text);
+            font-size: 1.1rem;
+            box-sizing: border-box; /* Importante para width: 100% */
+        }
+        .traversal-input::placeholder {
+            color: #777;
+        }
+
     `}</style>
 );
 
@@ -506,6 +692,134 @@ const ExportFileModal = ({ onExport, onCancel }) => {
 };
 
 
+// --- NUEVO COMPONENTE PARA EL PANEL DE RECONSTRUCCIÓN ---
+const TreeReconstructionPanel = ({ onTreeReconstructed, showNotification }) => {
+    const [reconstructMode, setReconstructMode] = useState('in-post'); // 'in-post' o 'in-pre'
+    const [inOrderStr, setInOrderStr] = useState('');
+    const [postOrderStr, setPostOrderStr] = useState('');
+    const [preOrderStr, setPreOrderStr] = useState('');
+
+    /**
+     * Parsea un string de números (separados por coma o espacio) a un arreglo de números.
+     */
+    const parseInput = (str) => {
+        return str.split(/[\s,]+/) // Separar por comas o espacios
+                  .filter(s => s.trim() !== '') // Quitar strings vacíos
+                  .map(s => parseInt(s, 10)) // Convertir a número
+                  .filter(val => !isNaN(val)); // Quitar cualquier "NaN" resultante
+    };
+
+    const handleReconstruct = () => {
+        const inOrder = parseInput(inOrderStr);
+        
+        if (inOrder.length === 0) {
+            showNotification("El recorrido In Order no puede estar vacío.");
+            return;
+        }
+        
+        try {
+            let newTree;
+            if (reconstructMode === 'in-post') {
+                const postOrder = parseInput(postOrderStr);
+                if (postOrder.length === 0) {
+                    showNotification("El recorrido Post Order no puede estar vacío.");
+                    return;
+                }
+                if (inOrder.length !== postOrder.length) {
+                     showNotification("Los recorridos In Order y Post Order deben tener la misma longitud.");
+                     return;
+                }
+                newTree = BinarySearchTree.fromInPost(inOrder, postOrder);
+            } else { // 'in-pre'
+                const preOrder = parseInput(preOrderStr);
+                 if (preOrder.length === 0) {
+                    showNotification("El recorrido Pre Order no puede estar vacío.");
+                    return;
+                }
+                if (inOrder.length !== preOrder.length) {
+                     showNotification("Los recorridos In Order y Pre Order deben tener la misma longitud.");
+                     return;
+                }
+                newTree = BinarySearchTree.fromInPre(inOrder, preOrder);
+            }
+            onTreeReconstructed(newTree.serialize()); // Pasar el árbol serializado al componente padre
+            showNotification("Árbol reconstruido exitosamente. 🎉");
+        } catch (error) {
+            showNotification(`Error: ${error.message}`);
+            console.error("Error en reconstrucción:", error);
+        }
+    };
+
+    return (
+        <div className="reconstruction-container" id="tour-reconstruct-1">
+            <h1 className="simulator-title">Reconstructor de Árboles</h1>
+            <div className="reconstruct-method-group">
+                <h3>Método de Reconstrucción</h3>
+                <label>
+                    <input 
+                        type="radio" 
+                        value="in-post" 
+                        checked={reconstructMode === 'in-post'} 
+                        onChange={() => setReconstructMode('in-post')} 
+                    />
+                    IN ORDER + POST ORDER
+                </label>
+                <label>
+                    <input 
+                        type="radio" 
+                        value="in-pre" 
+                        checked={reconstructMode === 'in-pre'} 
+                        onChange={() => setReconstructMode('in-pre')} 
+                    />
+                    IN ORDER + PRE ORDER
+                </label>
+            </div>
+            
+            <div className="reconstruct-input-group">
+                <div className="input-pair">
+                    <label>IN ORDER:</label>
+                    <input 
+                        type="text" 
+                        value={inOrderStr} 
+                        onChange={(e) => setInOrderStr(e.target.value)}
+                        placeholder="Ej: 2, 3, 5, 8, 15"
+                        className="traversal-input"
+                    />
+                </div>
+                
+                {reconstructMode === 'in-post' ? (
+                    <div className="input-pair">
+                        <label>POST ORDER:</label>
+                        <input 
+                            type="text" 
+                            value={postOrderStr} 
+                            onChange={(e) => setPostOrderStr(e.target.value)}
+                            placeholder="Ej: 2, 5, 3, 15, 8"
+                            className="traversal-input"
+                        />
+                    </div>
+                ) : (
+                     <div className="input-pair">
+                        <label>PRE ORDER:</label>
+                        <input 
+                            type="text" 
+                            value={preOrderStr} 
+                            onChange={(e) => setPreOrderStr(e.target.value)}
+                            placeholder="Ej: 8, 3, 2, 5, 15"
+                            className="traversal-input"
+                        />
+                    </div>
+                )}
+            </div>
+            
+            <button className="io-btn" onClick={handleReconstruct} style={{padding: '12px 25px', fontSize: '1rem'}}>
+                Reconstruir Árbol
+            </button>
+        </div>
+    );
+};
+
+
 // --- Componente Principal ---
 const TreeSimulator = ({ onGoBack }) => { 
     const [treeInstance, setTreeInstance] = useState(new BinarySearchTree());
@@ -519,8 +833,12 @@ const TreeSimulator = ({ onGoBack }) => {
         quantity: 10,
     });
     
+    // --- ESTADOS MODIFICADOS ---
+    const [appMode, setAppMode] = useState('simulator'); // 'simulator' o 'reconstructor'
     const [isTraversing, setIsTraversing] = useState(false);
-    const [traversalType, setTraversalType] = useState('');
+    const [traversalType, setTraversalType] = useState(''); // Solo para el modo 'simulator'
+    // ---
+    
     const [traversalResult, setTraversalResult] = useState([]);
     const [highlightedNode, setHighlightedNode] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -623,11 +941,14 @@ const TreeSimulator = ({ onGoBack }) => {
     };
     
     const handleStartTraversal = (type) => {
-        if (isTraversing || !treeInstance.root) return;
+        if (isTraversing || !treeInstance.root) {
+            if (!treeInstance.root) showNotification("El árbol está vacío. Genere o inserte nodos primero.");
+            return;
+        }
         
         stopTraversal();
         setTraversalResult([]);
-        setTraversalType(type);
+        setTraversalType(type); // Setea el tipo de recorrido para la clase 'active'
 
         let animations = [];
         if (type === 'IN ORDER') animations = treeInstance.getInOrderAnimations();
@@ -686,6 +1007,7 @@ const TreeSimulator = ({ onGoBack }) => {
                     handleReset();
                     setTreeInstance(newTree);
                     setTreeData(newTree.serialize());
+                    setAppMode('simulator'); // Volver al modo simulador al importar
                 } catch (error) {
                     showNotification("Error al leer el archivo. Verifique el formato.");
                     console.error("Error al importar JSON:", error);
@@ -710,55 +1032,98 @@ const TreeSimulator = ({ onGoBack }) => {
                 ↩️ Volver a Conceptos
             </button>
             
-            <h1 className="simulator-title">Simulador de Árboles</h1>
-
+            {/* Los botones de navegación ahora controlan appMode */}
             <div className="traversal-buttons" id= "tour-tree-step-1">
-                <button className={`traversal-btn ${traversalType === 'IN ORDER' ? 'active' : ''}`} onClick={() => handleStartTraversal('IN ORDER')} disabled={isTraversing}>IN ORDER</button>
-                <button className={`traversal-btn ${traversalType === 'POST ORDER' ? 'active' : ''}`} onClick={() => handleStartTraversal('POST ORDER')} disabled={isTraversing}>POST ORDER</button>
-                <button className={`traversal-btn ${traversalType === 'PRE ORDER' ? 'active' : ''}`} onClick={() => handleStartTraversal('PRE ORDER')} disabled={isTraversing}>PRE ORDER</button>
+                <button 
+                    className={`traversal-btn ${appMode === 'simulator' && traversalType === 'IN ORDER' ? 'active' : ''}`} 
+                    onClick={() => {
+                        setAppMode('simulator');
+                        handleStartTraversal('IN ORDER');
+                    }} 
+                    disabled={isTraversing}>IN ORDER</button>
+                <button 
+                    className={`traversal-btn ${appMode === 'simulator' && traversalType === 'POST ORDER' ? 'active' : ''}`} 
+                    onClick={() => {
+                        setAppMode('simulator');
+                        handleStartTraversal('POST ORDER');
+                    }} 
+                    disabled={isTraversing}>POST ORDER</button>
+                <button 
+                    className={`traversal-btn ${appMode === 'simulator' && traversalType === 'PRE ORDER' ? 'active' : ''}`} 
+                    onClick={() => {
+                        setAppMode('simulator');
+                        handleStartTraversal('PRE ORDER');
+                    }} 
+                    disabled={isTraversing}>PRE ORDER</button>
+                <button 
+                    className={`traversal-btn ${appMode === 'reconstructor' ? 'active' : ''}`} 
+                    onClick={() => {
+                        stopTraversal();
+                        handleReset(); // Limpiar el árbol al cambiar a reconstruir
+                        setAppMode('reconstructor');
+                    }} 
+                    disabled={isTraversing}>RECONSTRUIR</button>
             </div>
             
-            <div className="controls-container" id = "tour-tree-step-2">
-                <div className="control-group">
-                    <label><input type="radio" value="random" checked={config.mode === 'random'} onChange={(e) => handleConfigChange('mode', e.target.value)} disabled={isTraversing} /> Aleatorio</label>
-                    <label><input type="radio" value="manual" checked={config.mode === 'manual'} onChange={(e) => handleConfigChange('mode', e.target.value)} disabled={isTraversing} /> Manual</label>
-                </div>
-                
-                {config.mode === 'random'  ? (
-                     <div className="control-group random-controls-group" id = "tour-tree-step-3">
-                        <div className="input-pair">
-                            <label>Cantidad:</label>
-                            <input type="number" value={config.quantity} onChange={(e) => handleConfigChange('quantity', e.target.value)} disabled={isTraversing} />
+            {/* Renderizado condicional basado en appMode */}
+            {appMode === 'simulator' ? (
+                <>
+                    <h1 className="simulator-title">Simulador de Árboles</h1>
+                    <div className="controls-container" id = "tour-tree-step-2">
+                        <div className="control-group">
+                            <label><input type="radio" value="random" checked={config.mode === 'random'} onChange={(e) => handleConfigChange('mode', e.target.value)} disabled={isTraversing} /> Aleatorio</label>
+                            <label><input type="radio" value="manual" checked={config.mode === 'manual'} onChange={(e) => handleConfigChange('mode', e.target.value)} disabled={isTraversing} /> Manual</label>
                         </div>
-                        <div className="input-pair">
-                            <label>Min:</label>
-                            <input type="number" value={config.min} onChange={(e) => handleConfigChange('min', e.target.value)} disabled={isTraversing} />
+                        
+                        {config.mode === 'random'  ? (
+                             <div className="control-group random-controls-group" id = "tour-tree-step-3">
+                                <div className="input-pair">
+                                    <label>Cantidad:</label>
+                                    <input type="number" value={config.quantity} onChange={(e) => handleConfigChange('quantity', e.target.value)} disabled={isTraversing} />
+                                </div>
+                                <div className="input-pair">
+                                    <label>Min:</label>
+                                    <input type="number" value={config.min} onChange={(e) => handleConfigChange('min', e.target.value)} disabled={isTraversing} />
+                                </div>
+                                 <div className="input-pair">
+                                    <label>Max:</label>
+                                    <input type="number" value={config.max} onChange={(e) => handleConfigChange('max', e.target.value)} disabled={isTraversing} />
+                                </div>
+                                <button className="io-btn" onClick={handleGenerate} disabled={isTraversing}>Generar</button>
+                             </div>
+                        ) : (
+                            <div className="control-group" id = "tour-tree-step-4">
+                                <button className="io-btn" onClick={() => setIsModalOpen(true)} disabled={isTraversing}>Insertar Nodo</button>
+                            </div>
+                        )}
+                         <div className="control-group" id="tour-tree-step-5">
+                            <div className="io-buttons">
+                                <button className="io-btn" onClick={handleImport} disabled={isTraversing}>Importar</button>
+                                <button className="io-btn" onClick={handleExportRequest} disabled={isTraversing}>Exportar</button>
+                            </div>
+                             <button className="io-btn" onClick={handleReset} style={{backgroundColor: 'var(--rojo-supernova)'}} disabled={isTraversing}>Reset</button>
                         </div>
-                         <div className="input-pair">
-                            <label>Max:</label>
-                            <input type="number" value={config.max} onChange={(e) => handleConfigChange('max', e.target.value)} disabled={isTraversing} />
-                        </div>
-                        <button className="io-btn" onClick={handleGenerate} disabled={isTraversing}>Generar</button>
-                     </div>
-                ) : (
-                    <div className="control-group" id = "tour-tree-step-4">
-                        <button className="io-btn" onClick={() => setIsModalOpen(true)} disabled={isTraversing}>Insertar Nodo</button>
                     </div>
-                )}
-                 <div className="control-group" id="tour-tree-step-5">
-                    <div className="io-buttons">
-                        <button className="io-btn" onClick={handleImport} disabled={isTraversing}>Importar</button>
-                        <button className="io-btn" onClick={handleExportRequest} disabled={isTraversing}>Exportar</button>
+
+                    <div className="traversal-result" id="tour-tree-step-6">
+                        <strong>Recorrido del Árbol:</strong> 
+                        {traversalResult.length > 0 ? ` ${traversalResult.join(', ')}` : <span className="traversal-result-placeholder">...</span>}
                     </div>
-                     <button className="io-btn" onClick={handleReset} style={{backgroundColor: 'var(--rojo-supernova)'}} disabled={isTraversing}>Reset</button>
-                </div>
-            </div>
+                </>
+            ) : (
+                <TreeReconstructionPanel 
+                    onTreeReconstructed={(newTreeData) => {
+                        // Esta función de callback actualiza el estado principal
+                        const newTree = BinarySearchTree.fromSerialized(newTreeData);
+                        setTreeInstance(newTree);
+                        setTreeData(newTreeData);
+                        setTraversalResult([]); // Limpiar resultados de recorridos antiguos
+                    }}
+                    showNotification={showNotification}
+                />
+            )}
 
-            <div className="traversal-result" id="tour-tree-step-6">
-                <strong>Recorrido del Árbol:</strong> 
-                {traversalResult.length > 0 ? ` ${traversalResult.join(', ')}` : <span className="traversal-result-placeholder">...</span>}
-            </div>
-
+            {/* El visualizador es común y siempre muestra el treeData actual */}
             <TreeVisualizer treeData={treeData} highlightedNode={highlightedNode} nodePositions={nodePositions} />
 
         </div>
