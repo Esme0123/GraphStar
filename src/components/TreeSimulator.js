@@ -821,7 +821,10 @@ const TreeReconstructionPanel = ({ onTreeReconstructed, showNotification }) => {
 
 
 // --- Componente Principal ---
-const TreeSimulator = ({ onGoBack }) => { 
+const TreeSimulator = ({ onGoBack,showTutorial }) => { 
+    useEffect(() => {
+        showTutorial('tree'); 
+    }, []);
     const [treeInstance, setTreeInstance] = useState(new BinarySearchTree());
     const [treeData, setTreeData] = useState(null); 
     const [nodePositions, setNodePositions] = useState({});

@@ -79,7 +79,7 @@ const TransportePage = ({ onGoBack, showTutorial }) => {
               Volver
             </button>
             <div>
-              <h1>Norwest Solver</h1>
+              <h1>Northwest Solver</h1>
               <p className="transporte-descripcion">
                 Resolver interactivo para el Problema de Transporte.
               </p>
@@ -102,7 +102,7 @@ const TransportePage = ({ onGoBack, showTutorial }) => {
               <button
                 type="button"
                 className="transporte-tutorial"
-                onClick={() => showTutorial('norwest')}
+                onClick={() => showTutorial('northwest')}
               >
                 Tutorial
               </button>
