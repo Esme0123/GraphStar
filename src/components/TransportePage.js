@@ -3,6 +3,7 @@ import useTransporte from '../hooks/useTransporte';
 import MatrizEntrada from './MatrizEntrada';
 import SolucionVista from './SolucionVista';
 import IteracionesVista from './IteracionesVista';
+import NorthwestTourGuide from './NorthwestTourGuide';
 import './TransportePage.css';
 
 const TABS = [
@@ -14,6 +15,7 @@ const TABS = [
 const TransportePage = ({ onGoBack, showTutorial }) => {
   const [tabActiva, setTabActiva] = useState('entrada');
   const [iteracionActual, setIteracionActual] = useState(0);
+  const [runTour, setRunTour] = useState(false);
 
   const {
     matrizCostos,
@@ -41,7 +43,16 @@ const TransportePage = ({ onGoBack, showTutorial }) => {
     exportarCSV,
     puedeEliminarFila,
     puedeEliminarColumna,
+    balanceAutomatico,
   } = useTransporte();
+
+  useEffect(() => {
+    const visto = typeof window !== 'undefined' ? localStorage.getItem('northwestTourSeen') : 'true';
+    if (!visto) {
+      setRunTour(true);
+      localStorage.setItem('northwestTourSeen', 'true');
+    }
+  }, []);
 
   useEffect(() => {
     if (resultado?.procesoIteraciones?.length) {
@@ -73,6 +84,16 @@ const TransportePage = ({ onGoBack, showTutorial }) => {
   return (
     <div className="transporte-page">
       <div className="transporte-container">
+        <NorthwestTourGuide run={runTour} onTourEnd={() => setRunTour(false)} />
+        <button
+          id="northwest-tour-help"
+          type="button"
+          className="help-button"
+          title="Mostrar guía interactiva"
+          onClick={() => setRunTour(true)}
+        >
+          ?
+        </button>
         <header className="transporte-header">
           <div className="transporte-header-left">
             <button type="button" className="transporte-back" onClick={onGoBack}>
@@ -110,7 +131,7 @@ const TransportePage = ({ onGoBack, showTutorial }) => {
           </div>
         </header>
 
-        <nav className="transporte-tabs">
+        <nav className="transporte-tabs" id="northwest-tour-tabs">
           {TABS.map((tab) => {
             const disabled = tab.id !== 'entrada' && !resultado;
             const active = tabActiva === tab.id;
@@ -154,6 +175,7 @@ const TransportePage = ({ onGoBack, showTutorial }) => {
               onExportarCSV={exportarCSV}
               error={error}
               onCerrarError={limpiarError}
+              balanceAutomatico={balanceAutomatico}
             />
           )}
 

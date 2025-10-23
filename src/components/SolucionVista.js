@@ -61,14 +61,18 @@ const SolucionVista = ({ resultado, tipoProblema }) => {
               <tr key={`sol-row-${indiceFila}`}>
                 <th>Destino {indiceFila + 1}</th>
                 {fila.map((valor, indiceColumna) => {
-                  const cantidad = Number(valor) || 0;
-                  const tieneAsignacion = cantidad > 0;
+                  const numero = Number(valor);
+                  const esNumero = Number.isFinite(numero);
+                  const esAsignacion = esNumero && Math.abs(numero) > 1e-6;
+                  const textoCelda = esAsignacion
+                    ? (Number.isInteger(numero) ? numero : Number(numero.toFixed(4)))
+                    : '-';
                   return (
                     <td
                       key={`sol-cell-${indiceFila}-${indiceColumna}`}
-                      className={tieneAsignacion ? 'cell-assigned-positive' : 'cell-empty'}
+                      className={esAsignacion ? 'cell-assigned-positive' : 'cell-empty'}
                     >
-                      {tieneAsignacion ? cantidad : '-'}
+                      {textoCelda}
                     </td>
                   );
                 })}
