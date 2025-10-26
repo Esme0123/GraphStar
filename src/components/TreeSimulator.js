@@ -206,6 +206,65 @@ class BinarySearchTree {
         }
         return tree;
     }
+
+    /**
+     * --- ¡NUEVO MÉTODO! ---
+     * Reconstruye un árbol binario a partir de los recorridos Pre-Order y Post-Order.
+     * @param {Array<number>} preOrder - Arreglo del recorrido Pre-Order.
+     * @param {Array<number>} postOrder - Arreglo del recorrido Post-Order.
+     * @returns {BinarySearchTree} - Una nueva instancia del árbol reconstruido.
+     */
+    static fromPrePost(preOrder, postOrder) {
+        if (!preOrder || !postOrder || preOrder.length === 0 || preOrder.length !== postOrder.length) {
+            throw new Error("Los arreglos Pre-Order y Post-Order deben existir y tener la misma longitud.");
+        }
+        
+        const postOrderMap = new Map();
+        postOrder.forEach((val, index) => postOrderMap.set(val, index));        
+        // El primer elemento de Pre-Order es la raíz
+        let preIndex = 0;
+        function buildTree(postStart, postEnd) {
+            // Caso base: no hay nodos que construir
+            if (postStart > postEnd) return null;
+
+            // Obtener la raíz actual del inicio del arreglo Pre-Order
+            const rootVal = preOrder[preIndex];
+            preIndex++; // Mover el índice a la siguiente raíz
+            const rootNode = new TreeNode(rootVal);
+
+            // Si este es el último nodo en este sub-rango, es una hoja
+            if (postStart === postEnd) {
+                if (postOrder[postStart] !== rootVal) {
+                     throw new Error("Inconsistencia en los datos de Pre-Order y Post-Order.");
+                }
+                return rootNode;
+            }
+            const leftRootVal = preOrder[preIndex]; // No incrementar preIndex aquí todavía
+            const postLeftRootIndex = postOrderMap.get(leftRootVal);
+            
+            if (postLeftRootIndex === undefined) {
+                 throw new Error(`El valor ${leftRootVal} de Pre-Order no se encontró en Post-Order. ¿Hay duplicados?`);
+            }
+            
+            if (postLeftRootIndex < postStart || postLeftRootIndex > postEnd - 1) {
+                throw new Error(`Inconsistencia en los límites del árbol para el valor ${leftRootVal}.`);
+            }
+
+            rootNode.left = buildTree(postStart, postLeftRootIndex);
+
+            rootNode.right = buildTree(postLeftRootIndex + 1, postEnd - 1);
+
+            return rootNode;
+        }
+
+        const tree = new BinarySearchTree();
+        tree.root = buildTree(0, postOrder.length - 1);
+        
+        if (preIndex !== preOrder.length) {
+             throw new Error("El arreglo Pre-Order no se consumió completamente. Verifique si hay duplicados o valores inválidos.");
+        }
+        return tree;
+    }
 }
 // // --- Componentes de React ---
 const Styles = () => (
@@ -536,6 +595,14 @@ const Styles = () => (
             font-weight: bold;
             box-shadow: 0 0 10px var(--verde-galactico);
         }
+        /* Estilo para la nota de advertencia */
+        .reconstruct-method-group label small {
+            display: inline-block; /* Para que el margen funcione */
+            margin-left: 28px; /* Alinear con el texto después del radio */
+            opacity: 0.8;
+            font-weight: normal;
+            font-size: 0.85rem;
+        }
 
         .reconstruct-input-group {
             display: flex;
@@ -573,7 +640,6 @@ const Styles = () => (
     `}</style>
 );
 
-// Componente para visualizar el árbol
 const TreeVisualizer = ({ treeData, highlightedNode, nodePositions }) => {
     
     const renderNode = (node) => {
@@ -690,11 +756,9 @@ const ExportFileModal = ({ onExport, onCancel }) => {
         </div>
     );
 };
-
-
-// --- NUEVO COMPONENTE PARA EL PANEL DE RECONSTRUCCIÓN ---
+// --- COMPONENTE MODIFICADO PARA EL PANEL DE RECONSTRUCCIÓN ---
 const TreeReconstructionPanel = ({ onTreeReconstructed, showNotification }) => {
-    const [reconstructMode, setReconstructMode] = useState('in-post'); // 'in-post' o 'in-pre'
+    const [reconstructMode, setReconstructMode] = useState('in-post'); // 'in-post', 'in-pre' o 'pre-post'
     const [inOrderStr, setInOrderStr] = useState('');
     const [postOrderStr, setPostOrderStr] = useState('');
     const [preOrderStr, setPreOrderStr] = useState('');
@@ -710,19 +774,15 @@ const TreeReconstructionPanel = ({ onTreeReconstructed, showNotification }) => {
     };
 
     const handleReconstruct = () => {
-        const inOrder = parseInput(inOrderStr);
-        
-        if (inOrder.length === 0) {
-            showNotification("El recorrido In Order no puede estar vacío.");
-            return;
-        }
         
         try {
             let newTree;
+
             if (reconstructMode === 'in-post') {
+                const inOrder = parseInput(inOrderStr);
                 const postOrder = parseInput(postOrderStr);
-                if (postOrder.length === 0) {
-                    showNotification("El recorrido Post Order no puede estar vacío.");
+                if (inOrder.length === 0 || postOrder.length === 0) {
+                    showNotification("Los recorridos In Order y Post Order no pueden estar vacíos.");
                     return;
                 }
                 if (inOrder.length !== postOrder.length) {
@@ -730,10 +790,12 @@ const TreeReconstructionPanel = ({ onTreeReconstructed, showNotification }) => {
                      return;
                 }
                 newTree = BinarySearchTree.fromInPost(inOrder, postOrder);
-            } else { // 'in-pre'
+
+            } else if (reconstructMode === 'in-pre') { 
+                const inOrder = parseInput(inOrderStr);
                 const preOrder = parseInput(preOrderStr);
-                 if (preOrder.length === 0) {
-                    showNotification("El recorrido Pre Order no puede estar vacío.");
+                 if (inOrder.length === 0 || preOrder.length === 0) {
+                    showNotification("Los recorridos In Order y Pre Order no pueden estar vacíos.");
                     return;
                 }
                 if (inOrder.length !== preOrder.length) {
@@ -741,7 +803,22 @@ const TreeReconstructionPanel = ({ onTreeReconstructed, showNotification }) => {
                      return;
                 }
                 newTree = BinarySearchTree.fromInPre(inOrder, preOrder);
+
+            } else { // 'pre-post'
+                const preOrder = parseInput(preOrderStr);
+                const postOrder = parseInput(postOrderStr);
+                if (preOrder.length === 0 || postOrder.length === 0) {
+                    showNotification("Los recorridos Pre Order y Post Order no pueden estar vacíos.");
+                    return;
+                }
+                if (preOrder.length !== postOrder.length) {
+                     showNotification("Los recorridos Pre Order y Post Order deben tener la misma longitud.");
+                     return;
+                }
+                showNotification("Iniciando reconstrucción Pre+Post... (Puede ser ambigua si el árbol no es 'lleno')");
+                newTree = BinarySearchTree.fromPrePost(preOrder, postOrder);
             }
+
             onTreeReconstructed(newTree.serialize()); // Pasar el árbol serializado al componente padre
             showNotification("Árbol reconstruido exitosamente. 🎉");
         } catch (error) {
@@ -773,32 +850,34 @@ const TreeReconstructionPanel = ({ onTreeReconstructed, showNotification }) => {
                     />
                     IN ORDER + PRE ORDER
                 </label>
-            </div>
-            
-            <div className="reconstruct-input-group">
-                <div className="input-pair">
-                    <label>IN ORDER:</label>
+                {/* --- NUEVA OPCIÓN --- */}
+                <label>
                     <input 
-                        type="text" 
-                        value={inOrderStr} 
-                        onChange={(e) => setInOrderStr(e.target.value)}
-                        placeholder="Ej: 2, 3, 5, 8, 15"
-                        className="traversal-input"
+                        type="radio" 
+                        value="pre-post" 
+                        checked={reconstructMode === 'pre-post'} 
+                        onChange={() => setReconstructMode('pre-post')} 
                     />
-                </div>
-                
-                {reconstructMode === 'in-post' ? (
+                    PRE ORDER + POST ORDER
+                    <br />
+                </label>
+            </div>
+            <div className="reconstruct-input-group">
+                {reconstructMode !== 'pre-post' && (
                     <div className="input-pair">
-                        <label>POST ORDER:</label>
+                        <label>IN ORDER:</label>
                         <input 
                             type="text" 
-                            value={postOrderStr} 
-                            onChange={(e) => setPostOrderStr(e.target.value)}
-                            placeholder="Ej: 2, 5, 3, 15, 8"
+                            value={inOrderStr} 
+                            onChange={(e) => setInOrderStr(e.target.value)}
+                            placeholder="Ej: 2, 3, 5, 8, 15"
                             className="traversal-input"
                         />
                     </div>
-                ) : (
+                )}
+                
+                {/* Mostrar PRE ORDER si es 'in-pre' o 'pre-post' */}
+                {reconstructMode !== 'in-post' && (
                      <div className="input-pair">
                         <label>PRE ORDER:</label>
                         <input 
@@ -806,6 +885,20 @@ const TreeReconstructionPanel = ({ onTreeReconstructed, showNotification }) => {
                             value={preOrderStr} 
                             onChange={(e) => setPreOrderStr(e.target.value)}
                             placeholder="Ej: 8, 3, 2, 5, 15"
+                            className="traversal-input"
+                        />
+                    </div>
+                )}
+
+                {/* Mostrar POST ORDER si es 'in-post' o 'pre-post' */}
+                {reconstructMode !== 'in-pre' && (
+                    <div className="input-pair">
+                        <label>POST ORDER:</label>
+                        <input 
+                            type="text" 
+                            value={postOrderStr} 
+                            onChange={(e) => setPostOrderStr(e.target.value)}
+                            placeholder="Ej: 2, 5, 3, 15, 8"
                             className="traversal-input"
                         />
                     </div>
@@ -818,8 +911,6 @@ const TreeReconstructionPanel = ({ onTreeReconstructed, showNotification }) => {
         </div>
     );
 };
-
-
 // --- Componente Principal ---
 const TreeSimulator = ({ onGoBack,showTutorial }) => { 
     useEffect(() => {
@@ -1126,7 +1217,6 @@ const TreeSimulator = ({ onGoBack,showTutorial }) => {
                 />
             )}
 
-            {/* El visualizador es común y siempre muestra el treeData actual */}
             <TreeVisualizer treeData={treeData} highlightedNode={highlightedNode} nodePositions={nodePositions} />
 
         </div>
