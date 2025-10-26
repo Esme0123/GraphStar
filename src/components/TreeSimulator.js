@@ -22,7 +22,7 @@ class BinarySearchTree {
         }
     }
     insertNode(node, newNode) {
-        if (newNode.value === node.value) return; // No permitir duplicados
+        if (newNode.value === node.value) return; 
 
         if (newNode.value < node.value) {
             if (node.left === null) {
@@ -38,7 +38,6 @@ class BinarySearchTree {
             }
         }
     }
-    // Secuencia de animaciones
     getInOrderAnimations() {
         const animations = [];
         this.inOrderTraverse(this.root, animations);
@@ -77,7 +76,6 @@ class BinarySearchTree {
             animations.push(node.value);
         }
     }
-    // Convierte el árbol a un objeto serializable para JSON y para el renderizado
     serialize() {
         return this._serializeNode(this.root);
     }
@@ -668,7 +666,6 @@ const TreeVisualizer = ({ treeData, highlightedNode, nodePositions }) => {
     
     return <div className="tree-visualizer">{treeData && renderNode(treeData)}</div>;
 };
-// Componente para las líneas que conectan los nodos
 const Line = ({ from, to }) => {
     const angle = Math.atan2(to.y - from.y, to.x - from.x) * 180 / Math.PI;
     const distance = Math.sqrt(Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2));
@@ -1039,7 +1036,6 @@ const TreeSimulator = ({ onGoBack,showTutorial }) => {
             if (!treeInstance.root) showNotification("El árbol está vacío. Genere o inserte nodos primero.");
             return;
         }
-        
         stopTraversal();
         setTraversalResult([]);
         setTraversalType(type); // Setea el tipo de recorrido para la clase 'active'

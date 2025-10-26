@@ -32,12 +32,15 @@ const MatrizEntrada = ({
   onExportarCSV,
   error,
   onCerrarError,
+  balanceAutomatico,
 }) => {
   const inputJsonRef = useRef(null);
   const inputCsvRef = useRef(null);
 
   const diferencia = Number((totalOferta - totalDemanda).toFixed(4));
   const balanceado = Math.abs(diferencia) < 1e-6;
+  const columnaDummy = balanceAutomatico?.tipo === 'demanda' ? balanceAutomatico.indice : null;
+  const filaDummy = balanceAutomatico?.tipo === 'oferta' ? balanceAutomatico.indice : null;
 
   const manejarImportacionJson = (evento) => {
     const archivo = evento.target.files?.[0];
@@ -64,7 +67,7 @@ const MatrizEntrada = ({
             Edita las celdas para capturar los costos unitarios, la oferta y la demanda.
           </p>
         </div>
-        <div className="transporte-balance">
+        <div className="transporte-balance" id="northwest-tour-balance">
           <span><strong>Oferta:</strong> {totalOferta.toFixed(2)}</span>
           <span><strong>Demanda:</strong> {totalDemanda.toFixed(2)}</span>
           <span className={balanceado ? 'balance-ok' : 'balance-warning'}>
@@ -73,7 +76,7 @@ const MatrizEntrada = ({
         </div>
       </header>
 
-      <div className="transporte-import-controls">
+      <div className="transporte-import-controls" id="northwest-tour-import">
         <button type="button" onClick={() => inputJsonRef.current?.click()}>
           Importar JSON
         </button>
@@ -111,21 +114,30 @@ const MatrizEntrada = ({
         </div>
       )}
 
-      <div className="transporte-table-wrapper">
+      <div className="transporte-table-wrapper" id="northwest-tour-table">
         <table className="transporte-table">
           <thead>
             <tr>
               <th />
-              {demanda.map((_, indice) => (
-                <th key={`col-${indice}`}>Origen {indice + 1}</th>
-              ))}
+              {demanda.map((_, indice) => {
+                const esDummy = columnaDummy === indice;
+                return (
+                  <th key={`col-${indice}`}>
+                    Origen {indice + 1}
+                    {esDummy ? ' (Balance)' : ''}
+                  </th>
+                );
+              })}
               <th>Oferta</th>
             </tr>
           </thead>
           <tbody>
             {matrizCostos.map((filaCostos, fila) => (
               <tr key={`fila-${fila}`}>
-                <th>Destino {fila + 1}</th>
+                <th>
+                  Destino {fila + 1}
+                  {filaDummy === fila ? ' (Balance)' : ''}
+                </th>
                 {filaCostos.map((valor, columna) => (
                   <td key={`celda-${fila}-${columna}`}>
                     <input
@@ -135,6 +147,7 @@ const MatrizEntrada = ({
                       inputMode="decimal"
                       className="transporte-input"
                       value={formatNumber(valor)}
+                      disabled={columnaDummy === columna || filaDummy === fila}
                       onChange={(evento) => onChangeCosto(fila, columna, evento.target.value)}
                     />
                   </td>
@@ -147,6 +160,7 @@ const MatrizEntrada = ({
                     inputMode="decimal"
                     className="transporte-input"
                     value={formatNumber(oferta[fila])}
+                    disabled={filaDummy === fila}
                     onChange={(evento) => onChangeOferta(fila, evento.target.value)}
                   />
                 </td>
@@ -160,12 +174,13 @@ const MatrizEntrada = ({
                     type="number"
                     step="0.01"
                     min="0"
-                    inputMode="decimal"
-                    className="transporte-input"
-                    value={formatNumber(valor)}
-                    onChange={(evento) => onChangeDemanda(indice, evento.target.value)}
-                  />
-                </td>
+                  inputMode="decimal"
+                  className="transporte-input"
+                  value={formatNumber(valor)}
+                  disabled={columnaDummy === indice}
+                  onChange={(evento) => onChangeDemanda(indice, evento.target.value)}
+                />
+              </td>
               ))}
               <td className="transporte-tipo-problema">
                 {tipoProblema}
@@ -175,7 +190,7 @@ const MatrizEntrada = ({
         </table>
       </div>
 
-      <div className="transporte-actions">
+      <div className="transporte-actions" id="northwest-tour-actions">
         <div className="transporte-actions-group">
           <button type="button" onClick={onAgregarFila}>
             Agregar Fila
@@ -198,6 +213,7 @@ const MatrizEntrada = ({
             type="button"
             className="transporte-calcular"
             onClick={onCalcular}
+            id="northwest-tour-calc"
           >
             Calcular Solución
           </button>

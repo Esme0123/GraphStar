@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import calcularSolucionOptima from '../algorithms/transporte';
 
 const FILAS_INICIALES = 3;
@@ -125,6 +125,11 @@ const useTransporte = () => {
   const [tipoProblema, setTipoProblema] = useState('Minimizar');
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
+  const [balanceAutomatico, setBalanceAutomatico] = useState({
+    tipo: null,
+    indice: null,
+    valor: 0,
+  });
 
   const filasActuales = matrizCostos.length;
   const columnasActuales = matrizCostos[0]?.length ?? 0;
@@ -133,6 +138,144 @@ const useTransporte = () => {
     setResultado(null);
     setError(null);
   }, []);
+
+  useEffect(() => {
+    const epsilon = 1e-6;
+    let huboCambio = false;
+
+    let indiceDummyColumna =
+      balanceAutomatico.tipo === 'demanda' ? balanceAutomatico.indice : null;
+    let indiceDummyFila =
+      balanceAutomatico.tipo === 'oferta' ? balanceAutomatico.indice : null;
+
+    if (indiceDummyColumna !== null && indiceDummyColumna >= demanda.length) {
+      indiceDummyColumna = null;
+      if (balanceAutomatico.tipo === 'demanda') {
+        setBalanceAutomatico({ tipo: null, indice: null, valor: 0 });
+      }
+    }
+
+    if (indiceDummyFila !== null && indiceDummyFila >= oferta.length) {
+      indiceDummyFila = null;
+      if (balanceAutomatico.tipo === 'oferta') {
+        setBalanceAutomatico({ tipo: null, indice: null, valor: 0 });
+      }
+    }
+
+    const sumaOfertaReal = oferta.reduce(
+      (acumulado, valor, idx) => acumulado + (idx === indiceDummyFila ? 0 : normalizarEntrada(valor)),
+      0,
+    );
+    const sumaDemandaReal = demanda.reduce(
+      (acumulado, valor, idx) => acumulado + (idx === indiceDummyColumna ? 0 : normalizarEntrada(valor)),
+      0,
+    );
+
+    const diferencia = sumaOfertaReal - sumaDemandaReal;
+
+    if (diferencia > epsilon) {
+      const valorDummy = Number(diferencia.toFixed(4));
+
+      if (indiceDummyFila !== null) {
+        huboCambio = true;
+        setMatrizCostos((previo) => previo.filter((_, idx) => idx !== indiceDummyFila));
+        setOferta((previo) => previo.filter((_, idx) => idx !== indiceDummyFila));
+        setBalanceAutomatico({ tipo: null, indice: null, valor: 0 });
+      } else if (indiceDummyColumna === null) {
+        huboCambio = true;
+        setMatrizCostos((previo) => previo.map((fila) => [...fila, 0]));
+        setDemanda((previo) => [...previo, valorDummy]);
+        setBalanceAutomatico({ tipo: 'demanda', indice: demanda.length, valor: valorDummy });
+      } else {
+        const requiereCeros = matrizCostos.some(
+          (fila) => Math.abs(normalizarEntrada(fila[indiceDummyColumna])) > epsilon,
+        );
+        if (requiereCeros) {
+          huboCambio = true;
+          setMatrizCostos((previo) =>
+            previo.map((fila) =>
+              fila.map((valor, idx) => (idx === indiceDummyColumna ? 0 : valor)),
+            ),
+          );
+        }
+
+        if (Math.abs(normalizarEntrada(demanda[indiceDummyColumna]) - valorDummy) > epsilon) {
+          huboCambio = true;
+          setDemanda((previo) =>
+            previo.map((valor, idx) => (idx === indiceDummyColumna ? valorDummy : valor)),
+          );
+        }
+
+        if (
+          balanceAutomatico.tipo !== 'demanda' ||
+          balanceAutomatico.indice !== indiceDummyColumna ||
+          Math.abs((balanceAutomatico.valor ?? 0) - valorDummy) > epsilon
+        ) {
+          setBalanceAutomatico({ tipo: 'demanda', indice: indiceDummyColumna, valor: valorDummy });
+        }
+      }
+    } else if (diferencia < -epsilon) {
+      const valorDummy = Number((-diferencia).toFixed(4));
+
+      if (indiceDummyColumna !== null) {
+        huboCambio = true;
+        setMatrizCostos((previo) =>
+          previo.map((fila) => fila.filter((_, idx) => idx !== indiceDummyColumna)),
+        );
+        setDemanda((previo) => previo.filter((_, idx) => idx !== indiceDummyColumna));
+        setBalanceAutomatico({ tipo: null, indice: null, valor: 0 });
+      } else if (indiceDummyFila === null) {
+        const columnas = matrizCostos[0]?.length ?? 0;
+        huboCambio = true;
+        setMatrizCostos((previo) => [...previo, Array(columnas).fill(0)]);
+        setOferta((previo) => [...previo, valorDummy]);
+        setBalanceAutomatico({ tipo: 'oferta', indice: oferta.length, valor: valorDummy });
+      } else {
+        const requiereCeros = matrizCostos[indiceDummyFila]?.some(
+          (valor) => Math.abs(normalizarEntrada(valor)) > epsilon,
+        );
+        if (requiereCeros) {
+          huboCambio = true;
+          setMatrizCostos((previo) =>
+            previo.map((fila, idx) => (idx === indiceDummyFila ? fila.map(() => 0) : fila)),
+          );
+        }
+
+        if (Math.abs(normalizarEntrada(oferta[indiceDummyFila]) - valorDummy) > epsilon) {
+          huboCambio = true;
+          setOferta((previo) =>
+            previo.map((valor, idx) => (idx === indiceDummyFila ? valorDummy : valor)),
+          );
+        }
+
+        if (
+          balanceAutomatico.tipo !== 'oferta' ||
+          balanceAutomatico.indice !== indiceDummyFila ||
+          Math.abs((balanceAutomatico.valor ?? 0) - valorDummy) > epsilon
+        ) {
+          setBalanceAutomatico({ tipo: 'oferta', indice: indiceDummyFila, valor: valorDummy });
+        }
+      }
+    } else {
+      if (indiceDummyColumna !== null) {
+        huboCambio = true;
+        setMatrizCostos((previo) =>
+          previo.map((fila) => fila.filter((_, idx) => idx !== indiceDummyColumna)),
+        );
+        setDemanda((previo) => previo.filter((_, idx) => idx !== indiceDummyColumna));
+        setBalanceAutomatico({ tipo: null, indice: null, valor: 0 });
+      } else if (indiceDummyFila !== null) {
+        huboCambio = true;
+        setMatrizCostos((previo) => previo.filter((_, idx) => idx !== indiceDummyFila));
+        setOferta((previo) => previo.filter((_, idx) => idx !== indiceDummyFila));
+        setBalanceAutomatico({ tipo: null, indice: null, valor: 0 });
+      }
+    }
+
+    if (huboCambio) {
+      invalidateResultado();
+    }
+  }, [balanceAutomatico, demanda, oferta, matrizCostos, invalidateResultado]);
 
   const limpiarError = useCallback(() => {
     setError(null);
@@ -215,6 +358,7 @@ const useTransporte = () => {
     setTipoProblema('Minimizar');
     setResultado(null);
     setError(null);
+    setBalanceAutomatico({ tipo: null, indice: null, valor: 0 });
   }, []);
 
   const cambiarTipoProblema = useCallback(
@@ -249,6 +393,7 @@ const useTransporte = () => {
       }
       invalidateResultado();
       setError(null);
+      setBalanceAutomatico({ tipo: null, indice: null, valor: 0 });
     },
     [invalidateResultado],
   );
@@ -360,6 +505,7 @@ const useTransporte = () => {
     exportarCSV,
     puedeEliminarFila: filasActuales > 1,
     puedeEliminarColumna: columnasActuales > 1,
+    balanceAutomatico,
   };
 };
 
