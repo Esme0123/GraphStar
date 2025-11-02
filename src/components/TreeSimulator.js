@@ -103,9 +103,7 @@ class BinarySearchTree {
         node.right = this._deserializeNode(nodeData.right);
         return node;
     }
-
     // --- MÉTODOS DE RECONSTRUCCIÓN ---
-
     /**
      * Reconstruye un árbol binario a partir de los recorridos In-Order y Post-Order.
      * @param {Array<number>} inOrder - Arreglo del recorrido In-Order.
@@ -136,9 +134,7 @@ class BinarySearchTree {
             const inIndex = inOrderMap.get(rootVal);
             if (inIndex === undefined) {
                 throw new Error(`El valor ${rootVal} de Post-Order no se encontró en In-Order. ¿Hay duplicados?`);
-            }
-
-            // IMPORTANTE: Construir el subárbol DERECHO primero,
+            }            // IMPORTANTE: Construir el subárbol DERECHO primero,
             // porque estamos consumiendo el arreglo Post-Order desde el final.
             rootNode.right = buildTree(inIndex + 1, inEnd);
             // Construir el subárbol izquierdo
@@ -222,35 +218,41 @@ class BinarySearchTree {
         // El primer elemento de Pre-Order es la raíz
         let preIndex = 0;
         function buildTree(postStart, postEnd) {
-            // Caso base: no hay nodos que construir
             if (postStart > postEnd) return null;
 
-            // Obtener la raíz actual del inicio del arreglo Pre-Order
             const rootVal = preOrder[preIndex];
-            preIndex++; // Mover el índice a la siguiente raíz
+            preIndex++; 
             const rootNode = new TreeNode(rootVal);
 
-            // Si este es el último nodo en este sub-rango, es una hoja
             if (postStart === postEnd) {
                 if (postOrder[postStart] !== rootVal) {
-                     throw new Error("Inconsistencia en los datos de Pre-Order y Post-Order.");
+                     throw new Error("Inconsistencia en los datos de Pre-Order y Post-Order (hoja).");
                 }
                 return rootNode;
             }
-            const leftRootVal = preOrder[preIndex]; // No incrementar preIndex aquí todavía
-            const postLeftRootIndex = postOrderMap.get(leftRootVal);
-            
-            if (postLeftRootIndex === undefined) {
-                 throw new Error(`El valor ${leftRootVal} de Pre-Order no se encontró en Post-Order. ¿Hay duplicados?`);
-            }
-            
-            if (postLeftRootIndex < postStart || postLeftRootIndex > postEnd - 1) {
-                throw new Error(`Inconsistencia en los límites del árbol para el valor ${leftRootVal}.`);
-            }
 
-            rootNode.left = buildTree(postStart, postLeftRootIndex);
+            const nextRootVal = preOrder[preIndex];
 
-            rootNode.right = buildTree(postLeftRootIndex + 1, postEnd - 1);
+            if (nextRootVal < rootVal) {
+                
+                const postLeftRootIndex = postOrderMap.get(nextRootVal);
+                
+                if (postLeftRootIndex === undefined) {
+                    throw new Error(`El valor ${nextRootVal} de Pre-Order no se encontró en Post-Order. ¿Hay duplicados?`);
+                }
+                if (postLeftRootIndex < postStart || postLeftRootIndex > postEnd - 1) {
+                    throw new Error(`Inconsistencia en los límites del árbol para el valor ${nextRootVal}.`);
+                }
+
+                rootNode.left = buildTree(postStart, postLeftRootIndex);
+                rootNode.right = buildTree(postLeftRootIndex + 1, postEnd - 1);
+
+            } else {
+                // El siguiente nodo es un HIJO DERECHO (ya que nextRootVal > rootVal).
+                // Esto implica que NO HAY HIJO IZQUIERDO.-1
+                rootNode.left = null; // Asignamos null a la izquierda
+                rootNode.right = buildTree(postStart, postEnd - 1); // Construimos la derecha
+            }
 
             return rootNode;
         }
