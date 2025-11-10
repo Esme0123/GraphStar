@@ -102,7 +102,7 @@ const TransportePage = ({ onGoBack, showTutorial }) => {
             <div>
               <h1>Northwest Solver</h1>
               <p className="transporte-descripcion">
-                Resolver interactivo para el Problema de Transporte.
+                Solucionario interactivo para el Problema de Transporte
               </p>
             </div>
           </div>
@@ -118,7 +118,7 @@ const TransportePage = ({ onGoBack, showTutorial }) => {
                 <span className="slider" />
               </label>
               <span>Maximizar</span>
-            </div>
+            {/* </div>
             {showTutorial && (
               <button
                 type="button"
@@ -128,6 +128,8 @@ const TransportePage = ({ onGoBack, showTutorial }) => {
                 Tutorial
               </button>
             )}
+          </div> */}
+          </div>
           </div>
         </header>
 

@@ -768,12 +768,18 @@ z-index: 0;
 }
 
 .home-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
   z-index: 2; 
   background: rgba(0,0,0,0.3);
-  padding: 60px;
+  padding: 0px;
   border-radius: 40px;
   backdrop-filter: blur(2px);
+  background-color: red;
 }
+
 .home-title {
   font-family: var(--font-title);
   font-size: 4rem;
@@ -1378,8 +1384,10 @@ z-index: 0;
 }
 /* Carrusel de Tarjetas Infinito */
 .modules-viewport {
+  height: 600px;
+  background-color: #007bff;
   max-width: 1100px;
-  margin: 0 auto;
+  margin:20px 0;
   overflow: hidden; 
   -webkit-mask-image: linear-gradient(to right, 
     transparent 0%, 
@@ -1397,12 +1405,9 @@ z-index: 0;
 
 .modules-grid.modules-track {
   width: 333.33%; 
+  height: 100%;
   display: flex;
   flex-wrap: nowrap; 
-  
-  /* Ajusta 'gap' si ya tenías uno en '.modules-grid' */
-  /* gap: 20px; */ 
-
   animation: scroll-cards 25s linear infinite;
 }
 

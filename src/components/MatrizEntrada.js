@@ -183,7 +183,7 @@ const MatrizEntrada = ({
               </td>
               ))}
               <td className="transporte-tipo-problema">
-                {tipoProblema}
+                <div className='transporte-tipo-problema-container'>{tipoProblema}</div>
               </td>
             </tr>
           </tbody>

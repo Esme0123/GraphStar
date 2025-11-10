@@ -4,7 +4,7 @@ import Joyride from 'react-joyride';
 const steps = [
   {
     target: '#northwest-tour-tabs',
-    content: 'Navega entre la Matriz de Entrada, la Solución final y las Iteraciones del método MODI utilizando estas pestañas.',
+    content: 'Visualiza la Matriz de Entrada, la Solución final y las Iteraciones de la solución utilizando estas pestañas.',
     placement: 'bottom',
   },
   {
@@ -34,33 +34,33 @@ const steps = [
   },
   {
     target: '#northwest-tour-help',
-    content: '¿Necesitas repasar los pasos? Haz clic en este botón en cualquier momento para volver a ver esta guía interactiva.',
+    content: 'Haz clic en este botón en cualquier momento para volver a ver esta guía interactiva.',
     placement: 'left',
   },
 ];
 
-const NorthwestTourGuide = ({ run, onTourEnd }) => (
-  <Joyride
-    steps={steps}
-    run={run}
-    continuous
-    showProgress
-    showSkipButton
-    callback={({ status }) => {
-      if (['finished', 'skipped'].includes(status)) {
-        onTourEnd();
-      }
-    }}
-    styles={{
-      options: {
-        arrowColor: '#1f2b3c',
-        backgroundColor: '#f0f0f5',
-        primaryColor: '#00f9a0',
-        textColor: '#182033',
-        zIndex: 1500,
-      },
-    }}
-  />
-);
+  const NorthwestTourGuide = ({ run, onTourEnd }) => (
+    <Joyride
+      steps={steps}
+      run={run}
+      continuous
+      showProgress
+      showSkipButton
+      callback={({ status }) => {
+        if (['finished', 'skipped'].includes(status)) {
+          onTourEnd();
+        }
+      }}
+      styles={{
+        options: {
+          arrowColor: '#1f2b3c',
+          backgroundColor: '#f0f0f5ee',
+          primaryColor: '#00f9a0',
+          textColor: '#182033',
+          zIndex: 1500,
+        },
+      }}
+    />
+  );
 
 export default NorthwestTourGuide;

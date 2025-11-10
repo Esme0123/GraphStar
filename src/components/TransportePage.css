@@ -66,6 +66,10 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+  margin-right: 5em;
+  background-color: rgba(243, 243, 243, 0.348);
+  padding: 0.5em;
+  border-radius: 40%;
 }
 
 .transporte-toggle {
@@ -291,7 +295,7 @@
 }
 
 .transporte-input {
-  width: 100%;
+  width: 80%;
   padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -318,6 +322,14 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--amarillo-estrella);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.transporte-tipo-problema-container{
+  width:fit-content;
+  padding: 0.5em;
   background: rgba(255, 183, 50, 0.12);
 }
 
