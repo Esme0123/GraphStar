@@ -7,6 +7,7 @@
   --blanco-estelar: #F1F1F1;
   --rojo-peligro: #E94560;
   --azul-cielo-interestelar: #4A90E2;
+  --highlight-edge: #ff2dff; /* Magenta brillante para resaltado de MST */
 
   --font-title: 'Bungee', cursive;
   --font-subtitle: 'Audiowide', cursive;
@@ -956,10 +957,21 @@ z-index: 0;
   }
 }
 .highlighted-edge .react-flow__edge-path {
-  stroke: var(--amarillo-estrella) !important;
-  stroke-width: 4px !important;
-  stroke-dasharray: 10, 5; 
-  animation: dash-animation 50s linear infinite;
+  stroke: var(--highlight-edge) !important; /* color magenta brillante */
+  stroke-width: 6px !important; /* más grueso para destacar */
+  stroke-linecap: round !important;
+  stroke-dasharray: 8, 4; 
+  animation: dash-animation 12s linear infinite; /* más rápido para llamar la atención */
+  filter: drop-shadow(0 0 8px rgba(255,45,255,0.55)); /* brillo externo */
+  paint-order: stroke; /* prioridad al trazo */
+}
+
+/* Caso alternativo para rutas SVG directas (por si no se anidan en .react-flow__edge-path) */
+svg path.highlighted-edge, .react-flow__edge-path.highlighted-edge {
+  stroke: var(--highlight-edge) !important;
+  stroke-width: 6px !important;
+  stroke-linecap: round !important;
+  filter: drop-shadow(0 0 8px rgba(255,45,255,0.55));
 }
 .node-costs-container {
   position: absolute;

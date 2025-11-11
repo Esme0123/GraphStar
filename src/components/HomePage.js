@@ -13,6 +13,14 @@ const modules = [
     targetView: 'welcome',
   },
   {
+    title: 'Kruskal',
+    img: process.env.PUBLIC_URL + 'IMG/img_kruskal.png',
+    description: 'Encuentra el Árbol de Expansión Mínima (MST) usando el algoritmo de Kruskal. Conecta todos los nodos con el costo mínimo, tejiendo la red más eficiente a través de la galaxia.',
+    enabled: true,
+    targetView: 'modeSelection',
+    mode: 'kruskal',
+  },
+  {
     title: 'NorthWest',
     img: process.env.PUBLIC_URL + 'IMG/img_northwest.png',
     description: 'Construye la matriz del problema, aplica la regla Norwest y optimiza con MODI paso a paso.',
@@ -70,7 +78,15 @@ const HomePage = ({ onNavigate,onGoBack}) => {
                 <p style={{ textAlign: 'center' }}>{mod.description}</p>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button
-                    onClick={() => mod.enabled && onNavigate(mod.targetView)}
+                    onClick={() => {
+                      if (mod.enabled) {
+                        if (mod.mode) {
+                          onNavigate(mod.targetView, mod.mode);
+                        } else {
+                          onNavigate(mod.targetView);
+                        }
+                      }
+                    }}
                     disabled={!mod.enabled}
                   >
                     START
@@ -88,7 +104,15 @@ const HomePage = ({ onNavigate,onGoBack}) => {
                 <p style={{ textAlign: 'center' }}>{mod.description}</p>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <button
-                    onClick={() => mod.enabled && onNavigate(mod.targetView)}
+                    onClick={() => {
+                      if (mod.enabled) {
+                        if (mod.mode) {
+                          onNavigate(mod.targetView, mod.mode);
+                        } else {
+                          onNavigate(mod.targetView);
+                        }
+                      }
+                    }}
                     disabled={!mod.enabled}
                     tabIndex={-1} 
                   >

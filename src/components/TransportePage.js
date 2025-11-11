@@ -94,6 +94,16 @@ const TransportePage = ({ onGoBack, showTutorial }) => {
         >
           ?
         </button>
+        {/* Botón adicional: abrir manual PDF de NorthWest */}
+        <button
+          id="northwest-manual-help"
+          type="button"
+          className="help-button"
+          title="Abrir Manual de NorthWest"
+          onClick={() => window.open('/manuals/NorthWest_Manual.pdf', '_blank')}
+        >
+          📄
+        </button>
         <header className="transporte-header">
           <div className="transporte-header-left">
             <button type="button" className="transporte-back" onClick={onGoBack}>

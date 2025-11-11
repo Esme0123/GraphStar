@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NorthWest - Manual de Usuario</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; background: #0f1524; color: #f4f4f8; margin: 0; padding: 24px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 24px; }
+    h1 { color: #ffb732; margin: 0 0 8px 0; font-size: 32px; }
+    h2 { color: #00F9A0; margin-top: 24px; }
+    h3 { color: #ff2dff; margin-top: 16px; }
+    p { color: #e8e8ee; line-height: 1.6; }
+    ul, ol { color: #e8e8ee; line-height: 1.8; }
+    li { margin: 6px 0; }
+    pre { background:#071022; padding:12px; border-radius:8px; overflow:auto; color:#d6f5e5; border-left: 4px solid #00F9A0; }
+    code { font-family: Consolas, 'Courier New', monospace; color: #cbe7ff; background: rgba(203,231,255,0.1); padding: 2px 4px; border-radius: 3px; }
+    .note { background: rgba(255,183,50,0.08); padding:12px; border-left:4px solid #ffb732; margin: 12px 0; border-radius: 4px; }
+    .example { background: rgba(0,249,160,0.06); padding:12px; border-left:4px solid #00F9A0; margin: 12px 0; border-radius: 4px; }
+    .warning { background: rgba(255,45,255,0.06); padding:12px; border-left:4px solid #ff2dff; margin: 12px 0; border-radius: 4px; }
+    table { width:100%; border-collapse: collapse; margin-top:12px; }
+    table th { background: rgba(0,249,160,0.1); padding:10px; text-align: left; border-bottom: 2px solid #00F9A0; color: #00F9A0; }
+    table td { padding:8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    footer { text-align:center; margin-top:40px; color:#9aa0b0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>NorthWest — Problema de Transporte</h1>
+      <p>Regla Noroeste, Balance, MODI y optimización</p>
+    </header>
+
+    <section>
+      <h2>1. Descripción General del Problema de Transporte</h2>
+      <p>El Problema de Transporte es un caso especial de programación lineal que busca minimizar (o maximizar) el costo de distribución de un producto desde múltiples orígenes (oferentes) a múltiples destinos (consumidores), respetando las capacidades de oferta y demanda.</p>
+
+      <h3>Componentes Principales</h3>
+      <ul>
+        <li><strong>Orígenes (Filas):</strong> Nodos que ofrecen o producen una cantidad de producto.</li>
+        <li><strong>Destinos (Columnas):</strong> Nodos que demandan una cantidad de producto.</li>
+        <li><strong>Matriz de Costos:</strong> Cada celda (i, j) contiene el costo de transportar una unidad desde origen i a destino j.</li>
+        <li><strong>Oferta y Demanda:</strong> Restricciones que garantizan que todo se distribuye y se consume.</li>
+      </ul>
+
+      <div class="note">
+        <strong>Supuesto de balance:</strong> La oferta total debe ser igual a la demanda total. Si no lo son, GraphStar puede balancearlos automáticamente añadiendo un origen o destino ficticio con costo cero.
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Regla Noroeste (Northwest Rule)</h2>
+
+      <h3>Algoritmo paso a paso</h3>
+      <p>La Regla Noroeste es un método heurístico rápido para obtener una solución inicial (no necesariamente óptima) del Problema de Transporte:</p>
+
+      <ol>
+        <li>Comenzar en la <strong>esquina superior izquierda</strong> (noroeste) de la matriz: celda (1, 1).</li>
+        <li>Asignar la cantidad <strong>mínima</strong> entre la oferta disponible y la demanda restante.</li>
+        <li>Descontar la cantidad asignada de la oferta y demanda.</li>
+        <li>Si la oferta se agota, pasar a la celda de la fila siguiente en la misma columna.</li>
+        <li>Si la demanda se agota, pasar a la celda de la columna siguiente en la misma fila.</li>
+        <li>Si ambas se agotan simultáneamente, descontar diagonal (opcional: moverse a (i+1, j+1)).</li>
+        <li>Repetir hasta asignar toda la oferta y demanda.</li>
+      </ol>
+
+      <div class="example">
+        <strong>Resultado:</strong> Exactamente V variables básicas (donde V = m + n - 1, m = orígenes, n = destinos). Esta solución es "viable" (cumple restricciones) pero no siempre óptima.
+      </div>
+
+      <h3>Ventajas y Desventajas</h3>
+      <table>
+        <tr>
+          <th>Ventaja</th>
+          <th>Desventaja</th>
+        </tr>
+        <tr>
+          <td>Rápida y fácil de implementar.</td>
+          <td>Ignora los costos; puede ser muy lejana del óptimo.</td>
+        </tr>
+        <tr>
+          <td>Genera una solución inicial viable.</td>
+          <td>Requiere un paso posterior (MODI) para optimizar.</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. Método MODI (Modified Distribution)</h2>
+
+      <h3>¿Por qué MODI?</h3>
+      <p>MODI mejora la solución inicial obtenida por Noroeste usando el método de multiplicadores lagrangianos. Detecta si una solución es óptima y, si no lo es, identifica variables no básicas que deberían entrar en la solución.</p>
+
+      <h3>Pasos de MODI</h3>
+      <ol>
+        <li><strong>Calcular potenciales (u, v):</strong> Para cada variable básica, se satisface: cost(i, j) = u(i) + v(j).</li>
+        <li><strong>Valores reducidos (delta):</strong> Para cada variable no básica: delta = cost(i, j) - u(i) - v(j).</li>
+        <li><strong>Prueba de optimalidad:</strong> Si todos los delta &gt; 0, la solución es óptima. Si hay delta &lt; 0, no es óptima.</li>
+        <li><strong>Mejora (si delta &lt; 0):</strong> Seleccionar la variable con el menor delta (más negativo) para entrar en la base.</li>
+        <li><strong>Ciclo de aumento:</strong> Ajustar el flujo a lo largo de un ciclo para mantener viabilidad.</li>
+        <li><strong>Iterar:</strong> Repetir hasta que todos los delta &gt; 0 (solución óptima).</li>
+      </ol>
+
+      <div class="warning">
+        <strong>Nota:</strong> MODI se enseña frecuentemente en optimización lineal. GraphStar lo implementa automáticamente tras la Regla Noroeste.
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Interfaz de Usuario en GraphStar</h2>
+
+      <h3>Pestaña "Matriz de Entrada"</h3>
+      <ul>
+        <li><strong>Matriz de costos:</strong> Edita los valores de costo para cada ruta (i, j).</li>
+        <li><strong>Oferta y Demanda:</strong> Ingresa la oferta de cada origen y demanda de cada destino.</li>
+        <li><strong>Balance automático:</strong> GraphStar detecta desequilibrio e intenta corregirlo añadiendo una fila/columna ficticia.</li>
+        <li><strong>Botón "Calcular Solución":</strong> Aplica Regla Noroeste y MODI.</li>
+      </ul>
+
+      <h3>Pestaña "Solución"</h3>
+      <ul>
+        <li>Muestra la matriz de asignaciones (cantidad transportada en cada ruta).</li>
+        <li>Resalta las celdas con valores &gt; 0 (variables básicas).</li>
+        <li>Costo total de la solución al pie.</li>
+      </ul>
+
+      <h3>Pestaña "Iteraciones"</h3>
+      <ul>
+        <li>Detalla todos los pasos de Noroeste (qué celda se asignó, cuánto, oferta/demanda restante).</li>
+        <li>Muestra potenciales (u, v) y valores reducidos (delta) en iteraciones de MODI.</li>
+        <li>Permite revisar cómo mejoró la solución inicial.</li>
+      </ul>
+
+      <div class="example">
+        <strong>Consejo:</strong> Usa la guía interactiva (botón <code>?</code>) para un paseo paso a paso por cada función.
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Casos de Error Comunes</h2>
+      <ul>
+        <li><strong>"Oferta y demanda desbalanceadas":</strong> Sum(oferta) ≠ Sum(demanda). Activa "Balance automático" o ajusta manualmente.</li>
+        <li><strong>"Matriz vacía":</strong> No hay orígenes o destinos. Añade al menos uno de cada.</li>
+        <li><strong>"Valores no válidos":</strong> Asegúrate de que todos los costos sean números ≥ 0 (aunque pueden ser decimales).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>6. Ejemplo Práctico</h2>
+      <p><strong>Problema:</strong> 3 almacenes (oferta: 100, 150, 120) y 4 clientes (demanda: 80, 60, 70, 90).</p>
+      <p><strong>Paso 1 (Noroeste):</strong> Asignar desde (1,1) hasta llenar toda la demanda.</p>
+      <p><strong>Paso 2 (MODI):</strong> Optimizar ajustando flujos en ciclos.</p>
+      <p><strong>Salida:</strong> Asignaciones de cantidad mínima costo total.</p>
+
+      <div class="note">
+        Para validar tu solución: <br/>
+        ✓ Sum(asignaciones por fila) = oferta de esa fila. <br/>
+        ✓ Sum(asignaciones por columna) = demanda de esa columna. <br/>
+        ✓ Costo total = sum(asignación * costo unitario) para todas las celdas con asignación.
+      </div>
+    </section>
+
+    <section>
+      <h2>7. Minimizar vs. Maximizar</h2>
+      <p>Usa el toggle <code>Minimizar / Maximizar</code> para cambiar el objetivo:</p>
+      <ul>
+        <li><strong>Minimizar:</strong> Busca la solución de menor costo total (casos típicos).</li>
+        <li><strong>Maximizar:</strong> Busca la solución de mayor beneficio o ganancia (problemas de asignación inversa).</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p><strong>GraphStar — Manual de NorthWest (Problema de Transporte)</strong></p>
+      <p>Última actualización: 10 de noviembre de 2025</p>
+      <p>Para más información, consulta libros de Investigación Operativa o tutoriales en línea sobre "Transportation Problem" y "MODI Method".</p>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GraphStar - Manual de Usuario</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; background: #0f1524; color: #f4f4f8; margin: 0; padding: 24px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 24px; }
+    h1 { color: #ffb732; margin: 0 0 8px 0; font-size: 32px; }
+    h2 { color: #00F9A0; margin-top: 24px; }
+    p { color: #e8e8ee; line-height: 1.5; }
+    pre { background:#071022; padding:12px; border-radius:8px; overflow:auto; color:#d6f5e5; }
+    code { font-family: Consolas, 'Courier New', monospace; color: #cbe7ff; }
+    .note { background: rgba(255,183,50,0.08); padding:10px; border-left:4px solid #ffb732; margin: 12px 0; }
+    .example { background: rgba(0,249,160,0.06); padding:10px; border-left:4px solid #00F9A0; margin: 12px 0; }
+    .section-header { display:flex; justify-content:space-between; align-items:center; }
+    .btn { display:inline-block; padding:8px 12px; background:#ff2dff; color:#fff; border-radius:6px; text-decoration:none; }
+    table { width:100%; border-collapse: collapse; margin-top:12px; }
+    table th, table td { padding:8px; border:1px solid rgba(255,255,255,0.06); }
+    footer { text-align:center; margin-top:40px; color:#9aa0b0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>GraphStar — Manual de Usuario</h1>
+      <p>Guía rápida: Kruskal (MST) y NorthWest (Problema de Transporte). Controles y notas de visualización.</p>
+    </header>
+
+    <section>
+      <div class="section-header">
+        <h2>1. Kruskal — Árbol de Expansión Mínima (MST)</h2>
+        <a class="btn" href="#kruskal">Ir</a>
+      </div>
+
+      <h3 id="kruskal">Descripción</h3>
+      <p>Kruskal encuentra un Árbol de Expansión Mínima en grafos no dirigidos con pesos en aristas. El algoritmo ordena aristas por peso y agrega cada una si no crea un ciclo, hasta seleccionar V-1 aristas.</p>
+
+      <h4>Implementación en GraphStar</h4>
+      <ul>
+        <li>Archivo: <code>src/algorithms/KruskalAlgorithm.js</code></li>
+        <li>DSU (Union‑Find) con compresión de rutas y unión por rango.</li>
+        <li>Orden determinista: primero por <code>weight</code>, y en empate por <code>originalIndex</code> (tie‑breaker).</li>
+        <li>Salida: <code>{ mstEdges, totalCost, iterationSteps }</code></li>
+      </ul>
+
+      <div class="note">
+        <strong>Nota:</strong> Para que el resaltado sea visible, GraphStar pinta las aristas del MST en <em>magenta</em> brillante y las reordena para que se dibujen por encima.
+      </div>
+
+      <h4>Ejemplo de uso</h4>
+      <p>En la vista Kruskal:</p>
+      <ol>
+        <li>Crear nodos y aristas (doble clic en arista para asignar peso).</li>
+        <li>Asegurarse de desactivar "Grafo Dirigido".</li>
+        <li>Presionar <strong>🌳 Aplicar Kruskal</strong>.</li>
+      </ol>
+
+      <div class="example">
+        <strong>Salida típica:</strong>
+        <pre>🌳 MST calculado - Costo total: 37.00
+mstEdgeIds: ["edge_a_b_1600000000000", "edge_b_c_1600000001000", ... ]
+</pre>
+      </div>
+
+      <h4>Puntos de depuración</h4>
+      <ul>
+        <li>Si las aristas del MST no son las esperadas, es debido a empates en peso. El tie‑breaker por índice asegura reproducibilidad.</li>
+        <li>La tabla de iteraciones muestra cada arista inspeccionada con <code>step</code> (secuencial) y <code>reason</code> ('No forma ciclo' / 'Forma un ciclo').</li>
+      </ul>
+
+    </section>
+
+    <section>
+      <div class="section-header">
+        <h2>2. NorthWest — Problema de Transporte</h2>
+        <a class="btn" href="#northwest">Ir</a>
+      </div>
+
+      <h3 id="northwest">Descripción</h3>
+      <p>La Regla Noroeste (NorthWest) construye una solución inicial para el problema de transporte empezando por la esquina superior izquierda de la matriz de costos y asignando la cantidad máxima posible en cada celda mientras se satisface oferta y demanda.</p>
+
+      <h4>Flujo en GraphStar</h4>
+      <ul>
+        <li>Componentes: <code>MatrizEntrada.js</code>, <code>SolucionVista.js</code>, <code>IteracionesVista.js</code>.</li>
+        <li>Guía interactiva: <code>NorthwestTourGuide.js</code>.</li>
+        <li>Optimización posterior: MODI (potenciales u/v para mejorar la solución inicial).</li>
+      </ul>
+
+      <h4>Cómo usar</h4>
+      <ol>
+        <li>Rellenar matriz de costos, oferta y demanda.</li>
+        <li>Presionar <strong>Calcular Solución</strong> para obtener la asignación por Regla Noroeste.</li>
+        <li>Ir a la pestaña <em>Iteraciones</em> para ver pasos y aplicar MODI si está disponible.</li>
+      </ol>
+
+      <div class="example">
+        <strong>Consejo visual:</strong> usa el botón <code>📄</code> para abrir este manual y las guías interactiva si necesitas ayuda paso a paso.
+      </div>
+
+    </section>
+
+    <section>
+      <h2>3. Generar PDF a partir de este manual (opcional)</h2>
+      <p>Para generar un PDF de alta calidad localmente puedes usar <code>puppeteer</code> (Chrome headless). Pasos:</p>
+      <pre>
+# Instalar puppeteer (descarga Chromium)
+npm install --save-dev puppeteer
+
+# Ejecutar script para generar el PDF
+npm run generate-manual-pdf
+      </pre>
+      <p>Se incluye un script en <code>scripts/generateManualPdf.js</code> que renderiza este HTML y produce <code>public/manuals/GraphStar_Manual.pdf</code>.</p>
+
+    </section>
+
+    <footer>
+      <p>GraphStar — Manual generado automáticamente. Para mejoras, editar <code>public/manuals/GraphStar_Manual.html</code>.</p>
+    </footer>
+  </div>
+</body>
+</html>

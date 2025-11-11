@@ -28,6 +28,7 @@ import WelcomeTreesPage from './components/WelcomeTreesPage';
 import SortSimulatorPage from './components/SortSimulatorPage';
 import TreeSimulator from './components/TreeSimulator';
 import TransportePage from './components/TransportePage';
+import KruskalGraphStar from './components/KruskalGraphStar';
 
 import './index.css';
 const tutorials = {
@@ -634,13 +635,23 @@ function App() {
         }
         setActiveTutorial(videoId);
     }, []);
-  const navigateTo = (view) => {
-    setCurrentView(view);
+  const navigateTo = (view, mode) => {
+    if (mode === 'kruskal') {
+      setEditorMode('kruskal');
+      setCurrentView('kruskal');
+    } else {
+      setCurrentView(view);
+    }
   };
   const handleSelectMode = (mode) => {
     setEditorMode(mode);
     setIsModeModalOpen(false);
-    navigateTo('editor'); 
+    // Si es Kruskal, navega a la vista Kruskal; para otros modos navega a editor
+    if (mode === 'kruskal') {
+      navigateTo('kruskal');
+    } else {
+      navigateTo('editor');
+    }
   };
   const renderView = () => {
     switch (currentView) {
@@ -698,6 +709,12 @@ function App() {
                   onGoBack={() => navigateTo('welcomeTrees')}
                   showTutorial={showTutorial}
         />;
+      case 'kruskal':
+        return (
+          <div className="graph-editor visible">
+            <KruskalGraphStar onGoBack={() => navigateTo('welcome')} />
+          </div>
+        );
     }
   };
   return (

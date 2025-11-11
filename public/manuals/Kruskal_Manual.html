@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kruskal - Manual de Usuario</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; background: #0f1524; color: #f4f4f8; margin: 0; padding: 24px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 24px; }
+    h1 { color: #ffb732; margin: 0 0 8px 0; font-size: 32px; }
+    h2 { color: #00F9A0; margin-top: 24px; }
+    h3 { color: #ff2dff; margin-top: 16px; }
+    p { color: #e8e8ee; line-height: 1.6; }
+    ul, ol { color: #e8e8ee; line-height: 1.8; }
+    li { margin: 6px 0; }
+    pre { background:#071022; padding:12px; border-radius:8px; overflow:auto; color:#d6f5e5; border-left: 4px solid #00F9A0; }
+    code { font-family: Consolas, 'Courier New', monospace; color: #cbe7ff; background: rgba(203,231,255,0.1); padding: 2px 4px; border-radius: 3px; }
+    .note { background: rgba(255,183,50,0.08); padding:12px; border-left:4px solid #ffb732; margin: 12px 0; border-radius: 4px; }
+    .example { background: rgba(0,249,160,0.06); padding:12px; border-left:4px solid #00F9A0; margin: 12px 0; border-radius: 4px; }
+    .warning { background: rgba(255,45,255,0.06); padding:12px; border-left:4px solid #ff2dff; margin: 12px 0; border-radius: 4px; }
+    table { width:100%; border-collapse: collapse; margin-top:12px; }
+    table th { background: rgba(0,249,160,0.1); padding:10px; text-align: left; border-bottom: 2px solid #00F9A0; color: #00F9A0; }
+    table td { padding:8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    footer { text-align:center; margin-top:40px; color:#9aa0b0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Kruskal — Árbol de Expansión Mínima (MST)</h1>
+      <p>Manual técnico y guía de uso en GraphStar</p>
+    </header>
+
+    <section>
+      <h2>1. Descripción General del Algoritmo</h2>
+      <p>Kruskal es un algoritmo codicioso (greedy) que encuentra un Árbol de Expansión Mínima en grafos no dirigidos con pesos en aristas. Su principio es simple: ordena todas las aristas por peso en orden ascendente y las añade una por una al árbol si no crean un ciclo.</p>
+
+      <h3>Características Principales</h3>
+      <ul>
+        <li><strong>Grafo soportado:</strong> No dirigido, conexo (si es desconexo, GraphStar lo detecta y muestra error).</li>
+        <li><strong>Complejidad temporal:</strong> O(E log E) donde E es el número de aristas (dominado por la ordenación).</li>
+        <li><strong>Salida:</strong> V-1 aristas (donde V es el número de nodos) que forman el MST.</li>
+        <li><strong>Costo total:</strong> Suma de pesos de las aristas seleccionadas.</li>
+      </ul>
+
+      <div class="note">
+        <strong>Nota importante:</strong> Kruskal solo funciona con grafos <em>no dirigidos</em>. Si intentas aplicarlo en un grafo dirigido, GraphStar mostrará una advertencia.
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Implementación en GraphStar</h2>
+
+      <h3>Estructura de Archivos</h3>
+      <table>
+        <tr>
+          <th>Archivo</th>
+          <th>Descripción</th>
+        </tr>
+        <tr>
+          <td><code>src/algorithms/KruskalAlgorithm.js</code></td>
+          <td>Módulo puro que implementa el algoritmo Kruskal con DSU.</td>
+        </tr>
+        <tr>
+          <td><code>src/components/KruskalGraphStar.jsx</code></td>
+          <td>Componente React que proporciona la interfaz de usuario.</td>
+        </tr>
+        <tr>
+          <td><code>src/App.js</code></td>
+          <td>Enrutador que maneja la vista 'kruskal'.</td>
+        </tr>
+      </table>
+
+      <h3>Algoritmo de Union-Find (DSU)</h3>
+      <p>El corazón de Kruskal es la estructura de datos <code>Disjoint Set Union (DSU)</code> o <code>Union-Find</code>, que permite detectar ciclos eficientemente.</p>
+
+      <pre>
+class DSU {
+  constructor(size) {
+    this.parent = Array.from({ length: size }, (_, i) => i);
+    this.rank = Array(size).fill(0);
+  }
+
+  find(x) {
+    if (this.parent[x] !== x) 
+      this.parent[x] = this.find(this.parent[x]); // Compresión de rutas
+    return this.parent[x];
+  }
+
+  union(x, y) {
+    const rx = this.find(x);
+    const ry = this.find(y);
+    if (rx === ry) return false; // Ya están conectados (ciclo)
+    
+    // Unión por rango
+    if (this.rank[rx] < this.rank[ry]) this.parent[rx] = ry;
+    else if (this.rank[rx] > this.rank[ry]) this.parent[ry] = rx;
+    else {
+      this.parent[ry] = rx;
+      this.rank[rx]++;
+    }
+    return true; // Aceptar arista
+  }
+}
+      </pre>
+
+      <div class="example">
+        <strong>Compresión de rutas:</strong> Al hacer find(x), comprimimos la ruta hacia el raíz para futuras búsquedas más rápidas.
+        <br/><strong>Unión por rango:</strong> Al hacer union, conectamos el árbol más pequeño al más grande para mantener árboles balanceados.
+      </div>
+
+      <h3>Determinismo con Tie-breaker</h3>
+      <p>Para reproducibilidad, cuando dos aristas tienen el <em>mismo peso</em>, Kruskal las ordena por <code>originalIndex</code> (el orden en que fueron creadas en el grafo).</p>
+
+      <pre>
+prepared.sort((a, b) => {
+  if (a.weight !== b.weight) return a.weight - b.weight;
+  return a.originalIndex - b.originalIndex; // Tie-breaker determinista
+});
+      </pre>
+
+      <div class="warning">
+        <strong>Implicación:</strong> Si ejecutas el mismo grafo varias veces, obtendrás <em>siempre</em> el mismo MST (mismas aristas), garantizando reproducibilidad.
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Interfaz de Usuario en GraphStar</h2>
+
+      <h3>Pasos para usar Kruskal</h3>
+      <ol>
+        <li><strong>Crear nodos:</strong> Presiona <code>🪐 Crear Nodo</code> para añadir vértices.</li>
+        <li><strong>Crear aristas:</strong> Presiona <code>⛓️ Agregar Arista</code> y conecta dos nodos. Un modal te pedirá el peso.</li>
+        <li><strong>Desactivar "Grafo Dirigido":</strong> Asegúrate de que el checkbox esté desmarcado.</li>
+        <li><strong>Aplicar Kruskal:</strong> Presiona <code>🌳 Aplicar Kruskal</code>.</li>
+        <li><strong>Ver resultados:</strong> El panel lateral muestra:</li>
+      </ol>
+      <ul>
+        <li><code>🌳 MST calculado - Costo total: X.XX</code></li>
+        <li>Tabla de iteraciones con paso, arista, peso y acción (Agregada / Rechazada).</li>
+      </ul>
+
+      <h3>Resaltado Visual</h3>
+      <p>Las aristas del MST se resaltan con un color <strong>magenta brillante (#ff2dff)</strong> para que sean claramente visibles:</p>
+      <ul>
+        <li><strong>Grosor:</strong> 6px (más grueso que las aristas normales).</li>
+        <li><strong>Efecto glow:</strong> Sombra luminosa alrededor del trazo.</li>
+        <li><strong>Animación dash:</strong> Línea punteada que se mueve constantemente.</li>
+        <li><strong>Orden de renderizado:</strong> Las aristas resaltadas se dibujan <em>por encima</em> de las demás.</li>
+      </ul>
+
+      <div class="example">
+        Si una arista magenta es difícil de ver, intenta "Limpiar Resultado" y vuelve a aplicar Kruskal. La lista de IDs de aristas resaltadas aparece también en la consola del navegador (Abrir DevTools: F12).
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Tabla de Iteraciones Explicada</h2>
+      <table>
+        <tr>
+          <th>Columna</th>
+          <th>Significado</th>
+        </tr>
+        <tr>
+          <td><strong>Paso</strong></td>
+          <td>Número secuencial de inspección (1, 2, 3, ..., E).</td>
+        </tr>
+        <tr>
+          <td><strong>Arista</strong></td>
+          <td>Identificador de la arista: "nodoOrigen → nodoDestino".</td>
+        </tr>
+        <tr>
+          <td><strong>Peso</strong></td>
+          <td>Peso (costo) de la arista.</td>
+        </tr>
+        <tr>
+          <td><strong>Acción</strong></td>
+          <td><em>No forma ciclo</em> (añadida al MST) o <em>Forma un ciclo</em> (rechazada).</td>
+        </tr>
+      </table>
+
+      <div class="note">
+        <strong>Criterio de parada:</strong> El algoritmo se detiene cuando ha seleccionado exactamente V-1 aristas (donde V es el número de nodos). Para un grafo de 9 nodos, espera 8 aristas en el MST.
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Casos de Error</h2>
+      <ul>
+        <li><strong>"El grafo no es conexo":</strong> Significa que hay nodos aislados o grupos desconectados. Kruskal no puede crear un MST que cubra todos los nodos.</li>
+        <li><strong>"Algoritmo de Kruskal requiere un grafo NO dirigido":</strong> Has marcado "Grafo Dirigido". Desactívalo.</li>
+        <li><strong>"Se necesitan al menos 2 nodos":</strong> Añade más nodos.</li>
+        <li><strong>"Se necesitan aristas para calcular un MST":</strong> Conecta los nodos con aristas ponderadas.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>6. Ejemplo Práctico</h2>
+      <p><strong>Grafo de ejemplo:</strong> 9 nodos (A–I) conectados con 12 aristas ponderadas.</p>
+      <p><strong>Resultado esperado:</strong> MST con 8 aristas y costo total 37.00.</p>
+      <p><strong>Las 8 aristas seleccionadas:</strong> dependerán del orden original si hay empates de peso (por eso el tie-breaker es importante).</p>
+
+      <div class="example">
+        Para verificar que tu resultado es correcto, cuenta las aristas resaltadas en la tabla:
+        <ul>
+          <li>Debe haber exactamente 8 aristas con acción "No forma ciclo".</li>
+          <li>El costo total debe ser la suma de esos 8 pesos.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <p><strong>GraphStar — Manual de Kruskal</strong></p>
+      <p>Última actualización: 10 de noviembre de 2025</p>
+      <p>Para más información, consulta la documentación en línea o abre la Guía Interactiva desde la interfaz.</p>
+    </footer>
+  </div>
+</body>
+</html>

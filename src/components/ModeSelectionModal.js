@@ -24,9 +24,9 @@ const ModeSelectionModal = ({ onSelectMode, onClose }) => {
                         <h3>Algoritmo de Dijkstra</h3>
                         <p>Próximamente</p>
                     </div>
-                    <div className="mode-card ">
-                        <h3>Algoritmo de Kruskal</h3>
-                        <p>Próximamente</p>
+                    <div className="mode-card" onClick={() => onSelectMode('kruskal')}>
+                        <h3>🌳 Algoritmo de Kruskal</h3>
+                        <p>Encuentra el Árbol de Expansión Mínima (MST) usando el algoritmo de Kruskal con visualización paso a paso.</p>
                     </div>
                 </div>
             </div>
