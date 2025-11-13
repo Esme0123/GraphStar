@@ -1,0 +1,158 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SIMULADOR DE ÁRBOLES- Manual de Usuario</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; background: #0f1524; color: #f4f4f8; margin: 0; padding: 24px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 24px; }
+    h1 { color: #ffb732; margin: 0 0 8px 0; font-size: 32px; }
+    h2 { color: #00F9A0; margin-top: 24px; border-bottom: 1px solid rgba(0,249,160,0.2); padding-bottom: 6px; }
+    h3 { color: #ff2dff; margin-top: 20px; }
+    p { color: #e8e8ee; line-height: 1.6; }
+    ul, ol { color: #e8e8ee; line-height: 1.8; }
+    li { margin: 6px 0; }
+    pre { background:#071022; padding:12px; border-radius:8px; overflow:auto; color:#d6f5e5; border-left: 4px solid #00F9A0; }
+    code { font-family: Consolas, 'Courier New', monospace; color: #cbe7ff; background: rgba(203,231,255,0.1); padding: 2px 4px; border-radius: 3px; }
+    .note { background: rgba(255,183,50,0.08); padding:12px; border-left:4px solid #ffb732; margin: 12px 0; border-radius: 4px; }
+    .example { background: rgba(0,249,160,0.06); padding:12px; border-left:4px solid #00F9A0; margin: 12px 0; border-radius: 4px; }
+    .warning { background: rgba(255,45,255,0.06); padding:12px; border-left:4px solid #ff2dff; margin: 12px 0; border-radius: 4px; }
+    table { width:100%; border-collapse: collapse; margin-top:12px; }
+    table th { background: rgba(0,249,160,0.1); padding:10px; text-align: left; border-bottom: 2px solid #00F9A0; color: #00F9A0; }
+    table td { padding:8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    footer { text-align:center; margin-top:40px; color:#9aa0b0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1> Simulador de Árboles Binarios</h1>
+      <p>Guía de uso de la interfaz en GraphStar</p>
+    </header>
+
+    <section>
+      <h2>1. ¿Qué es el Simulador de Árboles?</h2>
+      <p>TreeSimulator es una herramienta visual para aprender cómo funcionan los árboles binarios. Permite construir, visualizar y analizar árboles de dos maneras principales:</p>
+      <ul>
+        <li><strong>Modo Simulador:</strong> Para crear un Árbol Binario de Búsqueda (BST) paso a paso y ver cómo funcionan los recorridos.</li>
+        <li><strong>Modo Reconstructor:</strong> Para resolver el desafío de armar un árbol binario si solo conoces sus secuencias de recorrido (ej. In-Order y Pre-Order).</li>
+      </ul>
+      <p>Puedes cambiar entre estos dos modos usando el interruptor <strong>(Modo Simulador / Modo Reconstructor)</strong> en la parte superior del panel de control.</p>
+    </section>
+
+    <section>
+      <h2>2. Modo Simulador (Crear y Analizar)</h2>
+      <p>Este es el modo por defecto. Te permite crear un Árbol Binario de Búsqueda (BST), donde los nodos menores van a la izquierda y los mayores a la derecha.</p>
+      
+      <h3>Paso 1: Crear un Árbol</h3>
+      <p>Tienes dos formas de crear un árbol, seleccionables en el panel de control:</p>
+      <ul>
+        <li><strong>Modo "Aleatorio":</strong>
+          <ol>
+            <li>Ingresa la <strong>Cantidad de Nodos</strong> que deseas.</li>
+            <li>Define el <strong>Rango de Valores</strong> (mínimo y máximo) para los nodos.</li>
+            <li>Presiona el botón <strong>"Generar"</strong>. Un árbol se dibujará automáticamente en el visor.</li>
+          </ol>
+        </li>
+        <li><strong>Modo "Manual":</strong>
+          <ol>
+            <li>Presiona el botón <strong>"Insertar"</strong>.</li>
+            <li>Se abrirá una ventana para que escribas el valor del nodo que quieres añadir.</li>
+            <li>El nodo se insertará en el árbol respetando las reglas de un BST (Árbol de Búsqueda Binaria).</li>
+          </ol>
+        </li>
+      </ul>
+
+      <h3>Paso 2: Analizar con Recorridos</h3>
+      <p>Una vez que tienes un árbol en pantalla, puedes ejecutar animaciones de recorridos usando los botones principales:</p>
+      <ul>
+        <li><strong>IN-ORDER:</strong> (Izquierda, Raíz, Derecha) - Visita el sub-árbol izquierdo, luego el nodo actual, y al final el sub-árbol derecho.</li>
+        <li><strong>POST-ORDER:</strong> (Izquierda, Derecha, Raíz) - Visita el sub-árbol izquierdo, luego el sub-árbol derecho, y al final el nodo actual.</li>
+        <li><strong>PRE-ORDER:</strong> (Raíz, Izquierda, Derecha) - Visita el nodo actual primero, luego el sub-árbol izquierdo, y al final el sub-árbol derecho.</li>
+      </ul>
+
+      <h3>Paso 3: Ver los Resultados</h3>
+      <ul>
+        <li><strong>Visor de Árbol:</strong> Es el área central. Verás cómo los nodos se iluminan en verde en el orden exacto del recorrido seleccionado.</li>
+        <li><strong>Barra de Resultado:</strong> En la parte inferior de la pantalla, verás la secuencia de números (ej: <code>10, 29, 45...</code>) que se va formando en tiempo real durante la animación.</li>
+        <img src="../IMG/manuals/graphstar_tree.png" alt="GraphStar tree">
+      </ul>
+
+      <h3>Paso 4: Herramientas Adicionales</h3>
+      <p>En la parte inferior del panel de control encontrarás:</p>
+      <ul>
+        <li><strong>Importar:</strong> Carga un árbol que hayas guardado previamente en un archivo <code>.json</code>.</li>
+        <li><strong>Exportar:</strong> Guarda la estructura de tu árbol actual en un archivo <code>.json</code> para usarlo más tarde.</li>
+        <li><strong>Reset:</strong> Borra el árbol actual y limpia el visor.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3. Modo Reconstructor (Armar desde Secuencias)</h2>
+      <p>Este modo te permite hacer lo opuesto: en lugar de crear un árbol para obtener recorridos, usas los recorridos para crear un árbol.</p>
+      
+      <div class="note">
+        <strong>Objetivo:</strong> Este modo es perfecto para practicar y verificar soluciones a problemas comunes de estructuras de datos, donde te dan dos secuencias y te piden dibujar el árbol resultante.
+      </div>
+
+      <h3>Cómo Usarlo</h3>
+      <ol>
+        <li>Activa el <strong>"Modo Reconstructor"</strong> con el interruptor. El panel de control cambiará.</li>
+        <li><strong>Selecciona el Método:</strong> Elige qué par de secuencias tienes (ej: "In-Order + Post-Order").</li>
+        <li><strong>Ingresa las Secuencias:</strong> Pega tus secuencias de números en las dos cajas de texto. Los números deben estar separados por comas o espacios (ej: <code>10, 20, 30</code> o <code>10 20 30</code>).</li>
+        <li>Presiona el botón <strong>"Reconstruir"</strong>.</li>
+      </ol>
+      <p>Si las secuencias son válidas, el árbol binario correspondiente se dibujará en el visor.</p>
+
+      <h3>Pares de Reconstrucción Soportados</h3>
+      <table>
+        <tr>
+          <th>Par de Secuencias</th>
+          <th>Cuándo usarlo</th>
+        </tr>
+        <tr>
+          <td><strong>IN-ORDER + POST-ORDER</strong></td>
+          <td>El par más común. Permite una reconstrucción única.</td>
+        </tr>
+        <tr>
+          <td><strong>IN-ORDER + PRE-ORDER</strong></td>
+          <td>Igualmente común. También permite una reconstrucción única.</td>
+        </tr>
+         <tr>
+          <td><strong>PRE-ORDER + POST-ORDER</strong></td>
+          <td>Solo funciona si el árbol es un "Árbol Binario Completo".</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. Mensajes y Errores Comunes</h2>
+      <p>Si algo sale mal, el simulador te mostrará una notificación. Esto es lo que significan:</p>
+      
+      <div class="warning">
+        <strong>"Los arreglos ... deben existir y tener la misma longitud."</strong>
+        <p><strong>Significado:</strong> Las dos secuencias que ingresaste en el Modo Reconstructor no tienen la misma cantidad de números. Asegúrate de que ambas listas tengan exactamente el mismo número de elementos.</p>
+      </div>
+
+      <div class="warning">
+        <strong>"El valor [X] de Post-Order no se encontró en In-Order."</strong>
+        <p><strong>Significado:</strong> Los números en las dos secuencias no coinciden. Ambas listas deben contener exactamente los mismos números (ej. si una tiene un '5', la otra también debe tener un '5').</p>
+      </div>
+      
+      <div class="warning">
+        <strong>"Error al leer el archivo. Verifique el formato."</strong>
+        <p><strong>Significado:</strong> El archivo <code>.json</code> que intentaste importar está dañado o no tiene el formato correcto que el simulador espera.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p><strong>GraphStar — Manual de Usuario de TreeSimulator</strong></p>
+      <p>Última actualización: 13 de noviembre de 2025</p>
+    </footer>
+  </div>
+</body>
+</html>

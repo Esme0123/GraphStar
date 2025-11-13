@@ -1123,6 +1123,16 @@ const TreeSimulator = ({ onGoBack,showTutorial }) => {
             <button className="back-button-simulator" onClick={onGoBack}>
                 ↩️ Volver a Conceptos
             </button>
+                {/* Botón adicional: abrir manual PDF de NorthWest */}
+            <button
+            type="button"
+            className="help-button" // Reutiliza el estilo que te di
+            title="Abrir Manual de Árboles"
+            // Apunta al archivo HTML estático en la carpeta 'public'
+            onClick={() => window.open('/manuals/Tree_Manual.html', '_blank')}
+            >
+            📄
+            </button>
             
             {/* Los botones de navegación ahora controlan appMode */}
             <div className="traversal-buttons" id= "tour-tree-step-1">
