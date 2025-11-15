@@ -1126,9 +1126,8 @@ const TreeSimulator = ({ onGoBack,showTutorial }) => {
                 {/* Botón adicional: abrir manual PDF de NorthWest */}
             <button
             type="button"
-            className="help-button" // Reutiliza el estilo que te di
+            className="pdf-button" 
             title="Abrir Manual de Árboles"
-            // Apunta al archivo HTML estático en la carpeta 'public'
             onClick={() => window.open('/manuals/Tree_Manual.html', '_blank')}
             >
             📄
