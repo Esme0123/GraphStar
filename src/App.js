@@ -12,6 +12,8 @@ import MainHeader from './components/MainHeader';
 import NodeEditModal from './components/NodeEditModal';
 import PlanetNode from './components/PlanetNode';
 import EdgeEditModal from './components/EdgeEditModal';
+import NodeCreationModal from './components/NodeCreationModal';
+import EdgeValueModal from './components/EdgeValueModal';
 import AdjacencyMatrixModal from './components/AdjacencyMatrixModal';
 import SelfConnectingEdge from './components/SelfConnectingEdge';
 import WelcomePage from './components/WelcomePage';
@@ -123,6 +125,9 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   const [edgeSourceNode, setEdgeSourceNode] = useState(null);
   const [editingNode, setEditingNode] = useState(null);
   const [editingEdge, setEditingEdge] = useState(null);
+  const [showNodeCreationModal, setShowNodeCreationModal] = useState(false);
+  const [pendingNodePosition, setPendingNodePosition] = useState(null);
+  const [edgeValueRequest, setEdgeValueRequest] = useState(null);
   const [showMatrix, setShowMatrix] = useState(false);
   const [adjacencyMatrix, setAdjacencyMatrix] = useState(null);
   const [edgeType, setEdgeType] = useState('default');
@@ -216,42 +221,15 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
         alert("Modo Dijkstra: No se permiten los bucles (auto-conexiones).");
         return;
       }
-      const value = prompt("Ingresa el valor de la arista (opcional):");
-      if (mode === 'johnson' && value) {
-        const numericValue = parseFloat(value);
-        if (!isNaN(numericValue) && numericValue < 0) {
-            alert("Modo Johnson: No se permiten pesos negativos.");
-            return;
-        }
-      }
-      if (mode === 'dijkstra' && value) {
-        const numericValue = parseFloat(value);
-        if (!isNaN(numericValue) && numericValue < 0) {
-            alert("Modo Dijkstra: No se permiten pesos negativos.");
-            return;
-        }
-      }
-      const newEdge = {
-          ...params,
-          id: `edge_${params.source}_${params.target}_${new Date().getTime()}`,
-          label: value || '',
-          labelStyle: { fontSize: 16, fill: 'var(--amarillo-estrella)', fontWeight: 'bold' },
-          labelBgPadding: [8, 4],
-          labelBgBorderRadius: 4,
-          labelBgStyle: { fill: 'var(--azul-nebuloso)', fillOpacity: 0.8 },
-          style: { stroke: 'var(--verde-estelar)', strokeWidth: 2 }, 
-          markerEnd: isDirected 
-            ? { type: 'arrowclosed', color: 'var(--verde-estelar)', width: 15, height: 15 } 
-            : undefined,
-      };
-      if (params.source === params.target) {
-        newEdge.type = 'selfconnecting';
-      }else{
-        newEdge.type=edgeType;
-      }
-      setIsAddingEdge(false);
-      setEdges((eds) => eds.concat(newEdge));
-  }, [edges,setEdges, isDirected,edgeType,mode]);
+      const nodesList = getNodes();
+      const sourceNode = nodesList.find((n) => n.id === params.source);
+      const targetNode = nodesList.find((n) => n.id === params.target);
+      setEdgeValueRequest({
+        params,
+        sourceLabel: sourceNode?.data?.label || 'Origen',
+        targetLabel: targetNode?.data?.label || 'Destino',
+      });
+  }, [edges, getNodes, mode]);
   //si cambia a dirigido
   useEffect(() => {
       setEdges((eds) =>
@@ -263,21 +241,13 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   }, [isDirected, setEdges]);
   //nodos
   const onAddNode = useCallback(() => {
-      const label = prompt("Ingresa el nombre del nuevo planeta:");
-      if (label) {
-          const position = screenToFlowPosition({
-              x: window.innerWidth / 2,
-              y: window.innerHeight / 2,
-          });
-          const newNode = {
-              id: `node_${nodeIdCounter++}`,
-              type: 'planet',
-              data: { label, color: '#6A4C93', size: 80 },
-              position,
-          };
-          setNodes((nds) => nds.concat(newNode));
-      }
-  }, [screenToFlowPosition, setNodes]);
+      const position = screenToFlowPosition({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+      });
+      setPendingNodePosition(position);
+      setShowNodeCreationModal(true);
+  }, [screenToFlowPosition]);
   
   const onNodeDoubleClick = useCallback((event, node) => setEditingNode(node), []);
   
@@ -308,6 +278,68 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
       );
       setEditingNode(null);
   };
+  const handleNodeCreationConfirm = useCallback((label) => {
+      const position =
+        pendingNodePosition ||
+        screenToFlowPosition({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+        });
+      const newNode = {
+          id: `node_${nodeIdCounter++}`,
+          type: 'planet',
+          data: { label, color: '#6A4C93', size: 80 },
+          position,
+      };
+      setNodes((nds) => nds.concat(newNode));
+      setShowNodeCreationModal(false);
+      setPendingNodePosition(null);
+  }, [pendingNodePosition, screenToFlowPosition, setNodes]);
+
+  const handleNodeCreationCancel = useCallback(() => {
+      setShowNodeCreationModal(false);
+      setPendingNodePosition(null);
+  }, []);
+
+  const handleEdgeValueSubmit = useCallback((value) => {
+      if (!edgeValueRequest) return;
+      if ((mode === 'johnson' || mode === 'dijkstra') && value) {
+        const numericValue = parseFloat(value);
+        if (!isNaN(numericValue) && numericValue < 0) {
+          alert(`Modo ${mode === 'johnson' ? 'Johnson' : 'Dijkstra'}: No se permiten pesos negativos.`);
+          return;
+        }
+      }
+      const { params } = edgeValueRequest;
+      const newEdge = {
+          ...params,
+          id: `edge_${params.source}_${params.target}_${new Date().getTime()}`,
+          label: value || '',
+          labelStyle: { fontSize: 16, fill: 'var(--amarillo-estrella)', fontWeight: 'bold' },
+          labelBgPadding: [8, 4],
+          labelBgBorderRadius: 4,
+          labelBgStyle: { fill: 'var(--azul-nebuloso)', fillOpacity: 0.8 },
+          style: { stroke: 'var(--verde-estelar)', strokeWidth: 2 }, 
+          markerEnd: isDirected 
+            ? { type: 'arrowclosed', color: 'var(--verde-estelar)', width: 15, height: 15 } 
+            : undefined,
+      };
+      if (params.source === params.target) {
+        newEdge.type = 'selfconnecting';
+      }else{
+        newEdge.type=edgeType;
+      }
+      setEdges((eds) => eds.concat(newEdge));
+      setEdgeValueRequest(null);
+  }, [edgeValueRequest, edgeType, isDirected, mode, setEdges]);
+
+  const handleEdgeValueSkip = useCallback(() => {
+      handleEdgeValueSubmit('');
+  }, [handleEdgeValueSubmit]);
+
+  const handleEdgeValueCancel = useCallback(() => {
+      setEdgeValueRequest(null);
+  }, []);
   const showAdjacencyMatrix = () => {
     const nodes = getNodes();
     const edges = getEdges();
@@ -728,6 +760,21 @@ const processedEdges = useMemo(() => {
                 node={editingNode} 
                 onSave={onSaveNodeChanges} 
                 onCancel={() => setEditingNode(null)} />}
+          {showNodeCreationModal && (
+            <NodeCreationModal
+              onConfirm={handleNodeCreationConfirm}
+              onCancel={handleNodeCreationCancel}
+            />
+          )}
+          {edgeValueRequest && (
+            <EdgeValueModal
+              sourceLabel={edgeValueRequest.sourceLabel}
+              targetLabel={edgeValueRequest.targetLabel}
+              onConfirm={handleEdgeValueSubmit}
+              onSkip={handleEdgeValueSkip}
+              onCancel={handleEdgeValueCancel}
+            />
+          )}
           {showMatrix&& <AdjacencyMatrixModal 
                 nodes={nodes}
                 matrix={adjacencyMatrix}

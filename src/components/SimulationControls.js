@@ -17,6 +17,9 @@ const SimulationControls = ({
   const [mode, setMode] = useState('minimize');
   const [source, setSource] = useState('');
   const [target, setTarget] = useState('');
+  const isDijkstraMode = editorMode === 'dijkstra';
+  const selectClassName = `sidebar-select${isDijkstraMode ? ' dijkstra-input' : ''}`;
+  const labelClassName = isDijkstraMode ? 'sidebar-label dijkstra-label' : 'sidebar-label';
 
   useEffect(() => {
     if (isPathMode && pathControlsExpandSignal > 0) {
@@ -146,8 +149,9 @@ const SimulationControls = ({
 
           {isExpanded && (
             <div className="sidebar-submenu">
-              <p className="sidebar-label">Elige una opción:</p>
+              <p className={labelClassName}>Elige una opción:</p>
               <select
+                className={selectClassName}
                 id={editorMode === 'dijkstra' ? 'dijkstra-mode-select' : undefined}
                 value={mode}
                 onChange={(e) => setMode(e.target.value)}
@@ -156,8 +160,9 @@ const SimulationControls = ({
                 <option value="maximize">Maximizar (Más Larga)</option>
               </select>
 
-              <p className="sidebar-label">Desde:</p>
+              <p className={labelClassName}>Desde:</p>
               <select
+                className={selectClassName}
                 id={editorMode === 'dijkstra' ? 'dijkstra-source-select' : undefined}
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
@@ -170,8 +175,9 @@ const SimulationControls = ({
                 ))}
               </select>
 
-              <p className="sidebar-label">Hasta:</p>
+              <p className={labelClassName}>Hasta:</p>
               <select
+                className={selectClassName}
                 id={editorMode === 'dijkstra' ? 'dijkstra-target-select' : undefined}
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
