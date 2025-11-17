@@ -20,7 +20,7 @@ const ModeSelectionModal = ({ onSelectMode, onClose }) => {
                         <h3> 👥 Algoritmo de Asignación</h3>
                         <p> 🔗 Un entorno preparado para resolver problemas de asignación. Incluye un grafo bipartito editable, herramientas para visualizar asignaciones óptimas paso a paso.</p>
                     </div>
-                    <div className="mode-card ">
+                    <div className="mode-card" onClick={() => onSelectMode('dijkstra')}>
                         <h3>Algoritmo de Dijkstra</h3>
                         <p>Próximamente</p>
                     </div>

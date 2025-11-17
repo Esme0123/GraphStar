@@ -13,8 +13,8 @@ const EdgeEditModal = ({ edge, onSave, onCancel,mode }) => {
             alert("El valor de la arista debe ser un número.");
             return;
         }
-        if (mode === 'johnson' && numericLabel < 0) {
-            alert("Modo Johnson: No se permiten pesos negativos.");
+        if ((mode === 'johnson' || mode === 'dijkstra') && numericLabel < 0) {
+            alert(`Modo ${mode === 'johnson' ? 'Johnson' : 'Dijkstra'}: No se permiten pesos negativos.`);
             return;
         }
         onSave(edge.id, { label, color });

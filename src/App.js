@@ -21,6 +21,7 @@ import TutorialModal from './components/TutorialModal';
 import TourGuide from './components/TourGuide';
 import { runJohnsonAlgorithm } from './algorithms/johnson';
 import { runAssignmentAlgorithm } from './algorithms/assignment';
+import { runDijkstraAlgorithm } from './algorithms/dijkstra';
 import SimulationControls from './components/SimulationControls';
 import PathWithSlackEdge from './components/PathWithSlackEdge';
 import WelcomeSortPage from './components/WelcomeSortPage';
@@ -110,11 +111,22 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
           return;
         }
       }
+      if (mode === 'dijkstra' && params.source === params.target) {
+        alert("Modo Dijkstra: No se permiten los bucles (auto-conexiones).");
+        return;
+      }
       const value = prompt("Ingresa el valor de la arista (opcional):");
       if (mode === 'johnson' && value) {
         const numericValue = parseFloat(value);
         if (!isNaN(numericValue) && numericValue < 0) {
             alert("Modo Johnson: No se permiten pesos negativos.");
+            return;
+        }
+      }
+      if (mode === 'dijkstra' && value) {
+        const numericValue = parseFloat(value);
+        if (!isNaN(numericValue) && numericValue < 0) {
+            alert("Modo Dijkstra: No se permiten pesos negativos.");
             return;
         }
       }
@@ -289,6 +301,99 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
             text: resultText, 
             assignment: assignmentsForUI, 
             matrix: matrixForUI 
+        });
+        return;
+    }
+
+    // --- MODO DIJKSTRA ---
+    if (params.type === 'dijkstra') {
+        const { mode, source, target } = params;
+        const result = runDijkstraAlgorithm(nodes, edges, {
+            mode,
+            sourceId: source,
+            targetId: target,
+        });
+
+        if (result.error) {
+            setSimulationResult({ text: `Error: ${result.error}` });
+            return;
+        }
+
+        const { cost, pathNodeIndices, costsFromSource, costsToTarget } = result;
+        const pathNodeIds = pathNodeIndices.map(index => nodes[index].id);
+        const pathLabels = pathNodeIndices.map(index => nodes[index].data.label);
+        const pathEdgeIds = new Set();
+
+        for (let i = 0; i < pathNodeIds.length - 1; i++) {
+            const edge = edges.find(
+                e => e.source === pathNodeIds[i] && e.target === pathNodeIds[i + 1]
+            );
+            if (edge) {
+                pathEdgeIds.add(edge.id);
+            }
+        }
+
+        const nodeIndexMap = new Map(nodes.map((n, index) => [n.id, index]));
+        const slackMap = new Map();
+        edges.forEach(edge => {
+            const uIdx = nodeIndexMap.get(edge.source);
+            const vIdx = nodeIndexMap.get(edge.target);
+            if (uIdx === undefined || vIdx === undefined) return;
+
+            const weightVal = parseFloat(edge.label);
+            const weight = Number.isFinite(weightVal) ? weightVal : 0;
+            const costU = costsFromSource[uIdx];
+            const costV = costsFromSource[vIdx];
+
+            if (Number.isFinite(costU) && Number.isFinite(costV)) {
+                slackMap.set(edge.id, costV - (costU + weight));
+            }
+        });
+
+        setNodes(nds =>
+            nds.map((node, index) => {
+                const forwardCost = costsFromSource[index];
+                const remainingCost = costsToTarget[index];
+                const backwardCost =
+                    Number.isFinite(cost) && Number.isFinite(remainingCost)
+                        ? cost - remainingCost
+                        : undefined;
+
+                return {
+                    ...node,
+                    data: {
+                        ...node.data,
+                        forwardCost: Number.isFinite(forwardCost) ? forwardCost : undefined,
+                        backwardCost: Number.isFinite(backwardCost) ? backwardCost : undefined,
+                    },
+                };
+            })
+        );
+
+        setEdges(eds =>
+            eds.map(e => {
+                const slack = slackMap.get(e.id);
+                const newData = { ...(e.data || {}) };
+                if (Number.isFinite(slack)) {
+                    newData.slack = slack;
+                } else {
+                    delete newData.slack;
+                }
+
+                return {
+                    ...e,
+                    className: pathEdgeIds.has(e.id) ? 'highlighted-edge' : '',
+                    type: e.type === 'selfconnecting' ? 'selfconnecting' : 'pathWithSlack',
+                    data: newData,
+                    style: { stroke: 'var(--verde-estelar)', strokeWidth: 2 },
+                };
+            })
+        );
+
+        const resultText = `Costo del camino más ${mode === 'minimize' ? 'corto' : 'largo'}: ${cost.toFixed(2)}`;
+        setSimulationResult({
+            text: resultText,
+            path: pathLabels,
         });
         return;
     }
@@ -579,7 +684,7 @@ const processedEdges = useMemo(() => {
                   <input id="directed-checkbox" type="checkbox" checked={isDirected} onChange={(e) => setIsDirected(e.target.checked)} />
                   Grafo Dirigido
               </label>
-              {(mode === 'johnson' || mode === 'assignment')&&(
+              {(mode === 'johnson' || mode === 'assignment' || mode === 'dijkstra')&&(
               <>
                 <hr className="sidebar-separator" />
                 <div className="simulation" id="btn-simulation-bar">

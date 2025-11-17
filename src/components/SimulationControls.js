@@ -9,8 +9,9 @@ const SimulationControls = ({
   editorMode, // 'johnson' | 'assignment'
 }) => {
   /* ==============================
-     🔹 SECCIÓN 1: JOHNSON CONTROLS
+     🔹 SECCIÓN 1: JOHNSON / DIJKSTRA CONTROLS
   ===============================*/
+  const isPathMode = editorMode === 'johnson' || editorMode === 'dijkstra';
   const [isExpanded, setIsExpanded] = useState(false);
   const [mode, setMode] = useState('minimize');
   const [source, setSource] = useState('');
@@ -21,7 +22,8 @@ const SimulationControls = ({
       alert('Por favor, selecciona un nodo de origen y uno de destino.');
       return;
     }
-    onSimulate({ type: 'johnson', mode, source, target });
+    const algorithmType = editorMode === 'dijkstra' ? 'dijkstra' : 'johnson';
+    onSimulate({ type: algorithmType, mode, source, target });
   };
 
   const handleToggleJohnson = () => {
@@ -122,14 +124,16 @@ const SimulationControls = ({
   /* ==============================*/
   return (
     <>
-      {/* --- MODO JOHNSON --- */}
-      {editorMode === 'johnson' && (
+      {/* --- MODO JOHNSON / DIJKSTRA --- */}
+      {isPathMode && (
         <>
           <button
             className={`sidebar-button ${isExpanded ? 'active-mode' : ''}`}
             onClick={handleToggleJohnson}
           >
-            🚀 Simular Ruta (Johnson)
+            {editorMode === 'dijkstra'
+              ? '🚀 Simular Ruta (Dijkstra)'
+              : '🚀 Simular Ruta (Johnson)'}
           </button>
 
           {isExpanded && (
