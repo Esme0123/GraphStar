@@ -737,6 +737,29 @@ z-index: 0;
   transform: scale(1.1);
   box-shadow: 0 0 20px var(--amarillo-estrella);
 }
+.pdf-button {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--amarillo-estrella);
+  color: var(--negro);
+  border: 2px solid var(--blanco-estelar);
+  font-family: var(--font-button);
+  font-size: 28px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 101; 
+  transition: all 0.3s ease;
+}
+.pdf-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px var(--amarillo-estrella);
+}
 .cumulative-cost-label {
   position: absolute;
   bottom: -5px;
