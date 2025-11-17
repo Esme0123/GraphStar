@@ -7,21 +7,33 @@ const SimulationControls = ({
   simulationResult,
   onClear,
   editorMode, // 'johnson' | 'assignment'
+  pathControlsExpandSignal = 0,
 }) => {
   /* ==============================
-     🔹 SECCIÓN 1: JOHNSON CONTROLS
+     🔹 SECCIÓN 1: JOHNSON / DIJKSTRA CONTROLS
   ===============================*/
+  const isPathMode = editorMode === 'johnson' || editorMode === 'dijkstra';
   const [isExpanded, setIsExpanded] = useState(false);
   const [mode, setMode] = useState('minimize');
   const [source, setSource] = useState('');
   const [target, setTarget] = useState('');
+  const isDijkstraMode = editorMode === 'dijkstra';
+  const selectClassName = `sidebar-select${isDijkstraMode ? ' dijkstra-input' : ''}`;
+  const labelClassName = isDijkstraMode ? 'sidebar-label dijkstra-label' : 'sidebar-label';
+
+  useEffect(() => {
+    if (isPathMode && pathControlsExpandSignal > 0) {
+      setIsExpanded(true);
+    }
+  }, [isPathMode, pathControlsExpandSignal]);
 
   const handleSimulateClick = () => {
     if (!source || !target) {
       alert('Por favor, selecciona un nodo de origen y uno de destino.');
       return;
     }
-    onSimulate({ type: 'johnson', mode, source, target });
+    const algorithmType = editorMode === 'dijkstra' ? 'dijkstra' : 'johnson';
+    onSimulate({ type: algorithmType, mode, source, target });
   };
 
   const handleToggleJohnson = () => {
@@ -122,26 +134,39 @@ const SimulationControls = ({
   /* ==============================*/
   return (
     <>
-      {/* --- MODO JOHNSON --- */}
-      {editorMode === 'johnson' && (
+      {/* --- MODO JOHNSON / DIJKSTRA --- */}
+      {isPathMode && (
         <>
           <button
+            id={editorMode === 'dijkstra' ? 'dijkstra-sim-toggle' : undefined}
             className={`sidebar-button ${isExpanded ? 'active-mode' : ''}`}
             onClick={handleToggleJohnson}
           >
-            🚀 Simular Ruta (Johnson)
+            {editorMode === 'dijkstra'
+              ? '🚀 Simular Ruta (Dijkstra)'
+              : '🚀 Simular Ruta (Johnson)'}
           </button>
 
           {isExpanded && (
             <div className="sidebar-submenu">
-              <p className="sidebar-label">Elige una opción:</p>
-              <select value={mode} onChange={(e) => setMode(e.target.value)}>
+              <p className={labelClassName}>Elige una opción:</p>
+              <select
+                className={selectClassName}
+                id={editorMode === 'dijkstra' ? 'dijkstra-mode-select' : undefined}
+                value={mode}
+                onChange={(e) => setMode(e.target.value)}
+              >
                 <option value="minimize">Minimizar (Más Corta)</option>
                 <option value="maximize">Maximizar (Más Larga)</option>
               </select>
 
-              <p className="sidebar-label">Desde:</p>
-              <select value={source} onChange={(e) => setSource(e.target.value)}>
+              <p className={labelClassName}>Desde:</p>
+              <select
+                className={selectClassName}
+                id={editorMode === 'dijkstra' ? 'dijkstra-source-select' : undefined}
+                value={source}
+                onChange={(e) => setSource(e.target.value)}
+              >
                 <option value="">Selecciona origen...</option>
                 {nodes.map((node) => (
                   <option key={node.id} value={node.id}>
@@ -150,8 +175,13 @@ const SimulationControls = ({
                 ))}
               </select>
 
-              <p className="sidebar-label">Hasta:</p>
-              <select value={target} onChange={(e) => setTarget(e.target.value)}>
+              <p className={labelClassName}>Hasta:</p>
+              <select
+                className={selectClassName}
+                id={editorMode === 'dijkstra' ? 'dijkstra-target-select' : undefined}
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+              >
                 <option value="">Selecciona destino...</option>
                 {nodes.map((node) => (
                   <option key={node.id} value={node.id}>
@@ -160,17 +190,42 @@ const SimulationControls = ({
                 ))}
               </select>
 
-              <button className="sidebar-button simulate-button" onClick={handleSimulateClick}>
+              <button
+                id={editorMode === 'dijkstra' ? 'dijkstra-run-button' : undefined}
+                className="sidebar-button simulate-button"
+                onClick={handleSimulateClick}
+              >
                 🛸 Calcular
               </button>
 
-              {simulationResult && (
-                <div className="simulation-result">
-                  <p>{simulationResult.text}</p>
-                  {simulationResult.path && (
-                    <p>Ruta: {simulationResult.path.join(' → ')}</p>
+              {editorMode === 'dijkstra' ? (
+                <div
+                  id="dijkstra-result-box"
+                  className={`simulation-result ${simulationResult ? '' : 'placeholder'}`}
+                >
+                  {simulationResult ? (
+                    <>
+                      <p>{simulationResult.text}</p>
+                      {simulationResult.path && (
+                        <p>Ruta: {simulationResult.path.join(' → ')}</p>
+                      )}
+                    </>
+                  ) : (
+                    <p>
+                      Cuando ejecutes una ruta con Dijkstra verás aquí el costo total y la secuencia
+                      de planetas.
+                    </p>
                   )}
                 </div>
+              ) : (
+                simulationResult && (
+                  <div className="simulation-result">
+                    <p>{simulationResult.text}</p>
+                    {simulationResult.path && (
+                      <p>Ruta: {simulationResult.path.join(' → ')}</p>
+                    )}
+                  </div>
+                )
               )}
             </div>
           )}

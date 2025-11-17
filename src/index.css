@@ -241,6 +241,48 @@ z-index: 0;
     margin: 10px 0 5px 0;
     padding: 0 15px;
 }
+.sidebar-select {
+    width: calc(100% - 30px);
+    margin: 0 15px 15px;
+    font-family: var(--font-button);
+    font-size: 13px;
+    color: var(--blanco-estelar);
+    background: rgba(20, 28, 43, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 10px 40px 10px 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23F1F1F1'%3E%3Cpath d='M5 7l5 6 5-6H5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+}
+.sidebar-select:focus {
+    outline: none;
+    border-color: var(--verde-estelar);
+    box-shadow: 0 0 14px rgba(0, 249, 160, 0.45);
+}
+.sidebar-select option {
+    background-color: var(--azul-nebuloso);
+    color: var(--blanco-estelar);
+}
+.dijkstra-input {
+    background: linear-gradient(135deg, rgba(0, 249, 160, 0.06), rgba(106, 76, 147, 0.18)), rgba(15, 23, 39, 0.9);
+    border: 1px solid rgba(0, 249, 160, 0.55);
+    box-shadow: 0 0 15px rgba(0, 249, 160, 0.25);
+}
+.dijkstra-input:focus {
+    border-color: var(--amarillo-estrella);
+    box-shadow: 0 0 18px rgba(255, 183, 50, 0.5);
+}
+.dijkstra-label {
+    color: var(--amarillo-estrella);
+    letter-spacing: 1px;
+}
 .sidebar-button-group {
     display: flex;
     padding: 0 15px;
@@ -340,6 +382,10 @@ z-index: 0;
   width: 90%;
   max-width: 1200px;
 }
+.modal-content.compact-modal {
+  max-width: 420px;
+  padding: 25px 30px 30px;
+}
 .modal-content h2 {
   font-family: var(--font-title);
   color: var(--verde-estelar);
@@ -380,6 +426,10 @@ z-index: 0;
   cursor: pointer;
   transition: all 0.2s ease;
 }
+.modal-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .save-button {
   background-color: var(--verde-estelar);
   color: var(--negro);
@@ -389,6 +439,14 @@ z-index: 0;
   background-color: var(--rojo-peligro);
   color: var(--blanco-estelar);
   border: none;
+}
+.neutral-button {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--amarillo-estrella);
+  border: 1px dashed var(--amarillo-estrella);
+}
+.neutral-button:hover {
+  background-color: rgba(255, 183, 50, 0.15);
 }
 .adding-edge-mode .react-flow__pane {
   cursor: crosshair;
@@ -737,6 +795,77 @@ z-index: 0;
   transform: scale(1.1);
   box-shadow: 0 0 20px var(--amarillo-estrella);
 }
+.faq-button {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background-color: var(--azul-nebuloso);
+  color: var(--blanco-estelar);
+  border: 2px solid var(--amarillo-estrella);
+  font-family: var(--font-button);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 101;
+  transition: all 0.3s ease;
+}
+.faq-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px var(--amarillo-estrella);
+}
+.faq-panel {
+  position: fixed;
+  top: 150px;
+  right: 20px;
+  width: 280px;
+  background: var(--negro);
+  border: 2px solid var(--amarillo-estrella);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  z-index: 102;
+}
+.faq-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  color: var(--amarillo-estrella);
+  font-weight: bold;
+}
+.faq-panel-header .faq-close-button {
+  background: none;
+  border: none;
+  color: var(--blanco-estelar);
+  font-size: 16px;
+  cursor: pointer;
+}
+.faq-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.faq-panel li button {
+  width: 100%;
+  text-align: left;
+  background: var(--azul-nebuloso);
+  border: none;
+  border-radius: 8px;
+  color: var(--blanco-estelar);
+  font-size: 14px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.faq-panel li button:hover {
+  background: var(--verde-estelar);
+  color: var(--negro);
+}
 .pdf-button {
   position: fixed;
   top: 80px;
@@ -1017,6 +1146,14 @@ svg path.highlighted-edge, .react-flow__edge-path.highlighted-edge {
   background-color: var(--negro);
   color: var(--verde-estelar);
   border: 1px solid var(--verde-estelar);
+}
+.forward-cost.target-cost {
+  color: var(--amarillo-estrella);
+  border-color: var(--amarillo-estrella);
+}
+.simulation-result.placeholder {
+  opacity: 0.8;
+  font-style: italic;
 }
 .backward-cost {
   background-color: var(--negro);

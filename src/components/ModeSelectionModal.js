@@ -17,12 +17,12 @@ const ModeSelectionModal = ({ onSelectMode, onClose }) => {
                         <p>Un entorno preparado para el algoritmo de Johnson, con las reglas necesarias activadas (sin bucles, sin pesos negativos, etc.).</p>
                     </div>
                     <div className='mode-card' onClick ={() => onSelectMode('assignment')}>
-                        <h3> 👥 Algoritmo de Asignación</h3>
+                        <h3>👥 Algoritmo de Asignación</h3>
                         <p> 🔗 Un entorno preparado para resolver problemas de asignación. Incluye un grafo bipartito editable, herramientas para visualizar asignaciones óptimas paso a paso.</p>
                     </div>
-                    <div className="mode-card ">
-                        <h3>Algoritmo de Dijkstra</h3>
-                        <p>Próximamente</p>
+                    <div className="mode-card" onClick={() => onSelectMode('dijkstra')}>
+                        <h3>🛣️ Algoritmo de Dijkstra</h3>
+                        <p>Encuentra la ruta minima o maxima (SSSP) de un nodo a otro usando el algoritmo de Dijkstra con visualización paso a paso.</p>
                     </div>
                     <div className="mode-card" onClick={() => onSelectMode('kruskal')}>
                         <h3>🌳 Algoritmo de Kruskal</h3>

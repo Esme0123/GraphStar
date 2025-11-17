@@ -12,6 +12,8 @@ import MainHeader from './components/MainHeader';
 import NodeEditModal from './components/NodeEditModal';
 import PlanetNode from './components/PlanetNode';
 import EdgeEditModal from './components/EdgeEditModal';
+import NodeCreationModal from './components/NodeCreationModal';
+import EdgeValueModal from './components/EdgeValueModal';
 import AdjacencyMatrixModal from './components/AdjacencyMatrixModal';
 import SelfConnectingEdge from './components/SelfConnectingEdge';
 import WelcomePage from './components/WelcomePage';
@@ -21,6 +23,7 @@ import TutorialModal from './components/TutorialModal';
 import TourGuide from './components/TourGuide';
 import { runJohnsonAlgorithm } from './algorithms/johnson';
 import { runAssignmentAlgorithm } from './algorithms/assignment';
+import { runDijkstraAlgorithm } from './algorithms/dijkstra';
 import SimulationControls from './components/SimulationControls';
 import PathWithSlackEdge from './components/PathWithSlackEdge';
 import WelcomeSortPage from './components/WelcomeSortPage';
@@ -37,10 +40,81 @@ const tutorials = {
   editorPizarra: 'Mr4ufsuzZiA', 
   editorJohnson: 'bhdYIWRa6ug', 
   editorAssignment: '_Qne5iJwA38',
+  editorDijkstra: 'EWdVDvl8Tp8',
   sort:'CX0Qfue-iWo',
   northwest: '6m3rzAQs5Zs',
   tree: 'CQjMOiFaxSw',
 };
+const dijkstraFaqItems = [
+  {
+    id: 'simulate',
+    question: '¿Cómo ejecuto una simulación de Dijkstra?',
+    requiresPathControls: true,
+    steps: [
+      {
+        target: '#dijkstra-sim-toggle',
+        content: 'Abre el panel de simulación de Dijkstra para configurar tu ruta.',
+      },
+      {
+        target: '#dijkstra-mode-select',
+        content: 'Elige si deseas minimizar (ruta más corta) o maximizar (ruta más larga).',
+      },
+      {
+        target: '#dijkstra-source-select',
+        content: 'Selecciona el planeta que actuará como origen.',
+      },
+      {
+        target: '#dijkstra-target-select',
+        content: 'Selecciona el planeta de destino que quieres alcanzar.',
+      },
+      {
+        target: '#dijkstra-run-button',
+        content: 'Haz clic en “Calcular” para que GraphStar ejecute el algoritmo.',
+      },
+      {
+        target: '#dijkstra-result-box',
+        content: 'Aquí verás el costo total y la secuencia de planetas visitados.',
+      },
+    ],
+  },
+  {
+    id: 'distances',
+    question: '¿Dónde veo las distancias para cada nodo?',
+    requiresPathControls: true,
+    steps: [
+      {
+        target: '#dijkstra-run-button',
+        content: 'Primero ejecuta una ruta para que se calculen todas las distancias.',
+      },
+      {
+        target: '.react-flow__pane',
+        content:
+          'Cada planeta mostrará una etiqueta verde con la distancia desde el origen. El destino tendrá esa etiqueta en amarillo.',
+      },
+      {
+        target: '#dijkstra-result-box',
+        content: 'El panel también resume el costo acumulado y la ruta completa.',
+      },
+    ],
+  },
+  {
+    id: 'bidirectional',
+    question: '¿Cómo hago que las aristas funcionen en ambos sentidos?',
+    requiresPathControls: false,
+    steps: [
+      {
+        target: '#cb-directed',
+        content:
+          'Desactiva “Grafo Dirigido” para que cada conexión que dibujes funcione automáticamente en ambos sentidos.',
+      },
+      {
+        target: '.react-flow__pane',
+        content:
+          'Con el grafo no dirigido, las rutas de Dijkstra podrán viajar por cualquiera de los dos sentidos de la arista.',
+      },
+    ],
+  },
+];
 let nodeIdCounter = 0;
 const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -51,12 +125,20 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   const [edgeSourceNode, setEdgeSourceNode] = useState(null);
   const [editingNode, setEditingNode] = useState(null);
   const [editingEdge, setEditingEdge] = useState(null);
+  const [showNodeCreationModal, setShowNodeCreationModal] = useState(false);
+  const [pendingNodePosition, setPendingNodePosition] = useState(null);
+  const [edgeValueRequest, setEdgeValueRequest] = useState(null);
   const [showMatrix, setShowMatrix] = useState(false);
   const [adjacencyMatrix, setAdjacencyMatrix] = useState(null);
   const [edgeType, setEdgeType] = useState('default');
   //tour
   const[runTour, setRunTour] =useState(false);
   const [simulationResult, setSimulationResult] = useState(null);
+  const [showDijkstraFaq, setShowDijkstraFaq] = useState(false);
+  const [faqTourSteps, setFaqTourSteps] = useState([]);
+  const [faqTourKey, setFaqTourKey] = useState(0);
+  const [faqTourRun, setFaqTourRun] = useState(false);
+  const [pathControlsExpandSignal, setPathControlsExpandSignal] = useState(0);
   //funciones necesarias de react flow
   const { getNodes, getEdges, screenToFlowPosition, setViewport, deleteElements } = useReactFlow();
   const nodeTypes = useMemo(() => ({ planet: PlanetNode }), []);
@@ -79,13 +161,38 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
     else if (mode === 'assignment') {
       showTutorial('editorAssignment');
     } 
+    else if (mode === 'dijkstra') {
+      showTutorial('editorDijkstra');
+    }
     else {
       showTutorial('editorPizarra');
     }
   }, [mode]);
+  useEffect(() => {
+    if (mode !== 'dijkstra') {
+      setShowDijkstraFaq(false);
+    }
+  }, [mode]);
+  useEffect(() => {
+    if (faqTourKey === 0) return;
+    const timer = setTimeout(() => setFaqTourRun(true), 250);
+    return () => clearTimeout(timer);
+  }, [faqTourKey]);
   const startTour = () => {
     setRunTour(true);
   };
+  const handleFaqQuestionClick = useCallback((item) => {
+    if (item.requiresPathControls) {
+      setPathControlsExpandSignal(prev => prev + 1);
+    }
+    setFaqTourRun(false);
+    setShowDijkstraFaq(false);
+    setFaqTourSteps(item.steps);
+    setFaqTourKey(prev => prev + 1);
+  }, []);
+  const handleFaqTourEnd = useCallback(() => {
+    setFaqTourRun(false);
+  }, []);
   //lógica de aristas
   const onConnect = useCallback((params) => {
        //-----------------modo de asignación:aplicamos sus restricciones.
@@ -110,35 +217,19 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
           return;
         }
       }
-      const value = prompt("Ingresa el valor de la arista (opcional):");
-      if (mode === 'johnson' && value) {
-        const numericValue = parseFloat(value);
-        if (!isNaN(numericValue) && numericValue < 0) {
-            alert("Modo Johnson: No se permiten pesos negativos.");
-            return;
-        }
+      if (mode === 'dijkstra' && params.source === params.target) {
+        alert("Modo Dijkstra: No se permiten los bucles (auto-conexiones).");
+        return;
       }
-      const newEdge = {
-          ...params,
-          id: `edge_${params.source}_${params.target}_${new Date().getTime()}`,
-          label: value || '',
-          labelStyle: { fontSize: 16, fill: 'var(--amarillo-estrella)', fontWeight: 'bold' },
-          labelBgPadding: [8, 4],
-          labelBgBorderRadius: 4,
-          labelBgStyle: { fill: 'var(--azul-nebuloso)', fillOpacity: 0.8 },
-          style: { stroke: 'var(--verde-estelar)', strokeWidth: 2 }, 
-          markerEnd: isDirected 
-            ? { type: 'arrowclosed', color: 'var(--verde-estelar)', width: 15, height: 15 } 
-            : undefined,
-      };
-      if (params.source === params.target) {
-        newEdge.type = 'selfconnecting';
-      }else{
-        newEdge.type=edgeType;
-      }
-      setIsAddingEdge(false);
-      setEdges((eds) => eds.concat(newEdge));
-  }, [edges,setEdges, isDirected,edgeType,mode]);
+      const nodesList = getNodes();
+      const sourceNode = nodesList.find((n) => n.id === params.source);
+      const targetNode = nodesList.find((n) => n.id === params.target);
+      setEdgeValueRequest({
+        params,
+        sourceLabel: sourceNode?.data?.label || 'Origen',
+        targetLabel: targetNode?.data?.label || 'Destino',
+      });
+  }, [edges, getNodes, mode]);
   //si cambia a dirigido
   useEffect(() => {
       setEdges((eds) =>
@@ -150,21 +241,13 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   }, [isDirected, setEdges]);
   //nodos
   const onAddNode = useCallback(() => {
-      const label = prompt("Ingresa el nombre del nuevo planeta:");
-      if (label) {
-          const position = screenToFlowPosition({
-              x: window.innerWidth / 2,
-              y: window.innerHeight / 2,
-          });
-          const newNode = {
-              id: `node_${nodeIdCounter++}`,
-              type: 'planet',
-              data: { label, color: '#6A4C93', size: 80 },
-              position,
-          };
-          setNodes((nds) => nds.concat(newNode));
-      }
-  }, [screenToFlowPosition, setNodes]);
+      const position = screenToFlowPosition({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+      });
+      setPendingNodePosition(position);
+      setShowNodeCreationModal(true);
+  }, [screenToFlowPosition]);
   
   const onNodeDoubleClick = useCallback((event, node) => setEditingNode(node), []);
   
@@ -195,6 +278,68 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
       );
       setEditingNode(null);
   };
+  const handleNodeCreationConfirm = useCallback((label) => {
+      const position =
+        pendingNodePosition ||
+        screenToFlowPosition({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+        });
+      const newNode = {
+          id: `node_${nodeIdCounter++}`,
+          type: 'planet',
+          data: { label, color: '#6A4C93', size: 80 },
+          position,
+      };
+      setNodes((nds) => nds.concat(newNode));
+      setShowNodeCreationModal(false);
+      setPendingNodePosition(null);
+  }, [pendingNodePosition, screenToFlowPosition, setNodes]);
+
+  const handleNodeCreationCancel = useCallback(() => {
+      setShowNodeCreationModal(false);
+      setPendingNodePosition(null);
+  }, []);
+
+  const handleEdgeValueSubmit = useCallback((value) => {
+      if (!edgeValueRequest) return;
+      if ((mode === 'johnson' || mode === 'dijkstra') && value) {
+        const numericValue = parseFloat(value);
+        if (!isNaN(numericValue) && numericValue < 0) {
+          alert(`Modo ${mode === 'johnson' ? 'Johnson' : 'Dijkstra'}: No se permiten pesos negativos.`);
+          return;
+        }
+      }
+      const { params } = edgeValueRequest;
+      const newEdge = {
+          ...params,
+          id: `edge_${params.source}_${params.target}_${new Date().getTime()}`,
+          label: value || '',
+          labelStyle: { fontSize: 16, fill: 'var(--amarillo-estrella)', fontWeight: 'bold' },
+          labelBgPadding: [8, 4],
+          labelBgBorderRadius: 4,
+          labelBgStyle: { fill: 'var(--azul-nebuloso)', fillOpacity: 0.8 },
+          style: { stroke: 'var(--verde-estelar)', strokeWidth: 2 }, 
+          markerEnd: isDirected 
+            ? { type: 'arrowclosed', color: 'var(--verde-estelar)', width: 15, height: 15 } 
+            : undefined,
+      };
+      if (params.source === params.target) {
+        newEdge.type = 'selfconnecting';
+      }else{
+        newEdge.type=edgeType;
+      }
+      setEdges((eds) => eds.concat(newEdge));
+      setEdgeValueRequest(null);
+  }, [edgeValueRequest, edgeType, isDirected, mode, setEdges]);
+
+  const handleEdgeValueSkip = useCallback(() => {
+      handleEdgeValueSubmit('');
+  }, [handleEdgeValueSubmit]);
+
+  const handleEdgeValueCancel = useCallback(() => {
+      setEdgeValueRequest(null);
+  }, []);
   const showAdjacencyMatrix = () => {
     const nodes = getNodes();
     const edges = getEdges();
@@ -289,6 +434,80 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
             text: resultText, 
             assignment: assignmentsForUI, 
             matrix: matrixForUI 
+        });
+        return;
+    }
+
+    // --- MODO DIJKSTRA ---
+    if (params.type === 'dijkstra') {
+        const { mode, source, target } = params;
+        const result = runDijkstraAlgorithm(nodes, edges, {
+            mode,
+            sourceId: source,
+            targetId: target,
+            isDirected,
+        });
+
+        if (result.error) {
+            setSimulationResult({ text: `Error: ${result.error}` });
+            return;
+        }
+
+        const { cost, pathNodeIndices, costsFromSource } = result;
+        const pathNodeIds = pathNodeIndices.map(index => nodes[index].id);
+        const pathLabels = pathNodeIndices.map(index => nodes[index].data.label);
+        const pathEdgeIds = new Set();
+        const targetIndexInPath = pathNodeIndices[pathNodeIndices.length - 1];
+        const targetNodeId = nodes[targetIndexInPath]?.id;
+        const targetDistance = costsFromSource[targetIndexInPath];
+
+        for (let i = 0; i < pathNodeIds.length - 1; i++) {
+            const fromId = pathNodeIds[i];
+            const toId = pathNodeIds[i + 1];
+            let edge = edges.find(
+                e => e.source === fromId && e.target === toId
+            );
+            if (!edge && !isDirected) {
+                edge = edges.find(e => e.source === toId && e.target === fromId);
+            }
+            if (edge) {
+                pathEdgeIds.add(edge.id);
+            }
+        }
+
+        setNodes(nds =>
+            nds.map((node, index) => {
+                const { forwardCost, backwardCost, isTargetCost, ...restData } = node.data || {};
+                const newData = { ...restData };
+                const nodeCost = costsFromSource[index];
+                if (Number.isFinite(nodeCost)) {
+                    newData.forwardCost = nodeCost;
+                }
+                if (node.id === targetNodeId && Number.isFinite(targetDistance)) {
+                    newData.isTargetCost = true;
+                }
+                return { ...node, data: newData };
+            })
+        );
+
+        setEdges(eds =>
+            eds.map(e => {
+                const { slack, ...restData } = e.data || {};
+
+                return {
+                    ...e,
+                    className: pathEdgeIds.has(e.id) ? 'highlighted-edge' : '',
+                    type: e.type === 'selfconnecting' ? 'selfconnecting' : 'default',
+                    data: restData,
+                    style: { ...e.style, stroke: 'var(--verde-estelar)', strokeWidth: 2 },
+                };
+            })
+        );
+
+        const resultText = `Costo del camino más ${mode === 'minimize' ? 'corto' : 'largo'}: ${cost.toFixed(2)}`;
+        setSimulationResult({
+            text: resultText,
+            path: pathLabels,
         });
         return;
     }
@@ -399,10 +618,10 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   };
   const clearHighlight = () => {
     setSimulationResult(null);
-    setNodes(nds => 
+        setNodes(nds => 
       nds.map(node => {
-        const { forwardCost, backwardCost, ...restData } = node.data;
-        return { ...node, data: restData };;
+        const { forwardCost, backwardCost, isTargetCost, ...restData } = node.data || {};
+        return { ...node, data: restData };
       })
     );
     setEdges(eds => 
@@ -541,15 +760,68 @@ const processedEdges = useMemo(() => {
                 node={editingNode} 
                 onSave={onSaveNodeChanges} 
                 onCancel={() => setEditingNode(null)} />}
+          {showNodeCreationModal && (
+            <NodeCreationModal
+              onConfirm={handleNodeCreationConfirm}
+              onCancel={handleNodeCreationCancel}
+            />
+          )}
+          {edgeValueRequest && (
+            <EdgeValueModal
+              sourceLabel={edgeValueRequest.sourceLabel}
+              targetLabel={edgeValueRequest.targetLabel}
+              onConfirm={handleEdgeValueSubmit}
+              onSkip={handleEdgeValueSkip}
+              onCancel={handleEdgeValueCancel}
+            />
+          )}
           {showMatrix&& <AdjacencyMatrixModal 
                 nodes={nodes}
                 matrix={adjacencyMatrix}
                 onClose={() => setShowMatrix(false)}
             />}
             <TourGuide run={runTour} onTourEnd={()=>setRunTour(false)}/>
+            {faqTourSteps.length > 0 && (
+              <TourGuide
+                key={`faq-tour-${faqTourKey}`}
+                run={faqTourRun}
+                steps={faqTourSteps}
+                onTourEnd={handleFaqTourEnd}
+              />
+            )}
             <button onClick={startTour} className="help-button" title="Mostrar tutorial">
             ?
             </button>
+            {mode === 'dijkstra' && (
+              <>
+                <button
+                  onClick={() => setShowDijkstraFaq(prev => !prev)}
+                  className="faq-button"
+                  title="Preguntas frecuentes de Dijkstra"
+                >
+                  FAQ
+                </button>
+                {showDijkstraFaq && (
+                  <div className="faq-panel">
+                    <div className="faq-panel-header">
+                      <span>Preguntas sobre Dijkstra</span>
+                      <button className="faq-close-button" onClick={() => setShowDijkstraFaq(false)}>
+                        ✕
+                      </button>
+                    </div>
+                    <ul>
+                      {dijkstraFaqItems.map(item => (
+                        <li key={item.id}>
+                          <button onClick={() => handleFaqQuestionClick(item)}>
+                            {item.question}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            )}
           <MainHeader />
           <div className="sidebar-container">
               <button id="btn-add-node" className="sidebar-button" onClick={onAddNode}>🪐 Crear Nodo</button>
@@ -579,7 +851,7 @@ const processedEdges = useMemo(() => {
                   <input id="directed-checkbox" type="checkbox" checked={isDirected} onChange={(e) => setIsDirected(e.target.checked)} />
                   Grafo Dirigido
               </label>
-              {(mode === 'johnson' || mode === 'assignment')&&(
+              {(mode === 'johnson' || mode === 'assignment' || mode === 'dijkstra')&&(
               <>
                 <hr className="sidebar-separator" />
                 <div className="simulation" id="btn-simulation-bar">
@@ -590,6 +862,7 @@ const processedEdges = useMemo(() => {
                   onSimulate={handleSimulate}
                   simulationResult={simulationResult}
                   onClear={clearHighlight}
+                  pathControlsExpandSignal={pathControlsExpandSignal}
                   />
                 </div>
               </>

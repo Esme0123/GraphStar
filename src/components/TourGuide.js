@@ -69,7 +69,7 @@ const TOUR_STEPS = [
     }
 ];
 
-const TourGuide = ({ run, onTourEnd }) => {
+const TourGuide = ({ run, onTourEnd, steps = TOUR_STEPS }) => {
     const handleJoyrideCallback = (data) => {
         const { status } = data;
         if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
@@ -79,7 +79,7 @@ const TourGuide = ({ run, onTourEnd }) => {
 
     return (
         <Joyride
-            steps={TOUR_STEPS}
+            steps={steps}
             run={run}
             continuous
             showProgress

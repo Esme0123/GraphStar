@@ -27,7 +27,7 @@ const PlanetNode = ({ data }) => {
             </div>
             <div className="node-costs-container">
                 {data.forwardCost !== undefined && (
-                    <div className="node-cost forward-cost">
+                    <div className={`node-cost forward-cost${data.isTargetCost ? ' target-cost' : ''}`}>
                         {data.forwardCost.toFixed(2)}
                     </div>
                 )}
