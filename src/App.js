@@ -42,6 +42,76 @@ const tutorials = {
   northwest: '6m3rzAQs5Zs',
   tree: 'CQjMOiFaxSw',
 };
+const dijkstraFaqItems = [
+  {
+    id: 'simulate',
+    question: '¿Cómo ejecuto una simulación de Dijkstra?',
+    requiresPathControls: true,
+    steps: [
+      {
+        target: '#dijkstra-sim-toggle',
+        content: 'Abre el panel de simulación de Dijkstra para configurar tu ruta.',
+      },
+      {
+        target: '#dijkstra-mode-select',
+        content: 'Elige si deseas minimizar (ruta más corta) o maximizar (ruta más larga).',
+      },
+      {
+        target: '#dijkstra-source-select',
+        content: 'Selecciona el planeta que actuará como origen.',
+      },
+      {
+        target: '#dijkstra-target-select',
+        content: 'Selecciona el planeta de destino que quieres alcanzar.',
+      },
+      {
+        target: '#dijkstra-run-button',
+        content: 'Haz clic en “Calcular” para que GraphStar ejecute el algoritmo.',
+      },
+      {
+        target: '#dijkstra-result-box',
+        content: 'Aquí verás el costo total y la secuencia de planetas visitados.',
+      },
+    ],
+  },
+  {
+    id: 'distances',
+    question: '¿Dónde veo las distancias para cada nodo?',
+    requiresPathControls: true,
+    steps: [
+      {
+        target: '#dijkstra-run-button',
+        content: 'Primero ejecuta una ruta para que se calculen todas las distancias.',
+      },
+      {
+        target: '.react-flow__pane',
+        content:
+          'Cada planeta mostrará una etiqueta verde con la distancia desde el origen. El destino tendrá esa etiqueta en amarillo.',
+      },
+      {
+        target: '#dijkstra-result-box',
+        content: 'El panel también resume el costo acumulado y la ruta completa.',
+      },
+    ],
+  },
+  {
+    id: 'bidirectional',
+    question: '¿Cómo hago que las aristas funcionen en ambos sentidos?',
+    requiresPathControls: false,
+    steps: [
+      {
+        target: '#cb-directed',
+        content:
+          'Desactiva “Grafo Dirigido” para que cada conexión que dibujes funcione automáticamente en ambos sentidos.',
+      },
+      {
+        target: '.react-flow__pane',
+        content:
+          'Con el grafo no dirigido, las rutas de Dijkstra podrán viajar por cualquiera de los dos sentidos de la arista.',
+      },
+    ],
+  },
+];
 let nodeIdCounter = 0;
 const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -58,6 +128,11 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   //tour
   const[runTour, setRunTour] =useState(false);
   const [simulationResult, setSimulationResult] = useState(null);
+  const [showDijkstraFaq, setShowDijkstraFaq] = useState(false);
+  const [faqTourSteps, setFaqTourSteps] = useState([]);
+  const [faqTourKey, setFaqTourKey] = useState(0);
+  const [faqTourRun, setFaqTourRun] = useState(false);
+  const [pathControlsExpandSignal, setPathControlsExpandSignal] = useState(0);
   //funciones necesarias de react flow
   const { getNodes, getEdges, screenToFlowPosition, setViewport, deleteElements } = useReactFlow();
   const nodeTypes = useMemo(() => ({ planet: PlanetNode }), []);
@@ -84,9 +159,31 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
       showTutorial('editorPizarra');
     }
   }, [mode]);
+  useEffect(() => {
+    if (mode !== 'dijkstra') {
+      setShowDijkstraFaq(false);
+    }
+  }, [mode]);
+  useEffect(() => {
+    if (faqTourKey === 0) return;
+    const timer = setTimeout(() => setFaqTourRun(true), 250);
+    return () => clearTimeout(timer);
+  }, [faqTourKey]);
   const startTour = () => {
     setRunTour(true);
   };
+  const handleFaqQuestionClick = useCallback((item) => {
+    if (item.requiresPathControls) {
+      setPathControlsExpandSignal(prev => prev + 1);
+    }
+    setFaqTourRun(false);
+    setShowDijkstraFaq(false);
+    setFaqTourSteps(item.steps);
+    setFaqTourKey(prev => prev + 1);
+  }, []);
+  const handleFaqTourEnd = useCallback(() => {
+    setFaqTourRun(false);
+  }, []);
   //lógica de aristas
   const onConnect = useCallback((params) => {
        //-----------------modo de asignación:aplicamos sus restricciones.
@@ -487,8 +584,8 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
     setSimulationResult(null);
         setNodes(nds => 
       nds.map(node => {
-        const { forwardCost, backwardCost, isTargetCost, ...restData } = node.data;
-        return { ...node, data: restData };;
+        const { forwardCost, backwardCost, isTargetCost, ...restData } = node.data || {};
+        return { ...node, data: restData };
       })
     );
     setEdges(eds => 
@@ -633,9 +730,47 @@ const processedEdges = useMemo(() => {
                 onClose={() => setShowMatrix(false)}
             />}
             <TourGuide run={runTour} onTourEnd={()=>setRunTour(false)}/>
+            {faqTourSteps.length > 0 && (
+              <TourGuide
+                key={`faq-tour-${faqTourKey}`}
+                run={faqTourRun}
+                steps={faqTourSteps}
+                onTourEnd={handleFaqTourEnd}
+              />
+            )}
             <button onClick={startTour} className="help-button" title="Mostrar tutorial">
             ?
             </button>
+            {mode === 'dijkstra' && (
+              <>
+                <button
+                  onClick={() => setShowDijkstraFaq(prev => !prev)}
+                  className="faq-button"
+                  title="Preguntas frecuentes de Dijkstra"
+                >
+                  FAQ
+                </button>
+                {showDijkstraFaq && (
+                  <div className="faq-panel">
+                    <div className="faq-panel-header">
+                      <span>Preguntas sobre Dijkstra</span>
+                      <button className="faq-close-button" onClick={() => setShowDijkstraFaq(false)}>
+                        ✕
+                      </button>
+                    </div>
+                    <ul>
+                      {dijkstraFaqItems.map(item => (
+                        <li key={item.id}>
+                          <button onClick={() => handleFaqQuestionClick(item)}>
+                            {item.question}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            )}
           <MainHeader />
           <div className="sidebar-container">
               <button id="btn-add-node" className="sidebar-button" onClick={onAddNode}>🪐 Crear Nodo</button>
@@ -676,6 +811,7 @@ const processedEdges = useMemo(() => {
                   onSimulate={handleSimulate}
                   simulationResult={simulationResult}
                   onClear={clearHighlight}
+                  pathControlsExpandSignal={pathControlsExpandSignal}
                   />
                 </div>
               </>
