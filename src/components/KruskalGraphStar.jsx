@@ -17,6 +17,7 @@ const KruskalGraphStar = ({ onGoBack }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isDirected, setIsDirected] = useState(false);
+  const [mode, setMode] = useState('minimize');
   const [isAddingEdge, setIsAddingEdge] = useState(false);
   const [edgeSourceNode, setEdgeSourceNode] = useState(null);
   const [editingNode, setEditingNode] = useState(null);
@@ -131,8 +132,8 @@ const KruskalGraphStar = ({ onGoBack }) => {
       return;
     }
 
-    // llamar al módulo puro
-    const result = findMST(nodes, edges, { mode: 'minimize' });
+    // llamar al módulo puro con el modo seleccionado (minimize|maximize)
+    const result = findMST(nodes, edges, { mode });
     if (result.error) {
       setSimulationResult({ text: `Error: ${result.error}` });
       return;
@@ -167,7 +168,18 @@ const KruskalGraphStar = ({ onGoBack }) => {
       return [...others, ...highlighted];
     });
 
-  setSimulationResult({ text: `🌳 MST calculado - Costo total: ${result.totalCost.toFixed(2)}`, iterationSteps: result.iterationSteps, mstInfo: { totalCost: result.totalCost, edgesCount: result.mstEdges.length }, mstEdgeIds: result.mstEdges.map(e => e.id) });
+    setSimulationResult({
+      text: `🌳 MST calculado - Costo total: ${result.totalCost.toFixed(2)}`,
+      iterationSteps: result.iterationSteps,
+      mstInfo: {
+        totalCost: result.totalCost,
+        numEdgesInMST: result.numEdgesInMST ?? result.mstEdges.length,
+        numNodes: result.numNodes ?? nodes.length,
+        numComponents: result.numComponents ?? 1,
+        isComplete: result.isComplete ?? (result.mstEdges.length === nodes.length - 1)
+      },
+      mstEdgeIds: result.mstEdges.map(e => e.id)
+    });
   };
 
   const clearHighlight = () => {
@@ -209,6 +221,14 @@ const KruskalGraphStar = ({ onGoBack }) => {
           <input id="directed-checkbox" type="checkbox" checked={isDirected} onChange={(e) => setIsDirected(e.target.checked)} />
           Grafo Dirigido
         </label>
+
+        <div style={{ marginTop: 8 }}>
+          <p className="sidebar-label" style={{ margin: '6px 0 4px 0' }}>Objetivo:</p>
+          <select value={mode} onChange={(e) => setMode(e.target.value)} className="kruskal-select" style={{ width: '100%', marginBottom: 8 }}>
+            <option value="minimize">Minimizar (MST de menor costo)</option>
+            <option value="maximize">Maximizar (MST de mayor costo)</option>
+          </select>
+        </div>
 
         <hr className="sidebar-separator" />
         {/* Botón aplicar Kruskal - reutiliza clase sidebar-button */}
