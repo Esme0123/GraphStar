@@ -312,6 +312,7 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
             mode,
             sourceId: source,
             targetId: target,
+            isDirected,
         });
 
         if (result.error) {
@@ -328,20 +329,29 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
         const targetDistance = costsFromSource[targetIndexInPath];
 
         for (let i = 0; i < pathNodeIds.length - 1; i++) {
-            const edge = edges.find(
-                e => e.source === pathNodeIds[i] && e.target === pathNodeIds[i + 1]
+            const fromId = pathNodeIds[i];
+            const toId = pathNodeIds[i + 1];
+            let edge = edges.find(
+                e => e.source === fromId && e.target === toId
             );
+            if (!edge && !isDirected) {
+                edge = edges.find(e => e.source === toId && e.target === fromId);
+            }
             if (edge) {
                 pathEdgeIds.add(edge.id);
             }
         }
 
         setNodes(nds =>
-            nds.map(node => {
-                const { forwardCost, backwardCost, ...restData } = node.data || {};
+            nds.map((node, index) => {
+                const { forwardCost, backwardCost, isTargetCost, ...restData } = node.data || {};
                 const newData = { ...restData };
+                const nodeCost = costsFromSource[index];
+                if (Number.isFinite(nodeCost)) {
+                    newData.forwardCost = nodeCost;
+                }
                 if (node.id === targetNodeId && Number.isFinite(targetDistance)) {
-                    newData.forwardCost = targetDistance;
+                    newData.isTargetCost = true;
                 }
                 return { ...node, data: newData };
             })
@@ -475,9 +485,9 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
   };
   const clearHighlight = () => {
     setSimulationResult(null);
-    setNodes(nds => 
+        setNodes(nds => 
       nds.map(node => {
-        const { forwardCost, backwardCost, ...restData } = node.data;
+        const { forwardCost, backwardCost, isTargetCost, ...restData } = node.data;
         return { ...node, data: restData };;
       })
     );

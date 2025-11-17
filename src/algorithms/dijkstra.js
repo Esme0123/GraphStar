@@ -146,7 +146,11 @@ const reconstructPath = (predecessors, sourceIndex, targetIndex) => {
   return path;
 };
 
-export const runDijkstraAlgorithm = (nodes, edges, { mode = 'minimize', sourceId, targetId }) => {
+export const runDijkstraAlgorithm = (
+  nodes,
+  edges,
+  { mode = 'minimize', sourceId, targetId, isDirected = true }
+) => {
   if (!nodes.length) {
     return { error: 'Crea al menos dos nodos para ejecutar la simulación.' };
   }
@@ -173,7 +177,23 @@ export const runDijkstraAlgorithm = (nodes, edges, { mode = 'minimize', sourceId
   const transformWeight =
     mode === 'maximize' ? (weight) => -weight : (weight) => weight;
 
-  const forwardEdgeList = createEdgeList(edges, nodeIndexMap, {
+  const normalizedEdges = isDirected
+    ? edges
+    : edges.flatMap((edge) => {
+        if (edge.source === edge.target) {
+          return [edge];
+        }
+        return [
+          edge,
+          {
+            source: edge.target,
+            target: edge.source,
+            label: edge.label,
+          },
+        ];
+      });
+
+  const forwardEdgeList = createEdgeList(normalizedEdges, nodeIndexMap, {
     reverse: false,
     transformWeight,
   });
@@ -197,7 +217,7 @@ export const runDijkstraAlgorithm = (nodes, edges, { mode = 'minimize', sourceId
     };
   }
 
-  const reverseEdgeList = createEdgeList(edges, nodeIndexMap, {
+  const reverseEdgeList = createEdgeList(normalizedEdges, nodeIndexMap, {
     reverse: true,
     transformWeight,
   });

@@ -1018,6 +1018,10 @@ svg path.highlighted-edge, .react-flow__edge-path.highlighted-edge {
   color: var(--verde-estelar);
   border: 1px solid var(--verde-estelar);
 }
+.forward-cost.target-cost {
+  color: var(--amarillo-estrella);
+  border-color: var(--amarillo-estrella);
+}
 .backward-cost {
   background-color: var(--negro);
   color: var(--rojo-peligro);
