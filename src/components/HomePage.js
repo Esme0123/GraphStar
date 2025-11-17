@@ -1,4 +1,4 @@
-import React, {useCallback } from 'react'; 
+import React, {useCallback, useEffect, useRef } from 'react'; 
 import Particles from 'react-tsparticles'; 
 import { loadSlim } from 'tsparticles-slim'; 
 import particlesConfig from '../particles-config';
@@ -46,6 +46,24 @@ const HomePage = ({ onNavigate,onGoBack}) => {
     await loadSlim(engine);
   }, []);
 
+  const viewportRef = useRef(null)
+
+  useEffect(() => {
+    const container = viewportRef.current
+    if(!container) return
+    const handleWheel = (e) => {
+    e.preventDefault()
+    const scrollAmount = e.deltaY
+    container.scrollLeft += scrollAmount
+  }
+  container.addEventListener('wheel', handleWheel, {passive:false})
+
+  return () => {
+    container.removeEventListener('wheel', handleWheel)
+  }
+
+  }, [])
+
   return (
     <div className="home-page-container">
       {}
@@ -58,17 +76,17 @@ const HomePage = ({ onNavigate,onGoBack}) => {
       <div className="home-content">
         <h1 className="home-title">Escoge tu destino</h1>
         <h2 className="home-subtitle">Selecciona un módulo para comenzar tu viaje</h2>
-        <div className="modules-viewport">
+        <div className="modules-viewport" ref={viewportRef}>
           
           <div className="modules-grid modules-track">
             {modules.map((mod) => (
               <ElectricBorderCard key={mod.title} enabled={mod.enabled}>
-                <h3 style={{ textAlign: 'center' }}>{mod.title}</h3>
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0px 0' }}>
-                  <img src={mod.img} alt={mod.title + ' icon'} style={{ width: '250px', height: '250px', objectFit: 'contain' }} />
+                <h3 className='card-title'>{mod.title}</h3>
+                <div className='card-image-wrapper'>
+                  <img src={mod.img} alt={mod.title + ' icon'} className='card-image' />
                 </div>
-                <p style={{ textAlign: 'center' }}>{mod.description}</p>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <p className='card-description'>{mod.description}</p>
+                <div className='card-actions'>
                   <button
                     onClick={() => mod.enabled && onNavigate(mod.targetView)}
                     disabled={!mod.enabled}
@@ -78,15 +96,15 @@ const HomePage = ({ onNavigate,onGoBack}) => {
                 </div>
               </ElectricBorderCard>
             ))}
-            {/* Usamos 'aria-hidden' para que los lectores de pantalla no los lean dos veces */}
+            {/*Clones para efecto infinito*/}
             {modules.map((mod) => (
               <ElectricBorderCard key={`${mod.title}-clone`} enabled={mod.enabled} aria-hidden="true">
-                <h3 style={{ textAlign: 'center' }}>{mod.title}</h3>
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0px 0' }}>
-                  <img src={mod.img} alt={mod.title + ' icon'} style={{ width: '250px', height: '250px', objectFit: 'contain' }} />
+                <h3 className='card-title'>{mod.title}</h3>
+                <div className='card-image-wrapper'>
+                  <img src={mod.img} alt={mod.title + ' icon'} className='card-image' />
                 </div>
-                <p style={{ textAlign: 'center' }}>{mod.description}</p>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <p className='card-description'>{mod.description}</p>
+                <div className='card-actions'>
                   <button
                     onClick={() => mod.enabled && onNavigate(mod.targetView)}
                     disabled={!mod.enabled}

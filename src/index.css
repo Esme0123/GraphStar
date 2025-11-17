@@ -812,6 +812,9 @@ z-index: 0;
 }
 
 .electric-border-card {
+  height: 100%;
+  display: flex;
+  box-sizing: border-box;
   --border-size: 4px;
   --border-radius: 15px;
   --angle: 0deg;
@@ -839,8 +842,10 @@ z-index: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
   padding: 20px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .card-content h3 {
@@ -872,6 +877,63 @@ z-index: 0;
   box-shadow: 0 5px 15px rgba(161, 63, 253, 0.4);
 }
 
+.card-title {
+  font-family: var(--font-subtitle);
+  font-size: 2rem;             
+  color: var(--verde-estelar);
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.card-image-wrapper {
+  height: 250px;               
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+
+.card-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+
+.card-description {
+  font-size: 1.2rem;
+  margin: 5px 0;
+  flex: 1 1 auto;               
+  min-height: 0;                
+  overflow-y: auto;            
+}
+
+
+.card-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+
+.card-actions button {
+  padding: 10px 30px;
+  font-family: var(--font-button);
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: var(--verde-estelar);
+  color: var(--negro);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.card-actions button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(161, 63, 253, 0.4);
+}
+
 .electric-border-card.disabled {
   filter: grayscale(80%);
   animation: none;
@@ -883,7 +945,14 @@ z-index: 0;
 .electric-border-card.disabled .card-content h3 {
   color: var(--azul-nebuloso);
 }
+.electric-border-card.disabled .card-title {
+  color: var(--azul-nebuloso);
+}
 
+.electric-border-card.disabled .card-actions button {
+  background-color: var(--azul-nebuloso);
+  cursor: not-allowed;
+}
 .electric-border-card.disabled .card-content button {
   background-color: var(--azul-nebuloso);
   cursor: not-allowed;
@@ -1388,7 +1457,9 @@ z-index: 0;
   background-color: #007bff;
   max-width: 1100px;
   margin:20px 0;
-  overflow: hidden; 
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden; 
   -webkit-mask-image: linear-gradient(to right, 
     transparent 0%, 
     black 15%, 
@@ -1401,6 +1472,7 @@ z-index: 0;
     black 85%, 
     transparent 100%
   );
+  scrollbar-width: none;
 }
 
 .modules-grid.modules-track {
@@ -1414,6 +1486,8 @@ z-index: 0;
 .modules-grid.modules-track > * {
   width: 10%; 
   flex-shrink: 0; 
+  height: 100%;
+  box-sizing: border-box;
 }
 
 /*La Animación: Mueve el track */
@@ -1423,9 +1497,12 @@ z-index: 0;
   }
   to {
     transform: translateX(-50%);
+
   }
 }
-
+.modules-viewport::-webkit-scrollbar {
+  display: none;                  /* ocultar barra en Chrome/Edge */
+}
 .modules-viewport:hover .modules-track {
   animation-play-state: paused;
 }
@@ -1465,4 +1542,97 @@ z-index: 0;
     display:block;
     font-weight: bold ;
     margin-top: 10px;
+}
+
+/* La tarjeta en sí ocupa todo el alto asignado por el carrusel */
+.electric-border-card {
+  height: 100%;
+  display: flex;
+  box-sizing: border-box;
+}
+
+/* Contenido interno de la tarjeta */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 20px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Título fijo arriba */
+.card-title {
+  font-family: var(--font-subtitle);
+  font-size: 2rem;
+  color: var(--verde-estelar);
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+/* Imagen en un bloque de altura fija */
+.card-image-wrapper {
+  height: 220px; /* puedes ajustar 220, 240, 250, etc. */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* 🔥 Área de texto: visible siempre, con scroll interno si se pasa */
+.card-description {
+  font-size: 1.1rem;
+  margin: 5px 0 10px 0;
+
+  /* Que NO se colapse */
+  flex: 0 0 auto;
+
+  /* Altura máxima antes de mostrar scroll */
+  max-height: 140px;   /* ajusta según lo que te guste */
+
+  overflow-y: auto;    /* aquí aparece el scroll vertical interno */
+  /* Para asegurarnos de que se vea, por si acaso: */
+  color: var(--blanco, #fff);
+}
+
+/* Zona de acciones (botón) fijada abajo */
+.card-actions {
+  margin-top: auto;       /* empuja el botón hacia abajo */
+  display: flex;
+  justify-content: center;
+}
+
+/* Botón tamaño fijo */
+.card-actions button {
+  padding: 10px 30px;
+  font-family: var(--font-button);
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: var(--verde-estelar);
+  color: var(--negro);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.card-actions button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(161, 63, 253, 0.4);
+}
+
+/* Estado disabled */
+.electric-border-card.disabled .card-title {
+  color: var(--azul-nebuloso);
+}
+
+.electric-border-card.disabled .card-actions button {
+  background-color: var(--azul-nebuloso);
+  cursor: not-allowed;
 }
