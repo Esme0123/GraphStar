@@ -38,6 +38,7 @@ const tutorials = {
   editorPizarra: 'Mr4ufsuzZiA', 
   editorJohnson: 'bhdYIWRa6ug', 
   editorAssignment: '_Qne5iJwA38',
+  editorDijkstra: 'EWdVDvl8Tp8',
   sort:'CX0Qfue-iWo',
   northwest: '6m3rzAQs5Zs',
   tree: 'CQjMOiFaxSw',
@@ -155,6 +156,9 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
     else if (mode === 'assignment') {
       showTutorial('editorAssignment');
     } 
+    else if (mode === 'dijkstra') {
+      showTutorial('editorDijkstra');
+    }
     else {
       showTutorial('editorPizarra');
     }
