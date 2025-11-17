@@ -319,10 +319,13 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
             return;
         }
 
-        const { cost, pathNodeIndices, costsFromSource, costsToTarget } = result;
+        const { cost, pathNodeIndices, costsFromSource } = result;
         const pathNodeIds = pathNodeIndices.map(index => nodes[index].id);
         const pathLabels = pathNodeIndices.map(index => nodes[index].data.label);
         const pathEdgeIds = new Set();
+        const targetIndexInPath = pathNodeIndices[pathNodeIndices.length - 1];
+        const targetNodeId = nodes[targetIndexInPath]?.id;
+        const targetDistance = costsFromSource[targetIndexInPath];
 
         for (let i = 0; i < pathNodeIds.length - 1; i++) {
             const edge = edges.find(
@@ -333,59 +336,27 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
             }
         }
 
-        const nodeIndexMap = new Map(nodes.map((n, index) => [n.id, index]));
-        const slackMap = new Map();
-        edges.forEach(edge => {
-            const uIdx = nodeIndexMap.get(edge.source);
-            const vIdx = nodeIndexMap.get(edge.target);
-            if (uIdx === undefined || vIdx === undefined) return;
-
-            const weightVal = parseFloat(edge.label);
-            const weight = Number.isFinite(weightVal) ? weightVal : 0;
-            const costU = costsFromSource[uIdx];
-            const costV = costsFromSource[vIdx];
-
-            if (Number.isFinite(costU) && Number.isFinite(costV)) {
-                slackMap.set(edge.id, costV - (costU + weight));
-            }
-        });
-
         setNodes(nds =>
-            nds.map((node, index) => {
-                const forwardCost = costsFromSource[index];
-                const remainingCost = costsToTarget[index];
-                const backwardCost =
-                    Number.isFinite(cost) && Number.isFinite(remainingCost)
-                        ? cost - remainingCost
-                        : undefined;
-
-                return {
-                    ...node,
-                    data: {
-                        ...node.data,
-                        forwardCost: Number.isFinite(forwardCost) ? forwardCost : undefined,
-                        backwardCost: Number.isFinite(backwardCost) ? backwardCost : undefined,
-                    },
-                };
+            nds.map(node => {
+                const { forwardCost, backwardCost, ...restData } = node.data || {};
+                const newData = { ...restData };
+                if (node.id === targetNodeId && Number.isFinite(targetDistance)) {
+                    newData.forwardCost = targetDistance;
+                }
+                return { ...node, data: newData };
             })
         );
 
         setEdges(eds =>
             eds.map(e => {
-                const slack = slackMap.get(e.id);
-                const newData = { ...(e.data || {}) };
-                if (Number.isFinite(slack)) {
-                    newData.slack = slack;
-                } else {
-                    delete newData.slack;
-                }
+                const { slack, ...restData } = e.data || {};
 
                 return {
                     ...e,
                     className: pathEdgeIds.has(e.id) ? 'highlighted-edge' : '',
-                    type: e.type === 'selfconnecting' ? 'selfconnecting' : 'pathWithSlack',
-                    data: newData,
-                    style: { stroke: 'var(--verde-estelar)', strokeWidth: 2 },
+                    type: e.type === 'selfconnecting' ? 'selfconnecting' : 'default',
+                    data: restData,
+                    style: { ...e.style, stroke: 'var(--verde-estelar)', strokeWidth: 2 },
                 };
             })
         );
