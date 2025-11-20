@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dijkstra - Manual de Usuario</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; background: #0f1524; color: #f4f4f8; margin: 0; padding: 24px; }
+    .container { max-width: 920px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 24px; }
+    h1 { color: #ffb732; margin: 0 0 8px 0; font-size: 32px; }
+    h2 { color: #00F9A0; margin-top: 28px; }
+    h3 { color: #ff2dff; margin-top: 16px; }
+    p { line-height: 1.6; color: #e8e8ee; }
+    ul, ol { color: #e8e8ee; line-height: 1.8; }
+    li { margin: 6px 0; }
+    pre { background:#071022; padding:12px; border-radius:8px; overflow:auto; color:#d6f5e5; border-left: 4px solid #00F9A0; }
+    code { font-family: Consolas, 'Courier New', monospace; color: #cbe7ff; background: rgba(203,231,255,0.1); padding: 2px 4px; border-radius: 3px; }
+    .note { background: rgba(255,183,50,0.08); padding:12px; border-left:4px solid #ffb732; margin: 12px 0; border-radius: 4px; }
+    .example { background: rgba(0,249,160,0.06); padding:12px; border-left:4px solid #00F9A0; margin: 12px 0; border-radius: 4px; }
+    .warning { background: rgba(255,45,255,0.06); padding:12px; border-left:4px solid #ff2dff; margin: 12px 0; border-radius: 4px; }
+    table { width:100%; border-collapse: collapse; margin-top: 12px; }
+    table th { background: rgba(0,249,160,0.1); padding:10px; text-align: left; border-bottom: 2px solid #00F9A0; color: #00F9A0; }
+    table td { padding:8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    footer { text-align:center; margin-top:40px; color:#9aa0b0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Dijkstra — Caminos más cortos (SSSP)</h1>
+      <p>Manual técnico y guía de uso para la vista Dijkstra de GraphStar.</p>
+    </header>
+
+    <section>
+      <h2>1. Descripción General</h2>
+      <p>Dijkstra calcula el costo mínimo (o máximo, en modo exploratorio) entre un nodo origen y todos los demás en un grafo con pesos no negativos. GraphStar utiliza esta lógica para encontrar la mejor ruta entre dos planetas seleccionados, mostrando además la secuencia exacta de nodos.</p>
+      <h3>Características principales</h3>
+      <ul>
+        <li><strong>Tipo de grafo:</strong> Dirigido o no dirigido; configurable desde el panel lateral.</li>
+        <li><strong>Pesos permitidos:</strong> Solo valores numéricos no negativos. Los bucles (auto-conexiones) están bloqueados.</li>
+        <li><strong>Complejidad:</strong> O(E log V) con cola de prioridad (según implementación <code>basicDijkstra</code>).</li>
+        <li><strong>Salida:</strong> Costo acumulado y la ruta paso a paso. También se informa cuando no existe camino entre origen y destino.</li>
+      </ul>
+
+      <div class="note">
+        <strong>Consejo:</strong> Usa nombres descriptivos para los nodos (por ejemplo "Base Alfa", "Puesto Beta") para identificar fácilmente el resultado en el panel de ruta.</div>
+    </section>
+
+    <section>
+      <h2>2. Implementación en GraphStar</h2>
+      <table>
+        <tr>
+          <th>Archivo</th>
+          <th>Descripción</th>
+        </tr>
+        <tr>
+          <td><code>src/algorithms/dijkstra.js</code></td>
+          <td>Contiene <code>runDijkstraAlgorithm</code> y <code>basicDijkstra</code>; maneja validaciones de pesos, ejecución y reconstrucción del camino.</td>
+        </tr>
+        <tr>
+          <td><code>src/components/SimulationControls.js</code></td>
+          <td>Panel lateral que permite elegir objetivo (min/max), origen, destino y ejecutar la simulación.</td>
+        </tr>
+        <tr>
+          <td><code>src/App.js</code></td>
+          <td>Gestiona el modo "dijkstra", el FAQ contextual y el botón de ayuda que abre este manual.</td>
+        </tr>
+      </table>
+
+      <h3>Fragmento del algoritmo</h3>
+      <pre>
+const { distances, predecessors } = basicDijkstra(numNodes, adjacency, sourceIndex);
+const targetIndex = adjacency.labels.indexOf(targetId);
+
+if (distances[targetIndex] === Infinity) {
+  return { error: 'No existe ruta entre los nodos seleccionados.' };
+}
+
+return {
+  text: `Costo ${mode === 'minimize' ? 'mínimo' : 'máximo'}: ${distances[targetIndex].toFixed(2)}`,
+  path: reconstructPath(predecessors, targetIndex).map(idx => adjacency.labels[idx]),
+};
+      </pre>
+
+      <div class="warning">
+        <strong>Validaciones automáticas:</strong> Al crear aristas en modo Dijkstra se bloquean los bucles y los pesos negativos. Si una arista existente tiene peso negativo aparecerá un mensaje "Modo Dijkstra: No se permiten pesos negativos".</div>
+    </section>
+
+    <section>
+      <h2>3. Preparar el grafo en la interfaz</h2>
+      <ol>
+        <li><strong>Crear nodos:</strong> Presiona <code>🪐 Crear Nodo</code> para añadir planetas. Puedes arrastrarlos para organizarlos.</li>
+        <li><strong>Agregar aristas:</strong> Activa <code>⛓️‍💥 Agregar Arista</code> y haz clic en dos nodos. Se abrirá un modal para ingresar el peso.</li>
+        <li><strong>Configurar dirección:</strong> El checkbox <code>Grafo Dirigido</code> define si las rutas funcionan en un solo sentido o en ambos.</li>
+        <li><strong>Asegurar pesos válidos:</strong> Usa solo números positivos (ej. 2.5, 10, 150). Los valores se muestran en cada arista.</li>
+        <li><strong>Evita duplicados innecesarios:</strong> GraphStar ajusta la curvatura de aristas paralelas para que todas queden visibles.</li>
+      </ol>
+
+      <div class="example">
+        <strong>Tip visual:</strong> Para revisar de forma tabular el grafo, abre el botón <code>📊 Matriz de Adyacencia</code>. Allí verás los pesos actuales entre pares de nodos.</div>
+    </section>
+
+    <section>
+      <h2>4. Simular Dijkstra paso a paso</h2>
+      <ol>
+        <li><strong>Abrir el panel:</strong> Pulsa <code>🚀 Simular Ruta (Dijkstra)</code> en la barra lateral.</li>
+        <li><strong>Elegir objetivo:</strong> Usa el selector <code>Minimizar (Más Corta)</code> o <code>Maximizar (Más Larga)</code>. El modo máximo es útil para probar recorridos con costos altos.</li>
+        <li><strong>Seleccionar nodos:</strong> En <em>Desde</em> y <em>Hasta</em> aparecen todos los nodos disponibles por nombre.</li>
+        <li><strong>Ejecutar:</strong> Presiona <code>🛸 Calcular</code>. Si falta algún dato, GraphStar mostrará un mensaje emergente.</li>
+        <li><strong>Interpretar resultado:</strong> El recuadro <code>Cuando ejecutes una ruta...</code> se actualiza con el costo total y la ruta completa (ej. <code>A → C → F → H</code>).</li>
+        <li><strong>Limpiar simulación:</strong> Cierra el panel o cambia de modo para ocultar el resultado. Si editas el grafo, vuelve a ejecutar para refrescar los datos.</li>
+      </ol>
+
+      <div class="note">
+        <strong>FAQ interactivo:</strong> En modo Dijkstra aparece un botón <code>FAQ</code> junto al ícono de ayuda. Cada pregunta abre una mini-guía paso a paso con resaltados sobre los controles relevantes.</div>
+    </section>
+
+    <section>
+      <h2>5. Mensajes de error frecuentes</h2>
+      <ul>
+        <li><strong>"Modo Dijkstra: No se permiten los bucles"</strong>: intentaste conectar un nodo consigo mismo.</li>
+        <li><strong>"Modo Dijkstra: No se permiten pesos negativos"</strong>: uno de los pesos ingresados es menor que 0.</li>
+        <li><strong>"Por favor, selecciona un nodo de origen y uno de destino"</strong>: falta configurar alguno de los selectores antes de presionar <code>🛸 Calcular</code>.</li>
+        <li><strong>"No existe ruta entre los nodos seleccionados"</strong>: no hay camino que conecte origen y destino con las aristas actuales.</li>
+        <li><strong>"Se necesitan al menos dos nodos"</strong>: agrega más planetas antes de intentar simular.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>6. Ejemplo completo</h2>
+      <ol>
+        <li>Crea 5 nodos: <em>Urano</em>, <em>Venus</em>, <em>Marte</em>, <em>Luna</em>, <em>Saturno</em>.</li>
+        <li>Conecta Urano → Venus (4), Urano → Marte (2), Marte → Luna (3), Luna → Saturno (2), Venus → Saturno (9).</li>
+        <li>Abre el panel de simulación, selecciona <strong>Minimizar</strong>, origen <em>Urano</em> y destino <em>Saturno</em>.</li>
+        <li>Pulsa <code>🛸 Calcular</code>.</li>
+      </ol>
+      <p>El resultado esperado es: <strong>Costo mínimo: 7.00</strong> con ruta <code>Urano → Marte → Luna → Saturno</code>. Si activas el modo Maximizar obtendrás la ruta más pesada disponible.</p>
+    </section>
+
+    <footer>
+      <p>GraphStar — Manual de Dijkstra. Edita <code>public/manuals/Dijkstra_Manual.html</code> para actualizar este documento.</p>
+    </footer>
+  </div>
+</body>
+</html>

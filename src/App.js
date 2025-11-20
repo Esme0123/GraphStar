@@ -179,6 +179,10 @@ const GraphEditor = ({mode,onGoBack,showTutorial}) => {
     return () => clearTimeout(timer);
   }, [faqTourKey]);
   const startTour = () => {
+    if (mode === 'dijkstra') {
+      window.open('/manuals/Dijkstra_Manual.pdf', '_blank', 'noopener,noreferrer');
+      return;
+    }
     setRunTour(true);
   };
   const handleFaqQuestionClick = useCallback((item) => {
