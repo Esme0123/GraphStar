@@ -7,6 +7,7 @@ const path = require('path');
     { name: 'Kruskal', file: 'Kruskal_Manual' },
     { name: 'NorthWest', file: 'NorthWest_Manual' },
     { name: 'Dijkstra', file: 'Dijkstra_Manual' },
+    { name: 'Matlab', file: 'Matlab_Manual' },
   ];
 
   manuals.forEach(({ name, file }) => {

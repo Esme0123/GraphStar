@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GraphStar - Manual MATLAB y Fuzzy</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; background: #0f1524; color: #f4f4f8; margin: 0; padding: 24px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 24px; }
+    h1 { color: #ffb732; margin: 0 0 8px 0; font-size: 32px; }
+    h2 { color: #00F9A0; margin-top: 24px; }
+    h3 { color: #5dd3ff; margin-top: 18px; }
+    p { color: #e8e8ee; line-height: 1.5; }
+    pre { background:#071022; padding:12px; border-radius:8px; overflow:auto; color:#d6f5e5; }
+    code { font-family: Consolas, 'Courier New', monospace; color: #cbe7ff; }
+    .note { background: rgba(255,183,50,0.08); padding:10px; border-left:4px solid #ffb732; margin: 12px 0; }
+    .example { background: rgba(0,249,160,0.06); padding:10px; border-left:4px solid #00F9A0; margin: 12px 0; }
+    ul, ol { color:#e8e8ee; }
+    li { margin-bottom: 6px; }
+    .badge { display:inline-block; padding:6px 10px; background:#ff2dff; color:#fff; border-radius:6px; font-size: 13px; }
+    footer { text-align:center; margin-top:40px; color:#9aa0b0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>GraphStar - Manual MATLAB y Fuzzy</h1>
+      <p>Guía rápida para el Panel MATLAB: apertura de MATLAB, diseñador Fuzzy y carga de archivos .fis desde GraphStar.</p>
+    </header>
+
+    <section>
+      <h2>1. Accesos rápidos en el Panel MATLAB</h2>
+      <p>En la sección <strong>MathLab</strong> verás tres botones principales:</p>
+      <ul>
+        <li><strong>Abrir MATLAB:</strong> lanza la aplicación MATLAB instalada en tu equipo.</li>
+        <li><strong>Abrir MATLAB con Fuzzy:</strong> abre MATLAB ejecutando directamente el <em>Fuzzy Logic Designer</em> (comando <code>fuzzy</code>).</li>
+        <li><strong>Abrir archivo .fis en Fuzzy:</strong> te permite seleccionar un archivo <code>.fis</code> local y lo envía a MATLAB para abrirlo en el diseñador Fuzzy.</li>
+      </ul>
+      <div class="note">
+        <strong>Consejo:</strong> si MATLAB no abre, define la ruta completa en la variable de entorno <code>MATLAB_CMD</code> (ej: <code>"C:\\Program Files\\MATLAB\\R2024b\\bin\\matlab.exe"</code>).
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Cómo funciona la carga de .fis</h2>
+      <ol>
+        <li>Haz clic en <em>Abrir archivo .fis en Fuzzy</em> y elige tu archivo.</li>
+        <li>GraphStar sube el archivo en base64 al backend y lo guarda temporalmente.</li>
+        <li>Se ejecuta MATLAB con el comando <code>fuzzy('ruta/temporal/fis')</code> para abrirlo en el diseñador.</li>
+      </ol>
+      <div class="example">
+        <strong>Ruta generada:</strong>
+        <pre>c:\\Users\\tu_usuario\\AppData\\Local\\Temp\\fuzzy-1730000000000.fis</pre>
+      </div>
+      <p>El archivo temporal es solo para abrir el diseñador; puedes guardar cambios desde MATLAB si lo deseas.</p>
+    </section>
+
+    <section>
+      <h2>3. FAQ rápida</h2>
+      <h3>¿Puedo usar un archivo que ya está en el proyecto?</h3>
+      <p>Sí. Usa el endpoint <code>/abrir-fuzzy?nombre=archivo.fis</code> colocando el archivo en la carpeta del proyecto (mismo nivel que <code>matlabServer.js</code>).</p>
+
+      <h3>¿Qué hacer si MATLAB no responde?</h3>
+      <ul>
+        <li>Verifica que MATLAB esté en el PATH o configura <code>MATLAB_CMD</code>.</li>
+        <li>Ejecuta el servidor con permisos suficientes para lanzar aplicaciones de escritorio.</li>
+        <li>Reinicia el backend <span class="badge">npm run matlab-server</span> y vuelve a intentar.</li>
+      </ul>
+
+      <h3>¿Cómo genero el PDF del manual?</h3>
+      <p>Ejecuta <code>npm run generate-manual-pdf</code> después de instalar <code>puppeteer</code> (o usa el PDF incluido <code>Matlab_Manual.pdf</code> en <code>public/manuals</code>).</p>
+    </section>
+
+    <footer>
+      <p>GraphStar · Panel MATLAB · Manual ligero (HTML/PDF) · Actualizado</p>
+    </footer>
+  </div>
+</body>
+</html>

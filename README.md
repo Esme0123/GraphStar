@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+# GraphStar
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Aplicacion web educativa para visualizar y simular algoritmos (grafos, arboles, ordenamiento, transporte), con integracion opcional a MATLAB y Fuzzy Logic. Construido con Create React App, ReactFlow y un backend Express ligero para lanzar MATLAB localmente.
 
-## Available Scripts
+## Contenidos principales
+- **Grafos:** Editor visual con modos Pizarra/Johnson/Assignment/Dijkstra, guardado/carga de grafos y simulaciones.
+- **Kruskal:** Calculo de MST con visualizacion paso a paso.
+- **NorthWest (Transporte):** Construccion de matrices, solucion Noroeste y MODI.
+- **Sort / Trees:** Modulos de algoritmos de ordenamiento y estructuras de arboles.
+- **MathLab:** Panel que abre MATLAB, MATLAB con Fuzzy y carga de archivos `.fis` al disenador Fuzzy; incluye tutorial embebido y manual HTML/PDF.
+- **Manuales:** HTML/PDF en `public/manuals` y script para regenerarlos.
 
-In the project directory, you can run:
+## Requisitos
+- Node.js 18+ y npm.
+- (Opcional) MATLAB instalado localmente para usar el panel MathLab. Ajusta la variable de entorno `MATLAB_CMD` si no esta en el PATH, por ejemplo:
+  - Windows: `MATLAB_CMD="C:\\Program Files\\MATLAB\\R2024b\\bin\\matlab.exe"`
+  - macOS/Linux: `MATLAB_CMD="/usr/local/MATLAB/R2024b/bin/matlab"`
 
-### `npm start`
+## Instalacion
+```bash
+npm install
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Ejecucion en desarrollo
+En dos terminales separadas:
+1) **Backend MATLAB (puerto 3001)**  
+```bash
+npm run matlab-server
+```
+- Endpoints clave:  
+  - `GET /abrir-matlab` abre MATLAB.  
+  - `GET /abrir-matlab-fuzzy` abre MATLAB con `fuzzy`.  
+  - `POST /abrir-fis` abre un `.fis` enviado en base64.  
+  - `GET /abrir-fuzzy?nombre=archivo.fis` abre un `.fis` que ya exista en la carpeta del proyecto.
+- Sirve estaticos desde `public/` (manuales incluidos).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+2) **Frontend (CRA, puerto 3000)**  
+```bash
+npm start
+```
+El `proxy` en `package.json` redirige `/api` y las rutas anteriores hacia el backend de MATLAB en `http://localhost:3001` durante desarrollo.
 
-### `npm test`
+## Uso rapido de la interfaz
+- Al iniciar veras la pantalla de carga y luego el **Home** con modulos (Grafos, Kruskal, NorthWest, Sort, Trees, MathLab).
+- **MathLab:** incluye tutorial (YouTube) y botones para abrir MATLAB, MATLAB+Fuzzy o seleccionar un `.fis`. Boton de ayuda (?) abre el manual `public/manuals/Matlab_Manual.html` (PDF en la misma carpeta).
+- En grafos puedes crear nodos/aristas, elegir tipos de arista, guardar/cargar, ver matriz de adyacencia, y ejecutar simulaciones segun el modo seleccionado.
+- En transporte (NorthWest) puedes construir matrices, calcular solucion y revisar iteraciones con MODI.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Scripts disponibles
+- `npm start` — Arranca CRA en `http://localhost:3000` (frontend).
+- `npm run matlab-server` — Arranca backend Express en `http://localhost:3001` para comandos MATLAB/Fuzzy.
+- `npm run build` — Construye el bundle de produccion en `build/`.
+- `npm test` — Ejecuta tests de CRA.
+- `npm run generate-manual-pdf` — Genera PDFs de manuales (requiere `puppeteer` instalado; incluye `Matlab_Manual`).
+- `node scripts/createMatlabPdf.js` — Genera un PDF ligero de `Matlab_Manual` sin depender de navegador headless.
 
-### `npm run build`
+## Estructura relevante
+- `src/App.js` — Enrutado de vistas y modales de tutorial.
+- `src/components/` — Paginas y controles por modulo (Home, GraphEditor, KruskalGraphStar, TransportePage, SortSimulatorPage, TreeSimulator, MatlabPage, etc.).
+- `src/index.css` — Estilos globales y secciones tematicas (incluye estilos del panel MATLAB y boton de ayuda).
+- `matlabServer.js` — Servidor Express para lanzar MATLAB/Fuzzy y manejar subida de `.fis`.
+- `public/manuals/` — Manuales HTML/PDF (incluye `Matlab_Manual.html` y `Matlab_Manual.pdf`).
+- `scripts/generateManualPdf.js` — Genera PDFs de manuales usando `puppeteer` (Kruskal, NorthWest, Dijkstra, Matlab, etc.).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Notas y solucion de problemas
+- Si MATLAB no abre desde la UI, configura `MATLAB_CMD` o agrega MATLAB al PATH, y reinicia `npm run matlab-server`.
+- En Windows se usa `start "" matlab ...` para lanzar la aplicacion; si usas otra ruta asegurate de incluir comillas.
+- Para abrir un `.fis` local sin subirlo, colocarlo junto a `matlabServer.js` y usar `GET /abrir-fuzzy?nombre=tu_archivo.fis`.
+- Los manuales se sirven como estaticos; el boton (?) de la seccion MathLab abre el HTML, tambien puedes abrir el PDF en la misma carpeta.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Build y despliegue
+```bash
+npm run build
+```
+El resultado queda en `build/`. Sirve los archivos estaticos desde cualquier servidor web. Si requieres funciones MATLAB en produccion, necesitas exponer un servicio similar a `matlabServer.js` con acceso al MATLAB de escritorio (no se soporta en entornos serverless).

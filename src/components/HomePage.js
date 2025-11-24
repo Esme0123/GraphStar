@@ -44,8 +44,9 @@ const modules = [
   {
     title: 'MathLab',
     img: process.env.PUBLIC_URL + 'IMG/img_mathlab.png',
-    description: 'Cami y Franco',
-    enabled: false,
+    description: 'Abre MATLAB o inicia el disenador Fuzzy directamente desde GraphStar.',
+    enabled: true,
+    targetView: 'matlab',
   },
 ];
 

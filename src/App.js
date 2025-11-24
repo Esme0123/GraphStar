@@ -32,6 +32,7 @@ import SortSimulatorPage from './components/SortSimulatorPage';
 import TreeSimulator from './components/TreeSimulator';
 import TransportePage from './components/TransportePage';
 import KruskalGraphStar from './components/KruskalGraphStar';
+import MatlabPage from './components/MatlabPage';
 
 import './index.css';
 const tutorials = {
@@ -953,6 +954,8 @@ function App() {
             </ReactFlowProvider>
           </div>
         );
+      case 'matlab':
+        return <MatlabPage onGoBack={() => navigateTo('home')} />;
       case 'loading':
       default:
         return <LoadingScreen onStart={() => navigateTo('home')} />;

@@ -1633,3 +1633,180 @@ svg path.highlighted-edge, .react-flow__edge-path.highlighted-edge {
     font-weight: bold ;
     margin-top: 10px;
 }
+
+/* ---------------------------------------------------
+-------------------      MATLAB       */
+.matlab-page {
+  min-height: 100vh;
+  padding: 40px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.matlab-card {
+  background: linear-gradient(135deg, rgba(16, 16, 32, 0.85), rgba(10, 20, 45, 0.85));
+  border: 1px solid rgba(142, 204, 255, 0.2);
+  border-radius: 18px;
+  box-shadow: 0 0 25px rgba(0, 195, 255, 0.15);
+  padding: 32px;
+  max-width: 820px;
+  width: 100%;
+  text-align: center;
+  backdrop-filter: blur(6px);
+}
+
+.matlab-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.matlab-card h1 {
+  font-family: var(--font-title);
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+.matlab-help-button {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: linear-gradient(145deg, #00b9ff, #5e66ff);
+  color: #fff;
+  font-weight: bold;
+  font-size: 20px;
+  box-shadow: 0 8px 22px rgba(0, 185, 255, 0.3);
+  z-index: 10;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.matlab-help-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 185, 255, 0.4);
+}
+
+.matlab-lead {
+  margin: 0 auto 24px;
+  max-width: 720px;
+  color: #e1ecff;
+}
+
+.matlab-back-btn {
+  align-self: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e9f1ff;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.matlab-back-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.matlab-video {
+  width: 100%;
+  margin: 10px 0 24px;
+}
+
+.matlab-video-frame {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 185, 255, 0.25);
+}
+
+.matlab-video-frame iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.matlab-video-caption {
+  margin-top: 10px;
+  color: #d7f2ff;
+  font-size: 14px;
+}
+
+.matlab-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.matlab-actions button {
+  width: 100%;
+  font-size: 15px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #00b9ff, #5e66ff);
+  border: none;
+  color: white;
+  box-shadow: 0 6px 20px rgba(0, 185, 255, 0.25);
+}
+
+.matlab-actions button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.matlab-feedback {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 14px;
+}
+
+.matlab-feedback span {
+  display: inline-block;
+}
+
+.matlab-success {
+  border-color: rgba(52, 211, 153, 0.35);
+  color: #c7f9cc;
+}
+
+.matlab-error {
+  border-color: rgba(255, 99, 132, 0.35);
+  color: #ffd5db;
+}
+
+.matlab-info {
+  border-color: rgba(0, 185, 255, 0.35);
+  color: #d7f2ff;
+}
+
+.matlab-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #00b9ff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
